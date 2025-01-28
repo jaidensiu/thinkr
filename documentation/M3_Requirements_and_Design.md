@@ -5,6 +5,7 @@
 
 ## 2. Project Description
 
+Thinkr is an Android mobile app that is geared towards helping students study through AI-generated multiple-choice quizzes and notes. Students can create and share quizzes/notes with other users, and teachers can also generate quizzes for a group of students.
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
