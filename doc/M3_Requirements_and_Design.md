@@ -357,10 +357,10 @@ TODO
 ![Premium Subscription](./image/document-upload-diagram.jpg)
 
 ### **4.7. Non-Functional Requirements Design**
-1. [**[WRITE_NAME_HERE]**](#nfr1)
-    - **Validation**: ...
-2. ...
-
+1. [**[Quiz/flashcard generation performance]**](#nfr1)
+    - **Validation**: We will implement a fan out pattern for extracting text from files by multithreading text extraction for each page (extract multiple pages at the same time). Also, while the user is providing information about the document, we will start uploading the document in the background so that the back-end can start parsing earlier to make quiz/flashcard generation appear a lot faster.
+2. [**[Responsive UI/UX]**](#nfr1)
+    - **Validation**: We will create loading animations for different front-end components, specifically for when the user is waiting for the document to be uploaded and parsed, or waiting for a reply from the back-end.
 
 ### **4.8. Main Project Complexity Design**
 **[WRITE_NAME_HERE]**
