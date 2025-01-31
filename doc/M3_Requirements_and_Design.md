@@ -138,7 +138,7 @@ Note: Users and Students will be used synonymously in this document.
 2. **LLM API: OpenAI or DeepSeek**
     - **Purpose**: Used for the chat-with-document feature, and for generating the quiz and flashcards.
 
-### **4.4 Intefaces**
+### **4.4 Interfaces**
 
 1. **UserService**
 
