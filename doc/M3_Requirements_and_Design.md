@@ -10,8 +10,7 @@ Thinkr is an Android mobile app that is geared towards helping students study th
 ## 3. Requirements Specification
 
 ### **3.1. Use-Case Diagram**
-
-TODO
+![Use Case Diagram](./image/use-case-diagram.jpg)
 
 ### **3.2. Actors Description**
 
@@ -128,7 +127,6 @@ Note: Users and Students will be used synonymously in this document.
     - **Purpose**: Used to persist documents related to a user.
 3. **Chat**
     - **Purpose**: Used to persist chat sessions for each user and related documents.
-
 
 ### **4.3. External Modules**
 
@@ -349,10 +347,14 @@ Note: Users and Students will be used synonymously in this document.
 TODO
 
 ### **4.6. Functional Requirements Sequence Diagram**
-1. [**[WRITE_NAME_HERE]**](#fr1)\
-[SEQUENCE_DIAGRAM_HERE]
-2. ...
+1. [**[Account Setup]**](#fr1)\
+![Account Setup Diagram](./image/user-sign-in-sequence-diagram.jpg)
 
+2. [**[Premium Subscription]**](#fr1)\
+![Premium Subscription](./image/subscription-sequence-diagram.jpg)
+
+3. [**[Document Uploads]**](#fr1)\
+![Premium Subscription](./image/document-upload-diagram.jpg)
 
 ### **4.7. Non-Functional Requirements Design**
 1. [**[WRITE_NAME_HERE]**](#nfr1)
