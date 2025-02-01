@@ -120,15 +120,36 @@ Note: Users and Students will be used synonymously in this document.
 7. **FlashcardsQuizGenerator**
     - **Purpose and rationale**: Use the parsed document to generate and format flashcards and quizzes for the frontend.
 
-### **4.2. Databases** TODO: maybe delete
 
-1. **User**
-    - **Purpose**: Used to persist and relate user information such as account information and its related documents.
-2. **Document**
-    - **Purpose**: Used to persist documents related to a user.
-3. **Chat**
-    - **Purpose**: Used to persist chat sessions for each user and related documents.
+### **4.2. Databases**  
 
+1. **`UserDB`**  
+   - **Purpose**: Stores user account details and study resource associations.  
+   - **Fields**:  
+     - User credentials (username, email, hashed password if not using Google Authenticator)  
+     - Subscription status (Premium or Standard)  
+     - Study resources (list of IDs referencing `StudyResourceDB`)  
+
+2. **`StudyResourceDB`**  
+   - **Purpose**: Stores study materials, including documents, chats, quizzes, and flashcards.  
+   - **Fields**:  
+     - **Document Details**: Name, upload date, embedding id, and path to the S3 object  
+     - **Chat History**: User messages and RAG-generated replies  
+     - **Quizzes**: List of associated questions and answers  
+     - **Flashcards**: Flashcard deck containing front and back text  
+
+3. **`DocumentS3`**  
+   - **Purpose**: Cloud-based storage for user-uploaded documents.  
+   - **Fields**:  
+     - Stored files linked via paths in `StudyResourceDB`  
+     
+
+4. **`EmbeddingsDB`**  
+   - **Purpose**: Stores vector embeddings of documents to enable retrieval for the RAGService.
+   - **Fields**:  
+     - **Document ID**: Reference to the corresponding document in `StudyResourceDB`  
+     - **Embedding Vector**: High-dimensional representation of the document content  
+     
 
 ### **4.3. External Modules**
 
@@ -383,7 +404,10 @@ TODO
     - Coming up with some frameworks, components and interfaces for those components
 
 - **Parshan Javanrood**
-    - TODO
+    - Helped with designing the user flow and Drew screen mockups
+    - Assisted in selecting frameworks for the RAG and AI components based on project requirements
+    - Contributed to the design of core system components, database schema, and evaluating trade-offs between different architectures
+    - Helped define both functional and non-functional requirements to align with project objectives
 
 - **Jaiden Siu**
     - Worked on design specifications of main components, interfaces, and tech stack
