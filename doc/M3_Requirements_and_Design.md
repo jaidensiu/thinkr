@@ -366,7 +366,7 @@ Note: Users and Students will be used synonymously in this document.
 
 ### **4.6. Dependencies Diagram**
 
-TODO
+![Dependency Diagram](./image/design-diagram.jpg)
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. [**[Account Setup]**](#fr1)\
