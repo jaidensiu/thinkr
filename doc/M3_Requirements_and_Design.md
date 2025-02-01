@@ -35,9 +35,9 @@ Note: Users and Students will be used synonymously in this document.
     - **Primary actor(s)**: Premium and regular users.
     - **Main success scenario**:
         - User successfully completes their purchase and obtains premium status.
-        - User’s billing cycle is accurate.
+        - User's billing cycle is accurate.
     - **Failure scenario(s)**:
-        - User’s payment method fails.
+        - User's payment method fails.
             - Shows an error screen and asks the user to check if the payment card is valid.
 
 3. **Document Uploads**
@@ -59,7 +59,7 @@ Note: Users and Students will be used synonymously in this document.
     - **Failure scenario(s)**:
         - App fails to return a response because of the Network Error.
             - Show a message asking user to check their connection.
-        - User’s message exceeds the context length limit.
+        - User's message exceeds the context length limit.
             - Disable the send button, and user cannot send until they shorten their input.
 
 5. **Review Flashcards**
@@ -378,6 +378,19 @@ TODO
 3. [**[Document Uploads]**](#fr1)\
 ![Premium Subscription](./image/document-upload-diagram.jpg)
 
+4. [**[Conversational AI]**](#fr1)\
+![Chat Diagram](./image/chat-sequence-diagram.jpg)
+
+5. [**[Document Parser]**](#fr1)\
+![Document Parser Diagram](./image/document-parser-sequence-diagram.jpg)
+
+6. [**[RAG Service]**](#fr1)\
+![RAGService Diagram](./image/rag-sequence-diagram.jpg)
+
+7. [**[Review Flashcards]**](#fr1)\
+![Flashcards Diagram](./image/flashcards-sequence-diagram.jpg)
+
+
 ### **4.7. Non-Functional Requirements Design**
 1. [**[Quiz/flashcard generation performance]**](#nfr1)
     - **Validation**: We will implement a fan out pattern for extracting text from files by multithreading text extraction for each page (extract multiple pages at the same time). Also, while the user is providing information about the document, we will start uploading the document in the background so that the back-end can start parsing earlier to make quiz/flashcard generation appear a lot faster.
@@ -385,18 +398,94 @@ TODO
     - **Validation**: We will create loading animations for different front-end components, specifically for when the user is waiting for the document to be uploaded and parsed, or waiting for a reply from the back-end.
 
 ### **4.8. Main Project Complexity Design**
-**[WRITE_NAME_HERE]**
-- **Description**: ...
-- **Why complex?**: ...
+
+**Fan-in Fan-out Document Processing**
+- **Description**: A parallel processing pattern used to efficiently extract and process text from uploaded documents by splitting the document into pages and processing them concurrently.
+- **Why complex?**: Requires careful coordination of multiple concurrent processes, handling of race conditions, and efficient aggregation of results. The system must maintain document order while maximizing throughput and managing system resources effectively.
 - **Design**:
-    - **Input**: ...
-    - **Output**: ...
-    - **Main computational logic**: ...
-    - **Pseudo-code**: ...
-        ```
+    - **Input**: PDF or image document with multiple pages
+    - **Output**: Processed text content with preserved page order and structure
+    - **Main computational logic**: 
+        1. Fan-out phase splits document into individual pages
+        2. Each page is processed independently in parallel
+        3. Fan-in phase aggregates results while maintaining order
+    - **Pseudo-code**:
+        ```python
+        async def process_document(document):
+            # Fan-out: Split document into pages
+            pages = split_into_pages(document)
+            tasks = []
+            
+            # Create concurrent tasks for each page
+            for page in pages:
+                task = create_task(process_page(page))
+                tasks.append(task)
+            
+            # Fan-in: Wait for all tasks and combine results
+            processed_pages = []
+            for task in tasks:
+                result = await task
+                processed_pages.append(result)
+            
+            # Maintain original document order
+            return combine_pages(processed_pages)
         
+        async def process_page(page):
+            # Extract text using OCR
+            text = await extract_text(page)
+            # Process text (cleanup, formatting)
+            processed_text = await process_text(text)
+            return processed_text
         ```
 
+**Retrieval Augmented Generation (RAG)**
+- **Description**: An AI architecture that enhances Large Language Model responses by providing relevant context from the user's uploaded documents.
+- **Why complex?**: Requires sophisticated vector embeddings, efficient similarity search, prompt engineering, and careful integration of retrieved context with the LLM's generation process.
+- **Design**:
+    - **Input**: User query and document collection
+    - **Output**: Contextually relevant AI response
+    - **Main computational logic**:
+        1. Convert documents into vector embeddings
+        2. Store embeddings in vector database
+        3. Convert user query to embedding
+        4. Retrieve relevant document chunks
+        5. Construct prompt with retrieved context
+        6. Generate response using LLM
+    - **Pseudo-code**:
+        ```python
+        class RAGService:
+            def __init__(self):
+                self.vector_db = ChromaDB()
+                self.embedding_model = SentenceTransformer()
+                self.llm = OpenAI()
+            
+            async def process_document(self, document):
+                # Generate embeddings for document chunks
+                chunks = self.chunk_document(document)
+                embeddings = [
+                    self.embedding_model.encode(chunk)
+                    for chunk in chunks
+                ]
+                # Store in vector database
+                self.vector_db.add(embeddings, chunks)
+            
+            async def generate_response(self, query):
+                # Convert query to embedding
+                query_embedding = self.embedding_model.encode(query)
+                
+                # Retrieve relevant contexts
+                relevant_chunks = self.vector_db.similarity_search(
+                    query_embedding,
+                    k=3  # Get top 3 most relevant chunks
+                )
+                
+                # Construct prompt with context
+                prompt = self.construct_prompt(query, relevant_chunks)
+                
+                # Generate response using LLM
+                response = await self.llm.generate(prompt)
+                return response
+        ```
 
 ## 5. Contributions
 
@@ -419,4 +508,7 @@ TODO
     - Participated in frontend design and mockups discussions
 
 - **Anthony Ji**
-    - TODO
+    - Worked on the system design with focus on scalability and performance
+    - Instantiated and worked on the algorithm implementation design including constraints, logics, and architecture
+    - Created sequence diagrams for functional requirements 4-7 (Conversational AI, Document Parser, RAG Service, Review Flashcards)
+    - Planned and designed the Gen AI orchestrator for efficient document processing and response generation
