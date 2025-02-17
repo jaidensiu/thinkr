@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.thinkr.ui.home.HomeScreen
+import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreen
 import com.example.thinkr.ui.landing.LandingScreenViewModel
 import com.example.thinkr.ui.theme.ThinkrTheme
