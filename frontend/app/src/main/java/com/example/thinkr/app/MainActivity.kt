@@ -13,7 +13,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.landing.LandingScreen
+import com.example.thinkr.ui.landing.LandingScreenViewModel
 import com.example.thinkr.ui.theme.ThinkrTheme
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,11 +28,13 @@ class MainActivity : ComponentActivity() {
                 Column(modifier = Modifier.padding(start = 24.dp, top = 48.dp, end = 24.dp)) {
                     NavHost(
                         navController = navController,
-                        startDestination = Route.Landing
+                        startDestination = Route.Landing // TODO: add a check here if authed and cache it in sqlite
                     ) {
-
                         composable<Route.Landing> {
+                            val viewModel = koinViewModel<LandingScreenViewModel>()
+
                             LandingScreen(
+                                viewModel = viewModel,
                                 onLogin = { navController.navigate(route = Route.Home) },
                                 onSignUp = { navController.navigate(route = Route.Home) }
                             )
