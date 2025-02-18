@@ -49,14 +49,16 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
+import com.example.thinkr.domain.model.DocumentItem
 
 @Composable
-fun HomeScreen(viewModel: HomeScreenViewModel = koinViewModel()) {
+fun HomeScreen(navController: NavController, viewModel: HomeScreenViewModel = koinViewModel()) {
     val state = viewModel.state.collectAsState()
 
     HomeScreenContent(
         state = state,
-        onAction = { action -> viewModel.onAction(action) }
+        onAction = { action -> viewModel.onAction(action, navController) }
     )
 }
 
@@ -80,14 +82,14 @@ fun HomeScreenContent(
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(48.dp)
-                    .clickable { onAction(HomeScreenAction.LeftButtonClicked) }
+                    .clickable { onAction(HomeScreenAction.BackButtonClicked) }
             )
             Image(
                 painter = painterResource(id = R.drawable.account_circle),
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(48.dp)
-                    .clickable { onAction(HomeScreenAction.RightButtonClicked) }
+                    .clickable { onAction(HomeScreenAction.ProfileButtonClicked) }
             )
         }
 
@@ -237,12 +239,12 @@ fun FilePickerDialog(onDismiss: () -> Unit = {}) {
 }
 
 @Composable
-fun ListItem(item: Item, onAction: (HomeScreenAction) -> Unit = {}) {
+fun ListItem(item: DocumentItem, onAction: (HomeScreenAction) -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                onAction(HomeScreenAction.ItemClicked)
+                onAction(HomeScreenAction.DocumentItemClicked(documentItem = item))
             }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically

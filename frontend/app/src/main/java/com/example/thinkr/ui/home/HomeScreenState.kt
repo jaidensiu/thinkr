@@ -1,19 +1,17 @@
 package com.example.thinkr.ui.home
 
-data class HomeScreenState(
-    val items: List<Item> = emptyList(),
-    val showDialog: Boolean = false
-)
+import com.example.thinkr.domain.model.DocumentItem
 
-data class Item(
-    val name: String,
-    val logoUrl: String
+data class HomeScreenState(
+    val items: List<DocumentItem> = emptyList(),
+    val showDialog: Boolean = false,
+    val clickedDocumentItem: DocumentItem? = null
 )
 
 sealed class HomeScreenAction {
-    object LeftButtonClicked : HomeScreenAction()
-    object RightButtonClicked : HomeScreenAction()
-    object ItemClicked : HomeScreenAction()
+    object BackButtonClicked : HomeScreenAction()
+    object ProfileButtonClicked : HomeScreenAction()
+    data class DocumentItemClicked(val documentItem: DocumentItem) : HomeScreenAction()
     object AddButtonClicked : HomeScreenAction()
     object DismissDialog : HomeScreenAction()
     object OpenFilePicker : HomeScreenAction()

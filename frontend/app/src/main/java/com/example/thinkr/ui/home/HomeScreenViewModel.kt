@@ -1,17 +1,20 @@
 package com.example.thinkr.ui.home
 
 import androidx.lifecycle.ViewModel
+import com.example.thinkr.domain.model.DocumentItem
 import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.navigation.NavController
+import com.example.thinkr.app.Route
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class HomeScreenViewModel : ViewModel() {
-    private fun getItems(): List<Item> {
+    private fun getItems(): List<DocumentItem> {
         // TODO: In the future here will be an HTTP call to retrieve the items
         return listOf(
-            Item("Item 1", "https://via.placeholder.com/40"),
-            Item("Item 2", "https://via.placeholder.com/40"),
-            Item("Item 3", "https://via.placeholder.com/40")
+            DocumentItem("defaultUser", "Item1"),
+            DocumentItem("defaultUser", "Item2"),
+            DocumentItem("defaultUser", "Item3"),
         )
     }
 
@@ -21,17 +24,16 @@ class HomeScreenViewModel : ViewModel() {
 
     var state: StateFlow<HomeScreenState> = _state.asStateFlow()
 
-
-    fun onAction(action: HomeScreenAction) {
+    fun onAction(action: HomeScreenAction, navController: NavController) {
         when (action) {
-            HomeScreenAction.LeftButtonClicked -> {
-                // Handle left button action
+            HomeScreenAction.BackButtonClicked -> {
+                // Route to Login page
             }
-            HomeScreenAction.RightButtonClicked -> {
-                // Handle right button action
+            HomeScreenAction.ProfileButtonClicked -> {
+                // Route to Profile
             }
-            HomeScreenAction.ItemClicked -> {
-                // Handle item click action
+            is HomeScreenAction.DocumentItemClicked -> {
+                navController.navigate(Route.DocumentOptions.createRoute(action.documentItem))
             }
             HomeScreenAction.AddButtonClicked -> {
                 // Handle add button click action
@@ -43,6 +45,7 @@ class HomeScreenViewModel : ViewModel() {
             }
             HomeScreenAction.OpenFilePicker -> {
                 // Handle open file picker action
+
             }
         }
     }
