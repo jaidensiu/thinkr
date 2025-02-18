@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.ui.document_details.DocumentDetails
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
 import com.example.thinkr.ui.landing.LandingScreen
@@ -52,11 +53,20 @@ class MainActivity : ComponentActivity() {
 
                         composable(
                             route = Route.DocumentOptions.ROUTE,
-                            arguments = listOf(navArgument("documentJson") { type = NavType.StringType })
+                            arguments = listOf(navArgument(Route.DocumentOptions.ARGUMENT) { type = NavType.StringType })
                         ) { backStackEntry ->
-                            val json = backStackEntry.arguments?.getString("documentJson") ?: ""
+                            val json = backStackEntry.arguments?.getString(Route.DocumentOptions.ARGUMENT) ?: ""
                             val document = Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
                             DocumentOptionsScreen(document)
+                        }
+
+                        composable(
+                            route = Route.DocumentDetails.ROUTE,
+                            arguments = listOf(navArgument(Route.DocumentDetails.ARGUMENT) { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val json = backStackEntry.arguments?.getString(Route.DocumentDetails.ARGUMENT) ?: ""
+                            val selectedUri = Uri.parse(Uri.decode(json))
+                            DocumentDetails(selectedUri)
                         }
                     }
                 }

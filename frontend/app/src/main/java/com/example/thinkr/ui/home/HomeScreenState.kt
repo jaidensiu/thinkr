@@ -1,5 +1,6 @@
 package com.example.thinkr.ui.home
 
+import android.net.Uri
 import com.example.thinkr.domain.model.DocumentItem
 
 data class HomeScreenState(
@@ -14,5 +15,5 @@ sealed class HomeScreenAction {
     data class DocumentItemClicked(val documentItem: DocumentItem) : HomeScreenAction()
     object AddButtonClicked : HomeScreenAction()
     object DismissDialog : HomeScreenAction()
-    object OpenFilePicker : HomeScreenAction()
+    data class FileSelected(val selectedUri: Uri) : HomeScreenAction()
 }

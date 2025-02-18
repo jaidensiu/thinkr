@@ -43,9 +43,9 @@ class HomeScreenViewModel : ViewModel() {
                 // Handle dismiss dialog action
                 _state.value = _state.value.copy(showDialog = false)
             }
-            HomeScreenAction.OpenFilePicker -> {
-                // Handle open file picker action
-
+            is HomeScreenAction.FileSelected -> {
+                // Handle file selected action
+                navController.navigate(Route.DocumentDetails.createRoute(action.selectedUri))
             }
         }
     }

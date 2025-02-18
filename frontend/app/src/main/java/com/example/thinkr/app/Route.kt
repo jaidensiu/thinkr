@@ -20,9 +20,21 @@ sealed interface Route {
     data class DocumentOptions(val documentItem: DocumentItem) : Route {
         companion object {
             const val ROUTE = "documentOptions/{documentJson}"
+            const val ARGUMENT = "documentJson"
             fun createRoute(document: DocumentItem): String {
                 val json = Json.encodeToString(document)
                 return ROUTE.replace("{documentJson}", Uri.encode(json))
+            }
+        }
+    }
+
+    @Serializable
+    data class DocumentDetails(val selectedUri: String) : Route {
+        companion object {
+            const val ROUTE = "documentDetails/{selectedUri}"
+            const val ARGUMENT = "selectedUri"
+            fun createRoute(selectedUri: Uri): String {
+                return ROUTE.replace("{selectedUri}", Uri.encode(selectedUri.toString()))
             }
         }
     }
