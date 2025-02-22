@@ -8,16 +8,22 @@
     "start": "tsc && node dist/index.js",
     "lint": "prettier --check ./src",
     "lint-apply": "prettier --write ./src",
-    "dev": "nodemon ./src/index.ts"
+    "dev": "nodemon ./src/index.ts",
+    "init-chroma": "ts-node src/scripts/initChroma.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@langchain/community": "^0.3.32",
+    "@langchain/core": "^0.3.40",
+    "@langchain/openai": "^0.4.4",
+    "chromadb": "^1.10.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.2",
+    "langchain": "^0.3.19",
     "mongoose": "^8.10.1"
   },
   "devDependencies": {
