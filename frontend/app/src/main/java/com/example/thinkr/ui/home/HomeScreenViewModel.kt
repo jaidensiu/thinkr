@@ -30,7 +30,7 @@ class HomeScreenViewModel : ViewModel() {
                 // Route to Login page
             }
             HomeScreenAction.ProfileButtonClicked -> {
-                // Route to Profile
+                navController.navigate(Route.Profile)
             }
             is HomeScreenAction.DocumentItemClicked -> {
                 navController.navigate(Route.DocumentOptions.createRoute(action.documentItem))
