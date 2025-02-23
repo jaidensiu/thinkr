@@ -15,7 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.thinkr.domain.model.DocumentItem
-import com.example.thinkr.ui.document_details.DocumentDetails
+import com.example.thinkr.ui.document_details.DocumentDetailsScreen
 import androidx.navigation.navigation
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                                     backStackEntry.arguments?.getString(Route.DocumentDetails.ARGUMENT)
                                         ?: ""
                                 val selectedUri = Uri.parse(Uri.decode(json))
-                                DocumentDetails(selectedUri)
+                                DocumentDetailsScreen(navController, selectedUri)
                             }
 
                             composable<Route.Home> {
