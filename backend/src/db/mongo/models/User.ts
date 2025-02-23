@@ -1,8 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
 
-/**
- * Interface representing a user in database for data transfer between backend <-> DB
- */
 export interface IUser extends Document {
     email: string;
     name?: string;
