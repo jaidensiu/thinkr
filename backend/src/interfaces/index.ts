@@ -15,3 +15,13 @@ export interface UserDTO {
     googleId?: string;
     id: string;
 }
+
+/**
+ * Represents a document for data transfer between frontend <-> backend
+ */
+export interface DocumentDTO {
+    url?: string;
+    name: string;
+    uploadTime: string;
+}
+
