@@ -31,6 +31,7 @@ fun PaymentScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Payment information")
+        Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = state.cardNumber,
             onValueChange = { viewModel.onCardNumberChange(it) },
