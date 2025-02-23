@@ -16,6 +16,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -54,7 +56,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.thinkr.R
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.ui.shared.ListItem
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -218,27 +220,33 @@ fun FilePickerDialog(onDismiss: () -> Unit = {}, onSelected: (Uri) -> Unit) {
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            modifier = Modifier.padding(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            modifier = Modifier.fillMaxWidth(0.9f),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                Text(text = "Select a File", style = MaterialTheme.typography.headlineSmall)
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { checkStoragePermission() }) {
-                    Text(text = "Choose File")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                selectedFileUri?.let {
-                    Text(text = "File Name: ${selectedFileName ?: "Unknown"}")
-                    Text(text = "URI: $it")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = onDismiss) {
-                    Text(text = "Close")
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Select a File", style = MaterialTheme.typography.headlineSmall)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { checkStoragePermission() }) {
+                        Text(text = "Choose File")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    selectedFileUri?.let {
+                        Text(text = "File Name: ${selectedFileName ?: "Unknown"}")
+                        Text(text = "URI: $it")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = onDismiss) {
+                        Text(text = "Close")
+                    }
                 }
             }
         }
@@ -247,34 +255,6 @@ fun FilePickerDialog(onDismiss: () -> Unit = {}, onSelected: (Uri) -> Unit) {
     if (selectedFileUri != null) {
         onDismiss()
         onSelected(selectedFileUri!!)
-    }
-}
-
-@Composable
-fun ListItem(item: DocumentItem, onAction: (HomeScreenAction) -> Unit = {}) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                onAction(HomeScreenAction.DocumentItemClicked(documentItem = item))
-            }
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Circular logo
-        Image(
-            painter = painterResource(id = R.drawable.document_placeholder_logo),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        // Name
-        Text(text = item.name, fontSize = 18.sp, fontWeight = FontWeight.Medium)
     }
 }
 
