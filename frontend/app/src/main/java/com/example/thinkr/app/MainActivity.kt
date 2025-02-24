@@ -19,6 +19,7 @@ import com.example.thinkr.ui.document_details.DocumentDetailsScreen
 import androidx.navigation.navigation
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
+import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreen
 import com.example.thinkr.ui.landing.LandingScreenViewModel
 import com.example.thinkr.ui.payment.PaymentScreen
@@ -26,12 +27,21 @@ import com.example.thinkr.ui.payment.PaymentViewModel
 import com.example.thinkr.ui.profile.ProfileScreen
 import com.example.thinkr.ui.profile.ProfileViewModel
 import com.example.thinkr.ui.theme.ThinkrTheme
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
+    lateinit var googleSignInClient: GoogleSignInClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
@@ -42,7 +52,6 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = Route.RouteGraph
                     ) {
-                        // TODO: add a check here if authed and cache it in sqlite
                         navigation<Route.RouteGraph>(startDestination = Route.Landing) {
                             composable<Route.Landing> {
                                 val viewModel = koinViewModel<LandingScreenViewModel>()
@@ -55,7 +64,19 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable<Route.Home> {
-                                HomeScreen(navController = navController)
+                                val viewModel = koinViewModel<HomeScreenViewModel>()
+
+                                HomeScreen(
+                                    navController = navController,
+                                    viewModel = viewModel,
+                                    onSignOut = {
+                                        googleSignInClient.signOut().addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                navController.navigate(Route.Landing)
+                                            }
+                                        }
+                                    }
+                                )
                             }
 
                             composable(
@@ -83,10 +104,6 @@ class MainActivity : ComponentActivity() {
                                         ?: ""
                                 val selectedUri = Uri.parse(Uri.decode(json))
                                 DocumentDetailsScreen(navController, selectedUri)
-                            }
-
-                            composable<Route.Home> {
-                                HomeScreen(navController = navController)
                             }
 
                             composable<Route.Profile> {

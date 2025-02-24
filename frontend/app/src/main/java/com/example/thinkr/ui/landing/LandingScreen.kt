@@ -1,5 +1,7 @@
 package com.example.thinkr.ui.landing
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,6 +35,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.thinkr.app.MainActivity
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -45,6 +49,13 @@ fun LandingScreen(
     val focusManager = LocalFocusManager.current
     val focusRequester = FocusRequester()
     var passwordVisible by remember { mutableStateOf(value = false) }
+    val context = LocalContext.current
+    val activity = context as MainActivity
+    val signInIntent = activity.googleSignInClient.signInIntent
+    val signInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = { onLogin() }
+    )
 
     Column(
         modifier = Modifier
@@ -121,6 +132,13 @@ fun LandingScreen(
             modifier = Modifier.fillMaxWidth(fraction = 0.5f)
         ) {
             Text(text = "Sign Up")
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = { signInLauncher.launch(signInIntent) },
+            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+        ) {
+            Text(text = "Sign in with Google")
         }
     }
 }

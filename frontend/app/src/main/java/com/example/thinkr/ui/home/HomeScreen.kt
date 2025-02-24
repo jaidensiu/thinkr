@@ -27,11 +27,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -55,19 +57,44 @@ import com.example.thinkr.ui.shared.ListItem
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeScreenViewModel = koinViewModel()) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: HomeScreenViewModel = koinViewModel(),
+    onSignOut: () -> Unit
+) {
     val state = viewModel.state.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Sign Out") },
+            text = { Text(text = "Are you sure you want to sign out?") },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false; onSignOut() }) {
+                    Text(text = "Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(text = "No")
+                }
+            }
+        )
+    }
 
     HomeScreenContent(
         state = state,
-        onAction = { action -> viewModel.onAction(action, navController) }
+        onAction = { action -> viewModel.onAction(action, navController) },
+        onSignOut = { showDialog = true }
     )
 }
 
 @Composable
 fun HomeScreenContent(
     state: State<HomeScreenState>,
-    onAction: (HomeScreenAction) -> Unit
+    onAction: (HomeScreenAction) -> Unit,
+    onSignOut: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -79,13 +106,9 @@ fun HomeScreenContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.arrow_back),
-                contentDescription = "Back",
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable { onAction(HomeScreenAction.BackButtonClicked) }
-            )
+            TextButton(onClick = onSignOut) {
+                Text(text = "Sign out")
+            }
             Image(
                 painter = painterResource(id = R.drawable.account_circle),
                 contentDescription = "Back",
