@@ -1,5 +1,6 @@
 package com.example.thinkr.ui.landing
 
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -36,6 +37,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thinkr.app.MainActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -53,9 +58,11 @@ fun LandingScreen(
     val activity = context as MainActivity
     val signInIntent = activity.googleSignInClient.signInIntent
     val signInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = { onLogin() }
-    )
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        handleSignInResult(task, onLogin)
+    }
 
     Column(
         modifier = Modifier
@@ -140,5 +147,18 @@ fun LandingScreen(
         ) {
             Text(text = "Sign in with Google")
         }
+    }
+}
+
+private fun handleSignInResult(
+    completedTask: Task<GoogleSignInAccount>,
+    onLogin: () -> Unit
+) {
+    try {
+        val account = completedTask.getResult(ApiException::class.java)
+        onLogin()
+        Log.d("ServerScreen", "Sign-in successful: ${account?.email}")
+    } catch (e: ApiException) {
+        Log.e("ServerScreen", "Sign-in failed: ${e.statusCode}", e)
     }
 }

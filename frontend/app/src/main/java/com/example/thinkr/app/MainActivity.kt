@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
@@ -14,11 +15,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import com.example.thinkr.domain.model.DocumentItem
 import com.example.thinkr.ui.document_details.DocumentDetailsScreen
-import androidx.navigation.navigation
-import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
+import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreen
 import com.example.thinkr.ui.landing.LandingScreenViewModel
@@ -45,6 +46,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            val account = remember { GoogleSignIn.getLastSignedInAccount(this) }
+            val startDestination = remember { if (account != null) Route.Home else Route.Landing }
 
             ThinkrTheme {
                 Column(modifier = Modifier.padding(start = 24.dp, top = 48.dp, end = 24.dp)) {
@@ -52,7 +55,7 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = Route.RouteGraph
                     ) {
-                        navigation<Route.RouteGraph>(startDestination = Route.Landing) {
+                        navigation<Route.RouteGraph>(startDestination = startDestination) {
                             composable<Route.Landing> {
                                 val viewModel = koinViewModel<LandingScreenViewModel>()
 

@@ -63,7 +63,7 @@ fun HomeScreen(
     onSignOut: () -> Unit
 ) {
     val state = viewModel.state.collectAsState()
-    var showDialog by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(value = false) }
 
     if (showDialog) {
         AlertDialog(
