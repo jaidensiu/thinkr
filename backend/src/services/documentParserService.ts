@@ -1,7 +1,6 @@
 import {
     TextractClient,
-    AnalyzeDocumentCommand,
-    FeatureType,
+    DetectDocumentTextCommand,
 } from '@aws-sdk/client-textract';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -32,15 +31,10 @@ class DocumentParser {
                     Name: s3FilePath,
                 },
             },
-            FeatureTypes: [
-                FeatureType.TABLES,
-                FeatureType.FORMS,
-                FeatureType.SIGNATURES,
-            ],
         };
 
         try {
-            const command = new AnalyzeDocumentCommand(params);
+            const command = new DetectDocumentTextCommand(params);
             const response = await this.textractClient.send(command);
 
             let extractedText = '';
@@ -51,7 +45,7 @@ class DocumentParser {
                     }
                 }
             }
-
+            
             return extractedText.trim();
         } catch (error) {
             console.error('Error extracting text from PDF:', error);
