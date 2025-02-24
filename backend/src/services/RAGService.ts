@@ -143,9 +143,31 @@ class RAGService {
     }
 
     /**
+     * Fetch documents from vectorDB collection based on the embeddingIDs provided
+     */
+    public async fetchDocumentsFromVectorDB(
+        embeddingIds: string[],
+        collectionName: string
+    ): Promise<string[]> {
+        try {
+            await this.ensureVectorStore(collectionName);
+
+            const results = await this.vectorStore!.collection!.get({
+                ids: embeddingIds,
+            });
+
+            const documents = results.documents as string[];
+            return documents;
+        } catch (error) {
+            console.error('Error fetching documents from ChromaDB:', error);
+            throw new Error('Failed to fetch documents from ChromaDB');
+        }
+    }
+
+    /**
      * Fetch relevant documents based on query similarity
      */
-    public async fetchRelevantDocuments(
+    public async fetchRelevantDocumentsFromQuery(
         query: string,
         collectionName: string
     ): Promise<Document<DocumentMetadata>[]> {

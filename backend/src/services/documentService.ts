@@ -84,7 +84,7 @@ class DocumentService {
 
         return {
             name: file.originalname,
-            uploadTime: dateFormatted
+            uploadTime: dateFormatted,
         } as DocumentDTO;
     }
 
@@ -151,7 +151,6 @@ class DocumentService {
         email: string,
         expiresIn: number = 3600
     ): Promise<DocumentDTO> {
-
         let params = {
             Bucket: this.bucketName,
             Key: `${email}-${key}`,
@@ -161,12 +160,12 @@ class DocumentService {
         const documentUrl = await getSignedUrl(this.s3Client, command, {
             expiresIn,
         });
-        const doc = await Document.findOne({ s3Path: `${email}-${key}`})
-          
+        const doc = await Document.findOne({ s3Path: `${email}-${key}` });
+
         return {
             url: documentUrl,
             name: key,
-            uploadTime: doc!.uploadDate 
+            uploadTime: doc!.uploadDate,
         } as DocumentDTO;
     }
 
@@ -174,7 +173,10 @@ class DocumentService {
      * Retrieves multiple documents from s3
      *
      */
-    public async getDocuments(keys: string[], email: string): Promise<DocumentDTO[]> {
+    public async getDocuments(
+        keys: string[],
+        email: string
+    ): Promise<DocumentDTO[]> {
         let documents;
         if (keys) {
             documents = await Promise.all(
