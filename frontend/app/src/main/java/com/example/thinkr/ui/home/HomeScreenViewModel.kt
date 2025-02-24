@@ -1,10 +1,10 @@
 package com.example.thinkr.ui.home
 
 import androidx.lifecycle.ViewModel
-import com.example.thinkr.domain.model.DocumentItem
-import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.navigation.NavController
 import com.example.thinkr.app.Route
+import com.example.thinkr.domain.model.DocumentItem
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -27,7 +27,7 @@ class HomeScreenViewModel : ViewModel() {
     fun onAction(action: HomeScreenAction, navController: NavController) {
         when (action) {
             HomeScreenAction.BackButtonClicked -> {
-                // Route to Login page
+                navController.navigate(Route.Landing)
             }
             HomeScreenAction.ProfileButtonClicked -> {
                 navController.navigate(Route.Profile)
