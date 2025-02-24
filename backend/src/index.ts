@@ -4,6 +4,7 @@ import authRouter from './routes/userAuthRoutes';
 import connectMongoDB from './db/mongo/connection';
 import RAGService from './services/RAGService';
 import documentRouter from './routes/documentRoutes';
+import studyRouter from './routes/studyRoutes';
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ const app = express();
 app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/document', documentRouter);
+app.use('/study', studyRouter);
 
 // RAG endpoint
 app.post('/rag/query', (req: Request, res: Response): Promise<void> => {
@@ -29,7 +31,7 @@ app.post('/rag/query', (req: Request, res: Response): Promise<void> => {
                 vectorStoreUrl: process.env.VECTOR_STORE_URL!,
             });
 
-            const documents = await ragService.fetchRelevantDocuments(
+            const documents = await ragService.fetchRelevantDocumentsFromQuery(
                 query,
                 'documents'
             );

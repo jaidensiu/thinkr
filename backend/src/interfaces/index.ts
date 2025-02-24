@@ -25,3 +25,10 @@ export interface DocumentDTO {
     uploadTime: string;
 }
 
+/**
+ * Represents a flashcard for data transfer between frontend <-> backend
+ */
+export interface FlashCardDTO {
+    front: string;
+    back: string;
+}
