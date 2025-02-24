@@ -42,12 +42,12 @@
   ```json
   {
       "data": {
-         "token":  <string> // jwt access token,
+         "token":  "jwt access token",
          "user": { 
-               "email": <string>,
-               "name": <string>,
-               "googleId": <string>,
-               "id": <string> // db user id
+               "email": "user email",
+               "name": "user name",
+               "googleId": "google id of user",
+               "id": "unique mongodb user id" // db user id
          }
       }
    }
@@ -95,7 +95,7 @@
   - Body: raw
    ```json
    {
-      "email": "your email",
+      "email": "user email",
       "paths": [
          "name of first file you want to delete",
          "name of second file you want to delete"
@@ -106,14 +106,14 @@
 
   - Endpoint: `/document/retrieve`
   - Method: `GET`
-  - Body: raw
+  - Body: raw, paths is an OPTIONAL field
   ```json
    {
-      "email": "rayhownh@gmail.com",
+      "email": "user email",
       "paths": [
          "name of first file you want",
          "name of second file you want"
-      ] // optional
+      ]
    }
   ```
   - Response:
@@ -135,4 +135,34 @@
       }
    }
   ```
-  - Note: Returns all of the user's files if no paths are provided
+  - Note: Returns all of the user's files if no paths are provided for `GET /document/retrieve`. The `paths` must include file types (e.g. `file1.pdf` is one path, not `file1` by itself)
+
+- **Study:**
+  - Endpoint: `/study/flashcards`
+  - Method: `POST`
+  - Headers: `Authorization: Bearer <Google ID Token>`
+  - Body: raw
+  ```json
+   {
+      "email": "user email",
+      "paths": [
+         "first file name"
+      ]
+   }
+  ```
+  - Response:
+  ```json
+  {
+      "data": [
+         {
+            "front": "first word",
+            "back": "definition of first word"
+        },
+        {
+            "front": "second word",
+            "back": "definition of second word"
+        },
+      ]
+   }
+   ```
+   - Note: The `paths` must include the file type in the string (e.g. `file1.pdf` is a valid path, not `file1` by itself).
