@@ -47,7 +47,7 @@
                "email": "user email",
                "name": "user name",
                "googleId": "google id of user",
-               "id": "unique mongodb user id" // db user id
+               "id": "unique mongodb user id"
          }
       }
    }
@@ -97,8 +97,8 @@
    {
       "email": "user email",
       "paths": [
-         "name of first file you want to delete",
-         "name of second file you want to delete"
+         "path of first file",
+         "path of second file"
       ]
    }
    ```
@@ -111,8 +111,8 @@
    {
       "email": "user email",
       "paths": [
-         "name of first file you want",
-         "name of second file you want"
+         "path of first file",
+         "path of second file"
       ]
    }
   ```
@@ -146,7 +146,7 @@
    {
       "email": "user email",
       "paths": [
-         "first file name"
+         "first file path"
       ]
    }
   ```
