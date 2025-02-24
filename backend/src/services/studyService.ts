@@ -1,11 +1,8 @@
-import { ChatPromptTemplate, PromptTemplate } from '@langchain/core/prompts';
-import { ChatOpenAI, OpenAI } from '@langchain/openai';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { ChatOpenAI } from '@langchain/openai';
 import { FlashCardDTO } from '../interfaces';
 import RAGService from './RAGService';
-import {
-    JsonOutputParser,
-    StructuredOutputParser,
-} from '@langchain/core/output_parsers';
+import { StructuredOutputParser } from '@langchain/core/output_parsers';
 import { z } from 'zod';
 
 class StudyService {
