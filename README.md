@@ -330,8 +330,9 @@
    {
       "userId": "your user id"
    }
-   ```json
-   - Response
+  ```
+  - Response
+  ```json
       {
       "data": {
          "email": "user email",
@@ -350,8 +351,9 @@
    {
       "userId": "your user id"
    }
-   ```json
-   - Response
+  ```
+  - Response
+  ```json
       {
       "data": {
          "email": "user email",
@@ -361,4 +363,5 @@
          "subscribed": false
       }
    }
+  ```
    ```
