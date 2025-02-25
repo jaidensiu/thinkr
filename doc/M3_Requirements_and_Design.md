@@ -80,6 +80,15 @@ Note: Users and Students will be used synonymously in this document.
         - AI fails to generate a quiz because it was unable to parse the document.
             - Tells the user to try again, by either clicking the button or uploading the docs.
 
+7. **Retrieve Previous Documents, Flashcards, Quizzes, and AI Conversation**
+    - **Description**: Users can retrieve previously uploaded documents, and have access to the previously generated flashcards, quiz, and chat.
+    - **Primary actor(s)**: Regular and Premium Users.
+    - **Main success scenario**:
+        - Users can access previously uploaded documents.
+    - **Failure scenario(s)**:
+        - Users are unable to access previously uploaded documents.
+            - Shows an error message asking the user to try again.
+
 ### **3.4. Screen Mockups**
 
 ![frontend design](image/frontend-designs.jpg)
@@ -202,20 +211,20 @@ Note: Users and Students will be used synonymously in this document.
     Result deleteDocument(Document document);
 
     /**
-     * Invoked when user edits an existing document.
-     *
-     * @param document the document to be edited
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result editDocument(Document document);
-
-    /**
      * Invoked when user views an existing document.
      *
      * @param id the id of the document to be viewed
      * @return the Document object corresponding to the given id
      */
     Document viewDocument(int id);
+   
+    /**
+     * Invoked when user wants to view all documents.
+     *
+     * @param userId the id of the user
+     * @return a list of Document objects corresponding to the user
+     */
+   List<Document> getDocuments(int userId);
     ```
 
 3. **Subscription**
@@ -255,6 +264,14 @@ Note: Users and Students will be used synonymously in this document.
      * @return a Result object indicating the success or failure of the operation
      */
     Result receiveMessage(String message);
+
+    /**
+     * Invoked when user wants to retrieve older chat.
+     *
+     * @param userId for the user
+     * @return a Result object indicating the success or failure of the operation
+     */
+    Result retrieveChat(int userId)
     ```
 
 5. **DocumentParser**
@@ -324,6 +341,22 @@ Note: Users and Students will be used synonymously in this document.
      * @return a string containing the formatted flashcards in JSON
      */
     String formatFlashcards(List<Flashcard> flashcards);
+   
+   /**
+     * Invoked when user wants to view flashcards corresponding to a document.
+     *
+     * @param documentId the id of the document
+     * @return a list of Flashcard objects corresponding to the document
+     */
+   List<Flashcard> getFlashcards(int documentId);
+   
+   /**
+     * Invoked when user wants to view the quiz corresponding to a document.
+     *
+     * @param documentId the id of the document
+     * @return a list of quiz objects corresponding to the document
+     */
+   List<Flashcard> getQuiz(int documentId);
     ```
 
 ### **4.5. Frameworks**
