@@ -16,10 +16,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.example.thinkr.domain.DocumentManager
 import com.example.thinkr.domain.model.DocumentItem
 import com.example.thinkr.ui.document_details.DocumentDetailsScreen
-import com.example.thinkr.domain.DocumentManager
-import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.home.HomeScreenViewModel
@@ -50,7 +49,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val account = remember { GoogleSignIn.getLastSignedInAccount(this) }
             val startDestination = remember { if (account != null) Route.Home else Route.Landing }
-            val documentManager = DocumentManager()
+            val documentManager = remember { DocumentManager() }
 
             ThinkrTheme {
                 Column(modifier = Modifier.padding(start = 24.dp, top = 48.dp, end = 24.dp)) {
@@ -58,83 +57,77 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = Route.RouteGraph
                     ) {
-                        navigation<Route.RouteGraph>(startDestination = Route.Landing) {
-                            navigation<Route.RouteGraph>(startDestination = startDestination) {
-                                composable<Route.Landing> {
-                                    val viewModel = koinViewModel<LandingScreenViewModel>()
+                        navigation<Route.RouteGraph>(startDestination = startDestination) {
+                            composable<Route.Landing> {
+                                val viewModel = koinViewModel<LandingScreenViewModel>()
 
-                                    LandingScreen(
-                                        viewModel = viewModel,
-                                        onLogin = { navController.navigate(Route.Home) },
-                                        onSignUp = { navController.navigate(Route.Home) }
-                                    )
-                                }
+                                LandingScreen(
+                                    viewModel = viewModel,
+                                    onLogin = { navController.navigate(Route.Home) },
+                                    onSignUp = { navController.navigate(Route.Home) }
+                                )
+                            }
 
-                                composable<Route.Home> {
+                            composable<Route.Home> {
+                                val viewModel = HomeScreenViewModel(documentManager)
 
-                                    HomeScreen(
-                                        navController = navController,
-                                        documentManager = documentManager,
-                                        onSignOut = {
-                                            googleSignInClient.signOut()
-                                                .addOnCompleteListener { task ->
-                                                    if (task.isSuccessful) {
-                                                        navController.navigate(Route.Landing)
-                                                    }
-                                                }
+                                HomeScreen(
+                                    navController = navController,
+                                    viewModel = viewModel,
+                                    onSignOut = {
+                                        googleSignInClient.signOut().addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                navController.navigate(Route.Landing)
+                                            }
                                         }
-                                    )
-                                }
+                                    }
+                                )
+                            }
 
-                                composable(
-                                    route = Route.DocumentOptions.ROUTE,
-                                    arguments = listOf(navArgument(Route.DocumentOptions.ARGUMENT) {
-                                        type = NavType.StringType
-                                    })
-                                ) { backStackEntry ->
-                                    val json =
-                                        backStackEntry.arguments?.getString(Route.DocumentOptions.ARGUMENT)
-                                            ?: ""
-                                    val document =
-                                        Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
-                                    DocumentOptionsScreen(document)
-                                }
+                            composable(
+                                route = Route.DocumentOptions.ROUTE,
+                                arguments = listOf(navArgument(Route.DocumentOptions.ARGUMENT) {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val json =
+                                    backStackEntry.arguments?.getString(Route.DocumentOptions.ARGUMENT)
+                                        ?: ""
+                                val document =
+                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                DocumentOptionsScreen(document)
+                            }
 
-                                composable(
-                                    route = Route.DocumentDetails.ROUTE,
-                                    arguments = listOf(navArgument(Route.DocumentDetails.ARGUMENT) {
-                                        type = NavType.StringType
-                                    })
-                                ) { backStackEntry ->
-                                    val json =
-                                        backStackEntry.arguments?.getString(Route.DocumentDetails.ARGUMENT)
-                                            ?: ""
-                                    val selectedUri = Uri.parse(Uri.decode(json))
-                                    DocumentDetailsScreen(
-                                        navController,
-                                        selectedUri,
-                                        documentManager
-                                    )
-                                }
+                            composable(
+                                route = Route.DocumentDetails.ROUTE,
+                                arguments = listOf(navArgument(Route.DocumentDetails.ARGUMENT) {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val json =
+                                    backStackEntry.arguments?.getString(Route.DocumentDetails.ARGUMENT)
+                                        ?: ""
+                                val selectedUri = Uri.parse(Uri.decode(json))
+                                DocumentDetailsScreen(navController, selectedUri, documentManager)
+                            }
 
-                                composable<Route.Profile> {
-                                    val viewModel = koinViewModel<ProfileViewModel>()
+                            composable<Route.Profile> {
+                                val viewModel = koinViewModel<ProfileViewModel>()
 
-                                    ProfileScreen(
-                                        viewModel = viewModel,
-                                        onPressBack = { navController.navigate(Route.Home) },
-                                        onSelectPremium = { navController.navigate(Route.Payment) }
-                                    )
-                                }
+                                ProfileScreen(
+                                    viewModel = viewModel,
+                                    onPressBack = { navController.navigate(Route.Home) },
+                                    onSelectPremium = { navController.navigate(Route.Payment) }
+                                )
+                            }
 
-                                composable<Route.Payment> {
-                                    val viewModel = koinViewModel<PaymentViewModel>()
+                            composable<Route.Payment> {
+                                val viewModel = koinViewModel<PaymentViewModel>()
 
-                                    PaymentScreen(
-                                        viewModel = viewModel,
-                                        onConfirm = { navController.navigate(Route.Profile) }
-                                    )
-                                }
+                                PaymentScreen(
+                                    viewModel = viewModel,
+                                    onConfirm = { navController.navigate(Route.Profile) }
+                                )
                             }
                         }
                     }

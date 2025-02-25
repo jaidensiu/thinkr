@@ -53,14 +53,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.thinkr.R
-import com.example.thinkr.domain.DocumentManager
 import com.example.thinkr.ui.shared.ListItem
 
 @Composable
 fun HomeScreen(
     navController: NavController,
-    documentManager: DocumentManager,
-    viewModel: HomeScreenViewModel = HomeScreenViewModel(documentManager),
+    viewModel: HomeScreenViewModel,
     onSignOut: () -> Unit
 ) {
     val state = viewModel.state.collectAsState()
