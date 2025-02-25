@@ -1,5 +1,8 @@
 package com.example.thinkr.ui.landing
 
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,6 +36,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.thinkr.app.MainActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -45,6 +54,15 @@ fun LandingScreen(
     val focusManager = LocalFocusManager.current
     val focusRequester = FocusRequester()
     var passwordVisible by remember { mutableStateOf(value = false) }
+    val context = LocalContext.current
+    val activity = context as MainActivity
+    val signInIntent = activity.googleSignInClient.signInIntent
+    val signInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        handleSignInResult(task, onLogin)
+    }
 
     Column(
         modifier = Modifier
@@ -122,5 +140,25 @@ fun LandingScreen(
         ) {
             Text(text = "Sign Up")
         }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = { signInLauncher.launch(signInIntent) },
+            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+        ) {
+            Text(text = "Sign in with Google")
+        }
+    }
+}
+
+private fun handleSignInResult(
+    completedTask: Task<GoogleSignInAccount>,
+    onLogin: () -> Unit
+) {
+    try {
+        val account = completedTask.getResult(ApiException::class.java)
+        onLogin()
+        Log.d("ServerScreen", "Sign-in successful: ${account?.email}")
+    } catch (e: ApiException) {
+        Log.e("ServerScreen", "Sign-in failed: ${e.statusCode}", e)
     }
 }
