@@ -61,6 +61,115 @@
       "query": "Your question here" 
    }
    ```
+  - Response:
+  ```json
+  {
+      "data": {
+         "response": "AI-generated answer based on your documents"
+      }
+   }
+   ```
+
+- **Chat:**
+  - Endpoint: `/chat`
+  - Method: `POST`
+  - Body: raw
+  ```json
+  {
+     "userId": "user123",
+     "metadata": {
+        "source": "web",
+        "topic": "general"
+     }
+  }
+  ```
+  - Response:
+  ```json
+  {
+     "data": {
+        "session": {
+           "sessionId": "unique-session-id",
+           "userId": "user123",
+           "messages": [
+              {
+                 "role": "system",
+                 "content": "You are a helpful assistant that provides accurate information based on the context provided.",
+                 "timestamp": "2023-07-10T12:34:56.789Z"
+              }
+           ],
+           "createdAt": "2023-07-10T12:34:56.789Z",
+           "updatedAt": "2023-07-10T12:34:56.789Z",
+           "metadata": {
+              "source": "web",
+              "topic": "general"
+           }
+        }
+     }
+  }
+  ```
+
+  - Endpoint: `/chat/:sessionId/message`
+  - Method: `POST`
+  - Body: raw
+  ```json
+  {
+     "message": "What is artificial intelligence?"
+  }
+  ```
+  - Response:
+  ```json
+  {
+     "data": {
+        "response": "Artificial intelligence (AI) refers to the simulation of human intelligence in machines..."
+     }
+  }
+  ```
+
+  - Endpoint: `/chat/:sessionId`
+  - Method: `GET`
+  - Response:
+  ```json
+  {
+     "data": {
+        "session": {
+           "sessionId": "unique-session-id",
+           "userId": "user123",
+           "messages": [
+              {
+                 "role": "system",
+                 "content": "You are a helpful assistant...",
+                 "timestamp": "2023-07-10T12:34:56.789Z"
+              },
+              {
+                 "role": "user",
+                 "content": "What is artificial intelligence?",
+                 "timestamp": "2023-07-10T12:35:10.123Z"
+              },
+              {
+                 "role": "assistant",
+                 "content": "Artificial intelligence (AI) refers to...",
+                 "timestamp": "2023-07-10T12:35:15.456Z"
+              }
+           ],
+           "createdAt": "2023-07-10T12:34:56.789Z",
+           "updatedAt": "2023-07-10T12:35:15.456Z",
+           "metadata": {
+              "source": "web",
+              "topic": "general"
+           }
+        }
+     }
+  }
+  ```
+
+  - Endpoint: `/chat/:sessionId`
+  - Method: `DELETE`
+  - Response:
+  ```json
+  {
+     "message": "Chat session deleted successfully"
+  }
+  ```
 
 - **Documents:**
   - Endpoint: `/document/upload`
