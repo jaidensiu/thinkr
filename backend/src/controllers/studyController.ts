@@ -23,7 +23,34 @@ export const generateFlashCards = async (
     } catch (error) {
         console.error('Error generating flashcards:', error);
         res.status(500).json({
-            message: 'Internal server error, unable to generate flashcards',
+            message: 'Internal server error',
+        });
+        return;
+    }
+};
+
+export const generateQuiz = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    try {
+        const { paths, userId } = req.body;
+
+        if (!Array.isArray(paths) || paths.length === 0 || !userId) {
+            res.status(400).json({
+                message:
+                    'You must provide a paths (array) and an userId identifier',
+            });
+            return;
+        }
+
+        const quiz = await StudyService.createQuiz(paths, userId);
+
+        res.status(200).json({ data: quiz } as Result);
+    } catch (error) {
+        console.error('Error generating quiz:', error);
+        res.status(500).json({
+            message: 'Internal server error',
         });
         return;
     }

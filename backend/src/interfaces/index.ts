@@ -32,3 +32,14 @@ export interface FlashCardDTO {
     front: string;
     back: string;
 }
+
+/**
+ * Represents a multiple choice quiz for data transfer between frontend <-> backend
+ */
+export interface QuizDTO {
+    question: string;
+    answer: string;
+    options: {
+        [key: string]: string;
+    };
+}

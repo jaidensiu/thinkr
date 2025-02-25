@@ -34,7 +34,8 @@
 ## Usage
 
 - **User Authentication:**
-  - Endpoint: `/auth/login`
+
+  **Endpoint: `/auth/login`**
   - Method: `POST`
   - Headers: `Authorization: Bearer <Google ID Token>`
   - Body: N/A
@@ -53,7 +54,8 @@
    }
    ```
 - **RAG Query:**
-  - Endpoint: `/rag/query`
+
+  **Endpoint: `/rag/query`**
   - Method: `POST`
   - Body: raw 
    ```json
@@ -71,7 +73,8 @@
    ```
 
 - **Chat:**
-  - Endpoint: `/chat`
+
+  **Endpoint: `/chat`**
   - Method: `POST`
   - Body: raw
   ```json
@@ -107,8 +110,7 @@
      }
   }
   ```
-
-  - Endpoint: `/chat/:sessionId/message`
+  **Endpoint: `/chat/:sessionId/message`**
   - Method: `POST`
   - Body: raw
   ```json
@@ -125,7 +127,7 @@
   }
   ```
 
-  - Endpoint: `/chat/:sessionId`
+  **Endpoint: `/chat/:sessionId`**
   - Method: `GET`
   - Response:
   ```json
@@ -162,7 +164,7 @@
   }
   ```
 
-  - Endpoint: `/chat/:sessionId`
+  **Endpoint: `/chat/:sessionId`**
   - Method: `DELETE`
   - Response:
   ```json
@@ -172,7 +174,8 @@
   ```
 
 - **Documents:**
-  - Endpoint: `/document/upload`
+
+  **Endpoint: `/document/upload`**
   - Method: `POST`
   - Body: multipart/form-data
    ```json
@@ -187,11 +190,11 @@
       "data": {
          "docs": [
             {
-               "name": "first file",
+               "documentId": "first file",
                "uploadTime": "time of file upload"
             },
             {
-               "name": "second file",
+               "documentId": "second file",
                "uploadTime": "time of file upload"
             }
          ]
@@ -199,7 +202,7 @@
    }
   ```
 
-  - Endpoint: `/document/delete`
+  **Endpoint: `/document/delete`**
   - Method: `DELETE`
   - Body: raw
    ```json
@@ -213,7 +216,7 @@
    ```
   - Response: N/A
 
-  - Endpoint: `/document/retrieve`
+  **Endpoint: `/document/retrieve`**
   - Method: `GET`
   - Body: raw, paths is an OPTIONAL field
   ```json
@@ -232,12 +235,12 @@
          "docs": [
             {
                "url": "second file's s3 document urlt",
-               "name": "first file",
+               "documentId": "first file",
                "uploadTime": "time of file upload"
             },
             {
                "url": "second file's s3 document url",
-               "name": "second file",
+               "documentId": "second file",
                "uploadTime": "time of file upload"
             }
          ]
@@ -247,9 +250,9 @@
   - Note: Returns all of the user's files if no paths are provided for `GET /document/retrieve`. The `paths` must include file types (e.g. `file1.pdf` is one path, not `file1` by itself)
 
 - **Study:**
-  - Endpoint: `/study/flashcards`
+
+  **Endpoint: `/study/flashcards`**
   - Method: `POST`
-  - Headers: `Authorization: Bearer <Google ID Token>`
   - Body: raw
   ```json
    {
@@ -266,12 +269,51 @@
          {
             "front": "first word",
             "back": "definition of first word"
-        },
-        {
+         },
+         {
             "front": "second word",
             "back": "definition of second word"
-        },
+         },
       ]
    }
    ```
    - Note: The `paths` must include the file type in the string (e.g. `file1.pdf` is a valid path, not `file1` by itself).
+
+   **Endpoint: `/study/quiz`**
+   - Method: `POST`
+   - Body: raw
+   ```json
+   {
+      "userId": "userId",
+      "paths": [
+         "first file path"
+      ]
+   }
+   ```
+   - Response
+   ```json
+   {
+      "data": [
+         {
+            "question": "Question 1",
+            "answer": "C",
+            "options": {
+                "A": "Answer 1",
+                "B": "Answer 2",
+                "C": "Answer 3",
+                "D": "Answer 4"
+            } 
+         },
+         {
+            "question": "Question 1",
+            "answer": "C",
+            "options": {
+                "A": "Answer 1",
+                "B": "Answer 2",
+                "C": "Answer 3",
+                "D": "Answer 4"
+            }
+         }
+      ]
+   }
+   ```
