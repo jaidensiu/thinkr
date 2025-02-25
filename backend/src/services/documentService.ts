@@ -7,9 +7,12 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import dotenv from 'dotenv';
 import Document from '../db/mongo/models/Document';
-import DocumentParser from './documentParserService';
 import RAGService from './RAGService';
 import { DocumentDTO } from '../interfaces';
+import {
+    TextractClient,
+    DetectDocumentTextCommand,
+} from '@aws-sdk/client-textract';
 
 dotenv.config();
 
@@ -18,6 +21,7 @@ class DocumentService {
     private bucketName: string;
     private date: Date;
     private ragService: RAGService;
+    private textractClient: TextractClient;
 
     constructor() {
         this.s3Client = new S3Client({
@@ -33,6 +37,13 @@ class DocumentService {
             openAIApiKey: process.env.OPENAI_API_KEY!,
             vectorStoreUrl: process.env.VECTOR_STORE_URL!,
         });
+        this.textractClient = new TextractClient({
+            region: process.env.AWS_REGION,
+            credentials: {
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+            },
+        });
     }
 
     /**
@@ -41,10 +52,9 @@ class DocumentService {
      */
     public async uploadDocument(
         file: Express.Multer.File,
-        email: string,
-        user: string
+        userId: string
     ): Promise<DocumentDTO> {
-        const key = `${email}-${file.originalname}`;
+        const key = `${userId}-${file.originalname}`;
 
         const params = {
             Bucket: this.bucketName,
@@ -62,9 +72,9 @@ class DocumentService {
             .replace(/\..+/, '');
 
         // textract -> vector db
-        const text = await DocumentParser.extractTextFromFile(key);
+        const text = await this.extractTextFromFile(key);
         const embeddingsId = await this.ragService.insertDocument(
-            user,
+            userId,
             text,
             file.originalname
         );
@@ -74,7 +84,7 @@ class DocumentService {
             { s3Path: key },
             {
                 name: file.originalname,
-                email,
+                userId,
                 s3Path: key,
                 uploadDate: dateFormatted,
                 embeddingsId: embeddingsId,
@@ -83,7 +93,7 @@ class DocumentService {
         );
 
         return {
-            name: file.originalname,
+            documentId: file.originalname,
             uploadTime: dateFormatted,
         } as DocumentDTO;
     }
@@ -94,13 +104,12 @@ class DocumentService {
      */
     public async uploadDocuments(
         files: Express.Multer.File[],
-        email: string
+        userId: string
     ): Promise<DocumentDTO[]> {
-        const user = email.replace('@gmail.com', '');
-        await this.ragService.ensureVectorStore(user);
+        await this.ragService.ensureVectorStore(userId);
 
         const docs = await Promise.all(
-            files.map((file) => this.uploadDocument(file, email, user))
+            files.map((file) => this.uploadDocument(file, userId))
         );
         return docs as DocumentDTO[];
     }
@@ -131,14 +140,12 @@ class DocumentService {
 
     public async deleteDocuments(
         paths: string[],
-        email: string
+        userId: string
     ): Promise<void> {
-        const user = email.replace('@gmail.com', '');
-
         await Promise.all(
-            paths.map((path) => this.deleteDocument(`${email}-${path}`))
+            paths.map((path) => this.deleteDocument(`${userId}-${path}`))
         );
-        await this.ragService.deleteDocuments(paths, user);
+        await this.ragService.deleteDocuments(paths, userId);
         return;
     }
 
@@ -148,23 +155,23 @@ class DocumentService {
      */
     public async getDocument(
         key: string,
-        email: string,
+        userId: string,
         expiresIn: number = 3600
     ): Promise<DocumentDTO> {
         let params = {
             Bucket: this.bucketName,
-            Key: `${email}-${key}`,
+            Key: `${userId}-${key}`,
         };
 
         const command = new GetObjectCommand(params);
         const documentUrl = await getSignedUrl(this.s3Client, command, {
             expiresIn,
         });
-        const doc = await Document.findOne({ s3Path: `${email}-${key}` });
+        const doc = await Document.findOne({ s3Path: `${userId}-${key}` });
 
         return {
             url: documentUrl,
-            name: key,
+            documentId: key,
             uploadTime: doc!.uploadDate,
         } as DocumentDTO;
     }
@@ -175,22 +182,55 @@ class DocumentService {
      */
     public async getDocuments(
         keys: string[],
-        email: string
+        userId: string
     ): Promise<DocumentDTO[]> {
         let documents;
         if (keys) {
             documents = await Promise.all(
-                keys.map((key) => this.getDocument(key, email))
+                keys.map((key) => this.getDocument(key, userId))
             );
         } else {
-            const allKeys = (await Document.find({ email: email })).map(
+            const allKeys = (await Document.find({ userId: userId })).map(
                 (doc) => doc.name
             );
             documents = await Promise.all(
-                allKeys.map((key) => this.getDocument(key, email))
+                allKeys.map((key) => this.getDocument(key, userId))
             );
         }
         return documents;
+    }
+
+    /**
+     * Extracts text from a file using AWS Textract.
+     */
+    private async extractTextFromFile(s3FilePath: string): Promise<string> {
+        const params = {
+            Document: {
+                S3Object: {
+                    Bucket: this.bucketName,
+                    Name: s3FilePath,
+                },
+            },
+        };
+
+        try {
+            const command = new DetectDocumentTextCommand(params);
+            const response = await this.textractClient.send(command);
+
+            let extractedText = '';
+            if (response.Blocks) {
+                for (const block of response.Blocks) {
+                    if (block.BlockType === 'LINE' && block.Text) {
+                        extractedText += block.Text + '\n';
+                    }
+                }
+            }
+            
+            return extractedText.trim();
+        } catch (error) {
+            console.error('Error extracting text from PDF:', error);
+            throw new Error('Failed to extract text from PDF');
+        }
     }
 }
 

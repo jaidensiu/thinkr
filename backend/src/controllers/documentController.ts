@@ -10,18 +10,18 @@ export const uploadDocuments = async (
     req: Request,
     res: Response
 ): Promise<void> => {
-    const { email } = req.body;
+    const { userId } = req.body;
 
-    if (!req.files || !Array.isArray(req.files)) {
+    if (!userId || !req.files || !Array.isArray(req.files)) {
         res.status(400).json({
-            message: 'No files uploaded',
+            message: 'Bad Request, missing userId or files',
         } as Result);
         return;
     }
 
     try {
         const files = req.files as Express.Multer.File[];
-        const docs = await DocumentService.uploadDocuments(files, email);
+        const docs = await DocumentService.uploadDocuments(files, userId);
 
         res.status(200).json({
             data: { docs },
@@ -43,17 +43,17 @@ export const deleteDocuments = async (
     req: Request,
     res: Response
 ): Promise<void> => {
-    const { email, paths } = req.body;
+    const { userId, paths } = req.body;
 
-    if (!email || !paths || !Array.isArray(paths)) {
+    if (!userId || !paths || !Array.isArray(paths)) {
         res.status(400).json({
-            message: 'Email and paths are required',
+            message: 'Bad Request, userId and paths are required',
         } as Result);
         return;
     }
 
     try {
-        await DocumentService.deleteDocuments(paths, email);
+        await DocumentService.deleteDocuments(paths, userId);
         res.status(200).json();
         return;
     } catch (error) {
@@ -73,17 +73,17 @@ export const getDocuments = async (
     req: Request,
     res: Response
 ): Promise<void> => {
-    const { paths, email } = req.body;
+    const { paths, userId } = req.body;
 
-    if (!email || (paths && !Array.isArray(paths))) {
+    if (!userId || (paths && !Array.isArray(paths))) {
         res.status(400).json({
-            message: 'Email and paths are required',
+            message: 'Bad Request, userId is required',
         } as Result);
         return;
     }
 
     try {
-        const docs = await DocumentService.getDocuments(paths, email);
+        const docs = await DocumentService.getDocuments(paths, userId);
 
         const result: Result = {
             data: { docs },
