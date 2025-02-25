@@ -85,10 +85,6 @@ class MainActivity : ComponentActivity() {
                                 DocumentDetailsScreen(navController, selectedUri)
                             }
 
-                            composable<Route.Home> {
-                                HomeScreen(navController = navController)
-                            }
-
                             composable<Route.Profile> {
                                 val viewModel = koinViewModel<ProfileViewModel>()
 
