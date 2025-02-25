@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DocumentManager {
+    companion object {
+        val MAX_NAME_LENGTH = 50
+        val MAX_CONTEXT_LENGTH = 500
+    }
+
     private val _retrievedDocuments = MutableStateFlow<List<DocumentItem>>(emptyList()) // 🔄 Reactive state
     private val _uploadingDocuments = MutableStateFlow<List<DocumentItem>>(emptyList()) // 🔄 Reactive state
 

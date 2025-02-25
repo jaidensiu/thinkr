@@ -88,20 +88,23 @@ fun DocumentDetailsScreen(
 
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = { if (it.length <= DocumentManager.MAX_NAME_LENGTH) name = it },
             label = { Text("Name") },
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.8f),
+            singleLine = true,
+            maxLines = 1
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = context,
-            onValueChange = { context = it },
+            onValueChange = { if (it.length <= DocumentManager.MAX_CONTEXT_LENGTH) context = it },
             label = { Text("Context") },
             modifier = Modifier
                 .fillMaxWidth(0.8f) // Context box is now ~40% of the screen width
-                .height(240.dp) // Increased default height
+                .height(240.dp), // Increased default height
+            maxLines = 10
         )
 
         Spacer(modifier = Modifier.height(32.dp))
