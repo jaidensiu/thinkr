@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { 
-    createChatSession, 
-    sendChatMessage, 
+import {
+    createChatSession,
+    sendChatMessage,
     getChatSession,
-    deleteChatSession
+    deleteChatSession,
 } from '../controllers/chatController';
 
 const router = Router();
@@ -16,4 +16,4 @@ router.post('/:sessionId/message', sendChatMessage);
 
 router.delete('/:sessionId', deleteChatSession);
 
-export default router; 
+export default router;

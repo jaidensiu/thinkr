@@ -48,7 +48,8 @@
                "email": "user email",
                "name": "user name",
                "googleId": "google id of user",
-               "userId": "unique user id"
+               "userId": "unique user id",
+               "subscribed": false
          }
       }
    }
@@ -317,4 +318,47 @@
       ]
    }
    ```
-   - Note: The paths must include the file type in the string (e.g. file1.pdf is a valid path, not file1 by itself).
+   - Note: The `paths` must include the file type in the string (e.g. file1.pdf is a valid path, not file1 by itself).
+
+
+- **Study:**
+
+  **Endpoint: `/subscription`**
+  - Method: `POST`
+  - Body: raw
+  ```json
+   {
+      "userId": "your user id"
+   }
+   ```json
+   - Response
+      {
+      "data": {
+         "email": "user email",
+         "name": "user name",
+         "googleId": "google id of user",
+         "userId": "unique user id",
+         "subscribed": true
+      }
+   }
+   ```
+   
+  **Endpoint: `/subscription`**
+  - Method: `DELETE`
+  - Body: raw
+  ```json
+   {
+      "userId": "your user id"
+   }
+   ```json
+   - Response
+      {
+      "data": {
+         "email": "user email",
+         "name": "user name",
+         "googleId": "google id of user",
+         "userId": "unique user id",
+         "subscribed": false
+      }
+   }
+   ```

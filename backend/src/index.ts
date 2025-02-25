@@ -6,6 +6,7 @@ import studyRouter from './routes/studyRoutes';
 import ragRouter from './routes/ragRoutes';
 import connectMongoDB from './db/mongo/connection';
 import chatRouter from './routes/chatRoutes';
+import subsriptionRouter from './routes/subscriptionRoutes';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use('/document', documentRouter);
 app.use('/study', studyRouter);
 app.use('/rag', ragRouter);
 app.use('/chat', chatRouter);
+app.use('/subscription', subsriptionRouter);
 
 connectMongoDB();
 

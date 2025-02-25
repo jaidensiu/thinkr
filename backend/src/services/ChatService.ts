@@ -1,7 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import RAGService from './RAGService';
 import { ChatOpenAI } from '@langchain/openai';
-import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
+import {
+    HumanMessage,
+    AIMessage,
+    SystemMessage,
+} from '@langchain/core/messages';
 import { Document } from '@langchain/core/documents';
 
 /**
@@ -48,11 +52,11 @@ class ChatService {
         this.llm = new ChatOpenAI({
             openAIApiKey: process.env.OPENAI_API_KEY!,
             temperature: 0.7,
-            streaming: false
+            streaming: false,
         });
         this.ragService = new RAGService({
             openAIApiKey: process.env.OPENAI_API_KEY!,
-            vectorStoreUrl: process.env.VECTOR_STORE_URL!
+            vectorStoreUrl: process.env.VECTOR_STORE_URL!,
         });
     }
 
@@ -62,30 +66,34 @@ class ChatService {
      * @param metadata Optional metadata for the session
      * @returns The newly created chat session
      */
-    public async createChat(userId?: string, metadata?: Record<string, any>): Promise<ChatSession> {
+    public async createChat(
+        userId?: string,
+        metadata?: Record<string, any>
+    ): Promise<ChatSession> {
         try {
             const sessionId = uuidv4();
             const now = new Date();
-            
+
             // Initialize with a system message
             const systemMessage: ChatMessage = {
                 role: 'system',
-                content: 'You are a helpful assistant that provides accurate information based on the context provided.',
-                timestamp: now
+                content:
+                    'You are a helpful assistant that provides accurate information based on the context provided.',
+                timestamp: now,
             };
-            
+
             const session: ChatSession = {
                 sessionId,
                 userId,
                 messages: [systemMessage],
                 createdAt: now,
                 updatedAt: now,
-                metadata
+                metadata,
             };
-            
+
             this.sessions.set(sessionId, session);
             console.log(`Created new chat session: ${sessionId}`);
-            
+
             return session;
         } catch (error) {
             console.error('Error creating chat session:', error);
@@ -99,27 +107,35 @@ class ChatService {
      * @param message The user's message
      * @throws ChatServiceError if the session doesn't exist
      */
-    public async sendMessage(sessionId: string, message: string): Promise<void> {
+    public async sendMessage(
+        sessionId: string,
+        message: string
+    ): Promise<void> {
         try {
             const session = this.sessions.get(sessionId);
-            
+
             if (!session) {
-                throw new ChatServiceError(`Chat session not found: ${sessionId}`);
+                throw new ChatServiceError(
+                    `Chat session not found: ${sessionId}`
+                );
             }
-            
+
             // Add user message to the session
             const userMessage: ChatMessage = {
                 role: 'user',
                 content: message,
-                timestamp: new Date()
+                timestamp: new Date(),
             };
-            
+
             session.messages.push(userMessage);
             session.updatedAt = new Date();
-            
+
             console.log(`Added user message to session ${sessionId}`);
         } catch (error) {
-            console.error(`Error sending message to session ${sessionId}:`, error);
+            console.error(
+                `Error sending message to session ${sessionId}:`,
+                error
+            );
             if (error instanceof ChatServiceError) {
                 throw error;
             }
@@ -136,46 +152,55 @@ class ChatService {
     public async receiveMessage(sessionId: string): Promise<string> {
         try {
             const session = this.sessions.get(sessionId);
-            
+
             if (!session) {
-                throw new ChatServiceError(`Chat session not found: ${sessionId}`);
+                throw new ChatServiceError(
+                    `Chat session not found: ${sessionId}`
+                );
             }
-            
+
             // Get the last user message
             const lastUserMessageIndex = [...session.messages]
                 .reverse()
-                .findIndex(msg => msg.role === 'user');
-                
+                .findIndex((msg) => msg.role === 'user');
+
             if (lastUserMessageIndex === -1) {
                 throw new ChatServiceError('No user message found in session');
             }
-            
-            const lastUserMessage = session.messages[session.messages.length - 1 - lastUserMessageIndex];
-            
+
+            const lastUserMessage =
+                session.messages[
+                    session.messages.length - 1 - lastUserMessageIndex
+                ];
+
             // Fetch relevant documents using RAG
-            const relevantDocs = await this.ragService.fetchRelevantDocumentsFromQuery(
-                lastUserMessage.content,
-                'documents'
-            );
-            
+            const relevantDocs =
+                await this.ragService.fetchRelevantDocumentsFromQuery(
+                    lastUserMessage.content,
+                    'documents'
+                );
+
             // Generate response using chat history and RAG context
             const response = await this.generateResponse(session, relevantDocs);
-            
+
             // Add assistant message to the session
             const assistantMessage: ChatMessage = {
                 role: 'assistant',
                 content: response,
-                timestamp: new Date()
+                timestamp: new Date(),
             };
-            
+
             session.messages.push(assistantMessage);
             session.updatedAt = new Date();
-            
+
             console.log(`Added assistant response to session ${sessionId}`);
-            
+
             return response;
         } catch (error) {
-            console.error(`Error receiving message for session ${sessionId}:`, error);
+            console.error(
+                `Error receiving message for session ${sessionId}:`,
+                error
+            );
             if (error instanceof ChatServiceError) {
                 throw error;
             }
@@ -190,12 +215,12 @@ class ChatService {
      * @returns The generated response
      */
     private async generateResponse(
-        session: ChatSession, 
+        session: ChatSession,
         relevantDocs: Document[]
     ): Promise<string> {
         try {
             // Convert session messages to LangChain message format
-            const messages = session.messages.map(msg => {
+            const messages = session.messages.map((msg) => {
                 if (msg.role === 'system') {
                     return new SystemMessage(msg.content);
                 } else if (msg.role === 'user') {
@@ -204,20 +229,22 @@ class ChatService {
                     return new AIMessage(msg.content);
                 }
             });
-            
+
             // If we have relevant documents, add them as context
             if (relevantDocs.length > 0) {
                 const context = this.constructContext(relevantDocs);
-                
+
                 // Add context as a system message
-                messages.push(new SystemMessage(
-                    `Additional context information:\n${context}\n\nUse this information to help answer the user's question.`
-                ));
+                messages.push(
+                    new SystemMessage(
+                        `Additional context information:\n${context}\n\nUse this information to help answer the user's question.`
+                    )
+                );
             }
-            
+
             // Generate response
             const response = await this.llm.call(messages);
-            
+
             return response.content as string;
         } catch (error) {
             console.error('Error generating response:', error);
@@ -232,18 +259,18 @@ class ChatService {
      */
     private constructContext(documents: Document[]): string {
         let context = '';
-        
+
         for (const doc of documents) {
             // Simple token estimation
             const estimatedTokens = doc.pageContent.length / 4;
-            
+
             if (context.length / 4 + estimatedTokens > 4000) {
                 break;
             }
-            
+
             context += `${doc.pageContent}\n\n`;
         }
-        
+
         return context.trim();
     }
 
@@ -276,4 +303,4 @@ class ChatService {
     }
 }
 
-export default new ChatService(); 
+export default new ChatService();
