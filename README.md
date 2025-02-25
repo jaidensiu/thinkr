@@ -317,3 +317,4 @@
       ]
    }
    ```
+   - Note: The paths must include the file type in the string (e.g. file1.pdf is a valid path, not file1 by itself).
