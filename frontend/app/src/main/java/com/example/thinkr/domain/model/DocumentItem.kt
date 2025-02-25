@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DocumentItem(
-    val username: String,
     val name: String,
+    val uploadCompleted: Boolean = true,
     //TODO: Add more as needed
 )

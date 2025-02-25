@@ -34,12 +34,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thinkr.R
+import com.example.thinkr.domain.DocumentManager
 
 @Composable
 fun DocumentDetailsScreen(
     navController: NavController,
     selectedUri: Uri,
-    viewModel: DocumentDetailsViewModel = DocumentDetailsViewModel()
+    documentManager: DocumentManager,
+    viewModel: DocumentDetailsViewModel = DocumentDetailsViewModel(documentManager = documentManager)
 ) {
     var name by remember { mutableStateOf("") }
     var context by remember { mutableStateOf("") }

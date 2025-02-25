@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -30,10 +32,11 @@ fun ListItem(item: DocumentItem, onAction: (HomeScreenAction) -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
+            .clickable(enabled = item.uploadCompleted) {
                 onAction(HomeScreenAction.DocumentItemClicked(documentItem = item))
             }
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .alpha(if (item.uploadCompleted) 1f else 0.5f), // Faded effect if not completed
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Circular logo
@@ -50,5 +53,14 @@ fun ListItem(item: DocumentItem, onAction: (HomeScreenAction) -> Unit = {}) {
 
         // Name
         Text(text = item.name, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+
+        if (!item.uploadCompleted) {
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Circular loading animation
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }

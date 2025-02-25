@@ -53,13 +53,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.thinkr.R
+import com.example.thinkr.domain.DocumentManager
 import com.example.thinkr.ui.shared.ListItem
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeScreenViewModel = koinViewModel(),
+    documentManager: DocumentManager,
+    viewModel: HomeScreenViewModel = HomeScreenViewModel(documentManager),
     onSignOut: () -> Unit
 ) {
     val state = viewModel.state.collectAsState()
@@ -101,6 +102,8 @@ fun HomeScreenContent(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        val retrievedDocuments = state.value.documentManager.getRetrievedDocuments().collectAsState()
+        val uploadingDocuments = state.value.documentManager.getUploadingDocuments().collectAsState()
         // Top Row with two buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -122,7 +125,12 @@ fun HomeScreenContent(
 
         LazyColumn {
             // List of items
-            items(state.value.items) { item ->
+            items(retrievedDocuments.value) { item ->
+                ListItem(item, onAction)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            items(uploadingDocuments.value) { item ->
                 ListItem(item, onAction)
                 Spacer(modifier = Modifier.height(8.dp))
             }
