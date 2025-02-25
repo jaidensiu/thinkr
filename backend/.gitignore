@@ -1,4 +1,18 @@
-node_modules
-package-lock.json
-dist
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
 .env
+
+# Logs
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
