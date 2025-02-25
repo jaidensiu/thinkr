@@ -7,18 +7,17 @@ export const generateFlashCards = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { paths, email } = req.body;
+        const { paths, userId } = req.body;
 
-        if (!Array.isArray(paths) || paths.length === 0 || !email) {
+        if (!Array.isArray(paths) || paths.length === 0 || !userId) {
             res.status(400).json({
                 message:
-                    'You must provide an array in paths and an email identifier',
+                    'You must provide a paths (array) and an userId identifier',
             });
             return;
         }
 
-        const user = email.replace('@gmail.com', '');
-        const flashcards = await StudyService.createFlashCards(paths, user);
+        const flashcards = await StudyService.createFlashCards(paths, userId);
 
         res.status(200).json({ data: flashcards } as Result);
     } catch (error) {

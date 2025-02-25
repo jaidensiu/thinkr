@@ -13,7 +13,7 @@ export interface UserDTO {
     email: string;
     name?: string;
     googleId?: string;
-    id: string;
+    userId: string;
 }
 
 /**
@@ -21,7 +21,7 @@ export interface UserDTO {
  */
 export interface DocumentDTO {
     url?: string;
-    name: string;
+    documentId: string;
     uploadTime: string;
 }
 

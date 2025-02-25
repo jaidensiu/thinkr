@@ -29,7 +29,7 @@ export const userAuthLogin = async (
     }
 
     const user: UserDTO = await UserService.findCreateUser(googleUser);
-    const token = UserService.generateToken(user.id);
+    const token = UserService.generateToken(user.userId);
 
     res.status(200).json({
         data: { token, user },

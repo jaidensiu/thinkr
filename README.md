@@ -47,7 +47,7 @@
                "email": "user email",
                "name": "user name",
                "googleId": "google id of user",
-               "id": "unique mongodb user id"
+               "userId": "unique user id"
          }
       }
    }
@@ -69,7 +69,7 @@
    ```json
    {
       "documents": "<your file(s) here>",
-      "email": "user email"
+      "userId": "userId"
    }
    ```
   - Response:
@@ -95,7 +95,7 @@
   - Body: raw
    ```json
    {
-      "email": "user email",
+      "userId": "userId",
       "paths": [
          "path of first file",
          "path of second file"
@@ -109,7 +109,7 @@
   - Body: raw, paths is an OPTIONAL field
   ```json
    {
-      "email": "user email",
+      "userId": "userId",
       "paths": [
          "path of first file",
          "path of second file"
@@ -144,7 +144,7 @@
   - Body: raw
   ```json
    {
-      "email": "user email",
+      "userId": "userId",
       "paths": [
          "first file path"
       ]
