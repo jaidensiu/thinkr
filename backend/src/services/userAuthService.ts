@@ -74,7 +74,8 @@ class UserAuthService {
             email: googleUser.email!,
             name: googleUser.name,
             googleId: googleUser.sub,
-            userId:user._id,
+            userId: user._id,
+            subscribed: false,
         } as UserDTO;
     }
 }

@@ -225,7 +225,7 @@ class DocumentService {
                     }
                 }
             }
-            
+
             return extractedText.trim();
         } catch (error) {
             console.error('Error extracting text from PDF:', error);

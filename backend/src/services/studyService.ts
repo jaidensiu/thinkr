@@ -74,7 +74,7 @@ class StudyService {
             embeddingIds,
             collection
         );
-    
+
         const quizPrompt = new PromptTemplate({
             inputVariables: ['content', 'format_instructions'],
             template: `Generate a list of multiple-choice questions from the following content. 
@@ -91,23 +91,29 @@ class StudyService {
             Content: {content}
             `,
         });
-    
+
         const quizSchema = z.array(
             z.object({
                 question: z.string().describe('The multiple-choice question'),
-                answer: z.string().describe('The letter of the correct answer (e.g., "A")'),
-                options: z.record(z.string()).describe('Key-value pairs of options (e.g., { "A": "Option 1", "B": "Option 2" })'),
+                answer: z
+                    .string()
+                    .describe('The letter of the correct answer (e.g., "A")'),
+                options: z
+                    .record(z.string())
+                    .describe(
+                        'Key-value pairs of options (e.g., { "A": "Option 1", "B": "Option 2" })'
+                    ),
             })
         );
-    
+
         const parser = StructuredOutputParser.fromZodSchema(quizSchema);
         const chain = quizPrompt.pipe(this.llm).pipe(parser);
-    
+
         const quiz = await chain.invoke({
             content: docs.join('\n'),
             format_instructions: parser.getFormatInstructions(),
         });
-    
+
         return quiz as QuizDTO[];
     }
 }
