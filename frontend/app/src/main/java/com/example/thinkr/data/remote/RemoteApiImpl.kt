@@ -18,7 +18,7 @@ class RemoteApiImpl(private val client: HttpClient) : RemoteApi {
     }
 
     private companion object {
-        private const val BASE_URL = "https://ourapi"
+        private const val BASE_URL = "https://ourapi" // TODO: Change this
         private const val AUTH = "/auth"
         private const val LOGIN = "/login"
     }
