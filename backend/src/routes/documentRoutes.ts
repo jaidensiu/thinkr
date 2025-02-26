@@ -9,7 +9,7 @@ import multer from 'multer';
 const upload = multer();
 const router = Router();
 
-router.post('/upload', upload.array('documents'), uploadDocuments);
+router.post('/upload', upload.single('document'), uploadDocuments);
 router.delete('/delete', deleteDocuments);
 router.get('/retrieve', getDocuments);
 

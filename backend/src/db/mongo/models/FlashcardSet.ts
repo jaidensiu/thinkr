@@ -3,13 +3,13 @@ import { FlashCard } from '../../../interfaces';
 
 export interface IFlashcardSet extends Document {
     userId: string;
-    documentName: string;
+    documentId: string;
     flashcards: FlashCard[];
 }
 
 const flashcardSetSchema = new Schema<IFlashcardSet>({
     userId: { type: String, required: true },
-    documentName: { type: String, required: true, trim: true },
+    documentId: { type: String, required: true, trim: true },
     flashcards: [
         {
             front: { type: String, required: true, trim: true },
