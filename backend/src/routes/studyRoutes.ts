@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import {
-    generateFlashCards,
-    generateQuiz,
-} from '../controllers/studyController';
+import { generateFlashCards, generateQuiz, retrieveFlashcards, retrieveQuizzes } from '../controllers/studyController';
 
 const router = Router();
 
 router.post('/flashcards', generateFlashCards);
-router.post('/quiz', generateQuiz);
+router.get('/flashcards', retrieveFlashcards);
 
+router.post('/quiz', generateQuiz);
+router.get('/quiz', retrieveQuizzes);
 export default router;

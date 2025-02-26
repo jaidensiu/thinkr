@@ -66,6 +66,7 @@ class UserAuthService {
                 name: googleUser.name,
                 email: googleUser.email,
                 googleId: googleUser.sub,
+                subscribed: false,
             });
             await user.save();
         }
@@ -75,7 +76,7 @@ class UserAuthService {
             name: googleUser.name,
             googleId: googleUser.sub,
             userId: user._id,
-            subscribed: false,
+            subscribed: user.subscribed,
         } as UserDTO;
     }
 }
