@@ -1,6 +1,5 @@
 package com.example.thinkr.domain.model
 
-import android.net.Uri
 import kotlinx.serialization.Serializable
 
 @Serializable

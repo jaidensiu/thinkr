@@ -17,9 +17,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.thinkr.domain.DocumentManager
+import com.example.thinkr.domain.FlashcardsManager
 import com.example.thinkr.domain.model.DocumentItem
 import com.example.thinkr.ui.document_details.DocumentDetailsScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
+import com.example.thinkr.ui.flashcards.FlashcardsScreen
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreen
@@ -50,6 +52,7 @@ class MainActivity : ComponentActivity() {
             val account = remember { GoogleSignIn.getLastSignedInAccount(this) }
             val startDestination = remember { if (account != null) Route.Home else Route.Landing }
             val documentManager = remember { DocumentManager() }
+            val flashcardsManager = remember { FlashcardsManager() }
 
             ThinkrTheme {
                 Column(modifier = Modifier.padding(start = 24.dp, top = 48.dp, end = 24.dp)) {
@@ -128,6 +131,20 @@ class MainActivity : ComponentActivity() {
                                     viewModel = viewModel,
                                     onConfirm = { navController.navigate(Route.Profile) }
                                 )
+                            }
+
+                            composable(
+                                route = Route.Flashcards.ROUTE,
+                                arguments = listOf(navArgument(Route.Flashcards.ARGUMENT) {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val json =
+                                    backStackEntry.arguments?.getString(Route.Flashcards.ARGUMENT)
+                                        ?: ""
+                                val document =
+                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                FlashcardsScreen(document, navController, flashcardsManager)
                             }
                         }
                     }
