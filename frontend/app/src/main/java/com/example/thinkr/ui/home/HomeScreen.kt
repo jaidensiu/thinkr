@@ -1,15 +1,11 @@
 package com.example.thinkr.ui.home
 
-import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -49,8 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.thinkr.R
 import com.example.thinkr.ui.shared.ListItem
@@ -200,7 +194,6 @@ fun getFileName(context: Context, uri: Uri): String? {
 @Composable
 fun FilePickerDialog(onDismiss: () -> Unit = {}, onSelected: (Uri) -> Unit) {
     val context = LocalContext.current
-    val storagePermission = Manifest.permission.READ_EXTERNAL_STORAGE
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedFileName by remember { mutableStateOf<String?>(null) }
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -208,38 +201,6 @@ fun FilePickerDialog(onDismiss: () -> Unit = {}, onSelected: (Uri) -> Unit) {
     ) { uri: Uri? ->
         selectedFileUri = uri
         selectedFileName = uri?.let { getFileName(context, it) }
-    }
-
-    var showPermissionDialog by remember { mutableStateOf(false) }
-
-    val requestPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted: Boolean ->
-            if (isGranted) {
-                filePickerLauncher.launch("*/*")
-            } else {
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, storagePermission)) {
-                         showSettingsDialog(context)
-                }
-                showPermissionDialog = true
-            }
-        }
-    )
-
-    fun checkStoragePermission() {
-        if (ContextCompat.checkSelfPermission(context, storagePermission) == PackageManager.PERMISSION_GRANTED) {
-            filePickerLauncher.launch("*/*")
-        } else {
-            requestPermissionLauncher.launch(storagePermission)
-        }
-    }
-
-    if (showPermissionDialog) {
-        Toast.makeText(
-            LocalContext.current,
-            "Permission Denied",
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -259,7 +220,7 @@ fun FilePickerDialog(onDismiss: () -> Unit = {}, onSelected: (Uri) -> Unit) {
                 ) {
                     Text(text = "Select a File", style = MaterialTheme.typography.headlineSmall)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { checkStoragePermission() }) {
+                    Button(onClick = { filePickerLauncher.launch("*/*") }) {
                         Text(text = "Choose File")
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -281,4 +242,3 @@ fun FilePickerDialog(onDismiss: () -> Unit = {}, onSelected: (Uri) -> Unit) {
         onSelected(selectedFileUri!!)
     }
 }
-
