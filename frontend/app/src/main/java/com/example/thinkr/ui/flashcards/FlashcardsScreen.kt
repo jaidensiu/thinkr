@@ -34,11 +34,7 @@ import com.example.thinkr.R
 
 @Composable
 fun FlashcardsScreen(documentItem: DocumentItem, navController: NavController, flashcardsManager: FlashcardsManager, viewModel: FlashcardsViewModel = FlashcardsViewModel(flashcardsManager)) {
-    val flashcards = listOf(
-        "Question 1" to "Answer 1",
-        "Question 2" to "Answer 2",
-        "Question 3" to "Answer 3"
-    )
+    val flashcards = flashcardsManager.getFlashcards(documentItem)
     var currentIndex by remember { mutableIntStateOf(0) }
     var showAnswer by remember { mutableStateOf(false) }
 
@@ -56,8 +52,8 @@ fun FlashcardsScreen(documentItem: DocumentItem, navController: NavController, f
         }
 
         Flashcard(
-        question = flashcards[currentIndex].first,
-        answer = flashcards[currentIndex].second,
+        question = flashcards[currentIndex].frontQuestion,
+        answer = flashcards[currentIndex].backAnswer,
         showAnswer = showAnswer,
         onSwipeRight = { showAnswer = !showAnswer },
         onSwipeLeft = { showAnswer = !showAnswer },

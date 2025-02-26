@@ -8,5 +8,4 @@ class FlashcardsViewModel(private val flashcardsManager: FlashcardsManager) : Vi
     fun onBackPressed(navController: NavController) {
         navController.popBackStack()
     }
-
 }
