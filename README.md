@@ -257,27 +257,28 @@
   ```json
    {
       "userId": "userId",
-      "paths": [
-         "first file path"
-      ]
+      "path": "file path"
    }
   ```
   - Response:
   ```json
   {
-      "data": [
-         {
-            "front": "first word",
-            "back": "definition of first word"
-         },
-         {
-            "front": "second word",
-            "back": "definition of second word"
-         },
-      ]
+      "data": {
+         "userId": "userId",
+         "documentName": "file path",
+         "flashcards": [
+            {
+               "front": "first word",
+               "back": "definition of first word"
+            },
+            {
+               "front": "second word",
+               "back": "definition of second word"
+            },
+         ]
+      }
    }
    ```
-   - Note: The `paths` must include the file type in the string (e.g. `file1.pdf` is a valid path, not `file1` by itself).
 
    **Endpoint: `/study/quiz`**
    - Method: `POST`
@@ -285,8 +286,49 @@
    ```json
    {
       "userId": "userId",
+      "path": "file path"
+   }
+   ```
+   - Response
+   ```json
+   {
+      "data": {
+         "userId": "userId",
+         "documentName": "file path",
+         "quiz": [
+            {
+               "question": "Question 1",
+               "answer": "C",
+               "options": {
+                  "A": "Answer 1",
+                  "B": "Answer 2",
+                  "C": "Answer 3",
+                  "D": "Answer 4"
+               } 
+            },
+            {
+               "question": "Question 1",
+               "answer": "C",
+               "options": {
+                  "A": "Answer 1",
+                  "B": "Answer 2",
+                  "C": "Answer 3",
+                  "D": "Answer 4"
+               }
+            }
+         ]
+      }
+   }
+   ```
+   **Endpoint: `/study/quiz`**
+   - Method: `GET`
+   - Body: raw, paths is an OPTIONAL field
+   ```json
+   {
+      "userId": "userId",
       "paths": [
-         "first file path"
+         "file path 1", 
+         "file path 2"
       ]
    }
    ```
@@ -295,26 +337,66 @@
    {
       "data": [
          {
-            "question": "Question 1",
-            "answer": "C",
-            "options": {
-                "A": "Answer 1",
-                "B": "Answer 2",
-                "C": "Answer 3",
-                "D": "Answer 4"
-            } 
-         },
-         {
-            "question": "Question 1",
-            "answer": "C",
-            "options": {
-                "A": "Answer 1",
-                "B": "Answer 2",
-                "C": "Answer 3",
-                "D": "Answer 4"
-            }
+            "userId": "userId",
+            "documentName": "file path 1",
+            "flashcards": [
+               {
+                  "front": "first word",
+                  "back": "definition of first word"
+               },
+               {
+                  "front": "second word",
+                  "back": "definition of second word"
+               },
+            ]
          }
       ]
    }
    ```
-   - Note: The paths must include the file type in the string (e.g. file1.pdf is a valid path, not file1 by itself).
+   - Note: if paths are not provided, we retrieve all of the user's past generated quizzes
+   **Endpoint: `/study/flashcards`**
+   - Method: `GET`
+   - Body: raw, paths is an OPTIONAL field
+   ```json
+   {
+      "userId": "userId",
+      "paths": [
+         "file path 1", 
+         "file path 2"
+      ]
+   }
+   ```
+   - Response
+   ```json
+   {
+      "data": [
+         {
+            "userId": "userId",
+            "documentName": "file path 1",
+            "quiz": [
+               {
+                  "question": "Question 1",
+                  "answer": "C",
+                  "options": {
+                     "A": "Answer 1",
+                     "B": "Answer 2",
+                     "C": "Answer 3",
+                     "D": "Answer 4"
+                  } 
+               },
+               {
+                  "question": "Question 1",
+                  "answer": "C",
+                  "options": {
+                     "A": "Answer 1",
+                     "B": "Answer 2",
+                     "C": "Answer 3",
+                     "D": "Answer 4"
+                  }
+               }
+            ]
+         }
+      ]
+   }
+   ```
+   - Note: if paths are not provided, we retrieve all of the user's past generated flashcards

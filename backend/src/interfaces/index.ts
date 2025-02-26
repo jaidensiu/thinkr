@@ -28,7 +28,14 @@ export interface DocumentDTO {
 /**
  * Represents a flashcard for data transfer between frontend <-> backend
  */
+
 export interface FlashCardDTO {
+    userId: string
+    documentName: string
+    flashcards: FlashCard[]
+}
+
+export interface FlashCard {
     front: string;
     back: string;
 }
@@ -36,7 +43,14 @@ export interface FlashCardDTO {
 /**
  * Represents a multiple choice quiz for data transfer between frontend <-> backend
  */
+
 export interface QuizDTO {
+    userId: string;
+    documentName: string;
+    quiz: Quiz[]
+}
+
+export interface Quiz {
     question: string;
     answer: string;
     options: {

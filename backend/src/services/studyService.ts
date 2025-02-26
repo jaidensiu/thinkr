@@ -1,9 +1,11 @@
 import { PromptTemplate } from '@langchain/core/prompts';
 import { ChatOpenAI } from '@langchain/openai';
-import { FlashCardDTO, QuizDTO } from '../interfaces';
+import { FlashCard, FlashCardDTO, Quiz, QuizDTO } from '../interfaces';
 import RAGService from './RAGService';
 import { StructuredOutputParser } from '@langchain/core/output_parsers';
 import { z } from 'zod';
+import FlashcardSet from '../db/mongo/models/FlashcardSet';
+import QuizSet from '../db/mongo/models/QuizSet';
 
 class StudyService {
     private llm: ChatOpenAI;
@@ -21,11 +23,11 @@ class StudyService {
     }
 
     public async createFlashCards(
-        embeddingIds: string[],
+        embeddingId: string,
         collection: string
-    ): Promise<FlashCardDTO[]> {
+    ): Promise<FlashCardDTO> {
         const docs = await this.ragService.fetchDocumentsFromVectorDB(
-            embeddingIds,
+            [embeddingId],
             collection
         );
 
@@ -58,20 +60,28 @@ class StudyService {
         const parser = StructuredOutputParser.fromZodSchema(flashcardSchema);
         const chain = flashcardPrompt.pipe(this.llm).pipe(parser);
 
-        const flashcards = await chain.invoke({
+        const flashcards: FlashCard[] = await chain.invoke({
             content: docs.join('\n'),
             format_instructions: parser.getFormatInstructions(),
         });
 
-        return flashcards as FlashCardDTO[];
+        const existingFlashCard = await FlashcardSet.findOne({userId: collection, documentName: embeddingId});
+        if (existingFlashCard) {
+            await FlashcardSet.updateOne({userId: collection, documentName: embeddingId}, { flashcards });
+        }
+        else {
+            await FlashcardSet.create({userId: collection, documentName: embeddingId, flashcards});
+        }
+
+        return { userId: collection, documentName: embeddingId, flashcards: flashcards } as FlashCardDTO;
     }
 
     public async createQuiz(
-        embeddingIds: string[],
+        embeddingId: string,
         collection: string
-    ): Promise<QuizDTO[]> {
+    ): Promise<QuizDTO> {
         const docs = await this.ragService.fetchDocumentsFromVectorDB(
-            embeddingIds,
+            [embeddingId],
             collection
         );
     
@@ -103,12 +113,51 @@ class StudyService {
         const parser = StructuredOutputParser.fromZodSchema(quizSchema);
         const chain = quizPrompt.pipe(this.llm).pipe(parser);
     
-        const quiz = await chain.invoke({
+        const quiz: Quiz[] = await chain.invoke({
             content: docs.join('\n'),
             format_instructions: parser.getFormatInstructions(),
         });
-    
-        return quiz as QuizDTO[];
+        
+        const existingQuiz = await QuizSet.findOne({userId: collection, documentName: embeddingId}, {
+            quiz
+        });
+        if (existingQuiz) {
+            await QuizSet.updateOne({userId: collection, documentName: embeddingId}, { quiz });
+        }
+        else {
+            await QuizSet.create({userId: collection, documentName: embeddingId, quiz});
+        }
+
+        return { userId: collection, documentName: embeddingId, quiz: quiz } as QuizDTO;
+    }
+
+    public async retrieveQuizzes(paths: string[], userId: string): Promise<QuizDTO[]> {
+        const quizzes = await QuizSet.find({ userId: userId });
+        const filteredQuizzes = paths && paths.length > 0 ? quizzes.filter((q) => paths.includes(q.documentName)) : quizzes;
+        
+        return filteredQuizzes.map((q) => ({
+            userId: userId,
+            documentName: q.documentName,
+            quiz: q.quiz.map((quiz) => ({
+                question: quiz.question,
+                answer: quiz.answer,
+                options: quiz.options
+            })),
+        })) as QuizDTO[];
+    }
+
+    public async retrieveFlashcards(paths: string[], userId: string): Promise<FlashCardDTO[]> {
+        const flashCards = await FlashcardSet.find({ userId: userId });
+        const filteredFlashcards = paths && paths.length > 0 ? flashCards.filter((f) => paths.includes(f.documentName)) : flashCards;
+       
+        return filteredFlashcards.map((f) => ({
+            userId: userId,
+            documentName: f.documentName,
+            flashcards: f.flashcards.map((flashcard) => ({
+                front: flashcard.front, 
+                back: flashcard.back
+            })),
+        })) as FlashCardDTO[];
     }
 }
 
