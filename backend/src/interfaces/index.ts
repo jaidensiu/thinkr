@@ -31,9 +31,9 @@ export interface DocumentDTO {
  */
 
 export interface FlashCardDTO {
-    userId: string
-    documentName: string
-    flashcards: FlashCard[]
+    userId: string;
+    documentName: string;
+    flashcards: FlashCard[];
 }
 
 export interface FlashCard {
@@ -48,7 +48,7 @@ export interface FlashCard {
 export interface QuizDTO {
     userId: string;
     documentName: string;
-    quiz: Quiz[]
+    quiz: Quiz[];
 }
 
 export interface Quiz {

@@ -65,15 +65,28 @@ class StudyService {
             format_instructions: parser.getFormatInstructions(),
         });
 
-        const existingFlashCard = await FlashcardSet.findOne({userId: collection, documentName: embeddingId});
+        const existingFlashCard = await FlashcardSet.findOne({
+            userId: collection,
+            documentName: embeddingId,
+        });
         if (existingFlashCard) {
-            await FlashcardSet.updateOne({userId: collection, documentName: embeddingId}, { flashcards });
-        }
-        else {
-            await FlashcardSet.create({userId: collection, documentName: embeddingId, flashcards});
+            await FlashcardSet.updateOne(
+                { userId: collection, documentName: embeddingId },
+                { flashcards }
+            );
+        } else {
+            await FlashcardSet.create({
+                userId: collection,
+                documentName: embeddingId,
+                flashcards,
+            });
         }
 
-        return { userId: collection, documentName: embeddingId, flashcards: flashcards } as FlashCardDTO;
+        return {
+            userId: collection,
+            documentName: embeddingId,
+            flashcards: flashcards,
+        } as FlashCardDTO;
     }
 
     public async createQuiz(
@@ -119,59 +132,76 @@ class StudyService {
         const parser = StructuredOutputParser.fromZodSchema(quizSchema);
         const chain = quizPrompt.pipe(this.llm).pipe(parser);
 
-    
         const quiz: Quiz[] = await chain.invoke({
             content: docs.join('\n'),
             format_instructions: parser.getFormatInstructions(),
         });
-        
-        const existingQuiz = await QuizSet.findOne({userId: collection, documentName: embeddingId}, {
-            quiz
-        });
+
+        const existingQuiz = await QuizSet.findOne(
+            { userId: collection, documentName: embeddingId },
+            {
+                quiz,
+            }
+        );
         if (existingQuiz) {
-            await QuizSet.updateOne({userId: collection, documentName: embeddingId}, { quiz });
-        }
-        else {
-            await QuizSet.create({userId: collection, documentName: embeddingId, quiz});
+            await QuizSet.updateOne(
+                { userId: collection, documentName: embeddingId },
+                { quiz }
+            );
+        } else {
+            await QuizSet.create({
+                userId: collection,
+                documentName: embeddingId,
+                quiz,
+            });
         }
 
-        return { userId: collection, documentName: embeddingId, quiz: quiz } as QuizDTO;
+        return {
+            userId: collection,
+            documentName: embeddingId,
+            quiz: quiz,
+        } as QuizDTO;
     }
 
-    public async retrieveQuizzes(paths: string[], userId: string): Promise<QuizDTO[]> {
+    public async retrieveQuizzes(
+        paths: string[],
+        userId: string
+    ): Promise<QuizDTO[]> {
         const quizzes = await QuizSet.find({ userId: userId });
-        const filteredQuizzes = paths && paths.length > 0 ? quizzes.filter((q) => paths.includes(q.documentName)) : quizzes;
-        
+        const filteredQuizzes =
+            paths && paths.length > 0
+                ? quizzes.filter((q) => paths.includes(q.documentName))
+                : quizzes;
+
         return filteredQuizzes.map((q) => ({
             userId: userId,
             documentName: q.documentName,
             quiz: q.quiz.map((quiz) => ({
                 question: quiz.question,
                 answer: quiz.answer,
-                options: quiz.options
+                options: quiz.options,
             })),
         })) as QuizDTO[];
     }
 
-    public async retrieveFlashcards(paths: string[], userId: string): Promise<FlashCardDTO[]> {
+    public async retrieveFlashcards(
+        paths: string[],
+        userId: string
+    ): Promise<FlashCardDTO[]> {
         const flashCards = await FlashcardSet.find({ userId: userId });
-        const filteredFlashcards = paths && paths.length > 0 ? flashCards.filter((f) => paths.includes(f.documentName)) : flashCards;
-       
+        const filteredFlashcards =
+            paths && paths.length > 0
+                ? flashCards.filter((f) => paths.includes(f.documentName))
+                : flashCards;
+
         return filteredFlashcards.map((f) => ({
             userId: userId,
             documentName: f.documentName,
             flashcards: f.flashcards.map((flashcard) => ({
-                front: flashcard.front, 
-                back: flashcard.back
+                front: flashcard.front,
+                back: flashcard.back,
             })),
         })) as FlashCardDTO[];
-
-        const quiz = await chain.invoke({
-            content: docs.join('\n'),
-            format_instructions: parser.getFormatInstructions(),
-        });
-
-        return quiz as QuizDTO[];
     }
 }
 

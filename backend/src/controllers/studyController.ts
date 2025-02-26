@@ -11,8 +11,7 @@ export const generateFlashCards = async (
 
         if (!path || !userId) {
             res.status(400).json({
-                message:
-                    'You must provide a path and an userId identifier',
+                message: 'You must provide a path and an userId identifier',
             });
             return;
         }
@@ -38,8 +37,7 @@ export const generateQuiz = async (
 
         if (!path || !userId) {
             res.status(400).json({
-                message:
-                    'You must provide a path and an userId identifier',
+                message: 'You must provide a path and an userId identifier',
             });
             return;
         }
@@ -65,8 +63,7 @@ export const retrieveFlashcards = async (
 
         if (!userId || (paths && !Array.isArray(paths))) {
             res.status(400).json({
-                message:
-                    'You must provide a userId identifier',
+                message: 'You must provide a userId identifier',
             });
             return;
         }
@@ -92,8 +89,7 @@ export const retrieveQuizzes = async (
 
         if (!userId || (paths && !Array.isArray(paths))) {
             res.status(400).json({
-                message:
-                    'You must provide a userId identifier',
+                message: 'You must provide a userId identifier',
             });
             return;
         }

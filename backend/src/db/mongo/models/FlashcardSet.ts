@@ -3,8 +3,8 @@ import { FlashCard } from '../../../interfaces';
 
 export interface IFlashcardSet extends Document {
     userId: string;
-    documentName: string; 
-    flashcards: FlashCard[]; 
+    documentName: string;
+    flashcards: FlashCard[];
 }
 
 const flashcardSetSchema = new Schema<IFlashcardSet>({
