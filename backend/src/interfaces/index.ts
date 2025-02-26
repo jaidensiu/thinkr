@@ -14,6 +14,7 @@ export interface UserDTO {
     name?: string;
     googleId?: string;
     userId: string;
+    subscribed: boolean;
 }
 
 /**

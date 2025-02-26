@@ -63,7 +63,9 @@ class RAGService {
      */
     private async initVectorStore(collectionName: string): Promise<void> {
         try {
-            console.log(`Attempting to connect to ChromaDB at ${this.vectorStoreUrl}`);
+            console.log(
+                `Attempting to connect to ChromaDB at ${this.vectorStoreUrl}`
+            );
             this.vectorStore = await Chroma.fromExistingCollection(
                 this.embeddings,
                 {
@@ -71,12 +73,16 @@ class RAGService {
                     url: this.vectorStoreUrl,
                 }
             );
-            console.log(`Successfully connected to ChromaDB collection: ${collectionName}`);
+            console.log(
+                `Successfully connected to ChromaDB collection: ${collectionName}`
+            );
         } catch (error: unknown) {
             console.error('Vector store initialization error:', error);
-            
+
             try {
-                console.log(`Attempting to create new collection: ${collectionName}`);
+                console.log(
+                    `Attempting to create new collection: ${collectionName}`
+                );
                 this.vectorStore = await Chroma.fromTexts(
                     ['Initial document for testing RAG capabilities.'],
                     { source: 'initialization' },
@@ -86,10 +92,17 @@ class RAGService {
                         url: this.vectorStoreUrl,
                     }
                 );
-                console.log(`Successfully created new ChromaDB collection: ${collectionName}`);
+                console.log(
+                    `Successfully created new ChromaDB collection: ${collectionName}`
+                );
             } catch (innerError) {
-                console.error('Failed to create ChromaDB collection:', innerError);
-                throw new RAGServiceError(`ChromaDB connection failed. Please ensure ChromaDB is running at ${this.vectorStoreUrl}`);
+                console.error(
+                    'Failed to create ChromaDB collection:',
+                    innerError
+                );
+                throw new RAGServiceError(
+                    `ChromaDB connection failed. Please ensure ChromaDB is running at ${this.vectorStoreUrl}`
+                );
             }
         }
     }

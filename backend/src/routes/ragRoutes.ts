@@ -5,4 +5,4 @@ const router = Router();
 
 router.post('/query', queryRAG);
 
-export default router; 
+export default router;

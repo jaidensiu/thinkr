@@ -3,23 +3,18 @@ package com.example.thinkr.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.thinkr.app.Route
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.domain.DocumentManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class HomeScreenViewModel : ViewModel() {
-    private fun getItems(): List<DocumentItem> {
-        // TODO: In the future here will be an HTTP call to retrieve the items
-        return listOf(
-            DocumentItem("defaultUser", "Item1"),
-            DocumentItem("defaultUser", "Item2"),
-            DocumentItem("defaultUser", "Item3"),
-        )
+class HomeScreenViewModel(documentManager: DocumentManager) : ViewModel() {
+    init {
+        documentManager.loadDocuments()
     }
 
     private val _state = MutableStateFlow(
-        HomeScreenState(items = getItems())
+        HomeScreenState(documentManager)
     )
 
     var state: StateFlow<HomeScreenState> = _state.asStateFlow()

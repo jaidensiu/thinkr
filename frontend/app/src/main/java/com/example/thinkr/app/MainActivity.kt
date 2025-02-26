@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.example.thinkr.domain.DocumentManager
 import com.example.thinkr.domain.model.DocumentItem
 import com.example.thinkr.ui.document_details.DocumentDetailsScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val account = remember { GoogleSignIn.getLastSignedInAccount(this) }
             val startDestination = remember { if (account != null) Route.Home else Route.Landing }
+            val documentManager = remember { DocumentManager() }
 
             ThinkrTheme {
                 Column(modifier = Modifier.padding(start = 24.dp, top = 48.dp, end = 24.dp)) {
@@ -67,7 +69,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable<Route.Home> {
-                                val viewModel = koinViewModel<HomeScreenViewModel>()
+                                val viewModel = HomeScreenViewModel(documentManager)
 
                                 HomeScreen(
                                     navController = navController,
@@ -106,7 +108,7 @@ class MainActivity : ComponentActivity() {
                                     backStackEntry.arguments?.getString(Route.DocumentDetails.ARGUMENT)
                                         ?: ""
                                 val selectedUri = Uri.parse(Uri.decode(json))
-                                DocumentDetailsScreen(navController, selectedUri)
+                                DocumentDetailsScreen(navController, selectedUri, documentManager)
                             }
 
                             composable<Route.Profile> {

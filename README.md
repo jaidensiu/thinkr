@@ -48,7 +48,8 @@
                "email": "user email",
                "name": "user name",
                "googleId": "google id of user",
-               "userId": "unique user id"
+               "userId": "unique user id",
+               "subscribed": false
          }
       }
    }
@@ -354,6 +355,8 @@
    }
    ```
    - Note: if paths are not provided, we retrieve all of the user's past generated quizzes
+
+
    **Endpoint: `/study/flashcards`**
    - Method: `GET`
    - Body: raw, paths is an OPTIONAL field
@@ -400,3 +403,45 @@
    }
    ```
    - Note: if paths are not provided, we retrieve all of the user's past generated flashcards
+
+  **Endpoint: `/subscription`**
+  - Method: `POST`
+  - Body: raw
+  ```json
+   {
+      "userId": "your user id"
+   }
+  ```
+  - Response
+  ```json
+      {
+      "data": {
+         "email": "user email",
+         "name": "user name",
+         "googleId": "google id of user",
+         "userId": "unique user id",
+         "subscribed": true
+      }
+   }
+   ```
+   
+  **Endpoint: `/subscription`**
+  - Method: `DELETE`
+  - Body: raw
+  ```json
+   {
+      "userId": "your user id"
+   }
+  ```
+  - Response
+  ```json
+      {
+      "data": {
+         "email": "user email",
+         "name": "user name",
+         "googleId": "google id of user",
+         "userId": "unique user id",
+         "subscribed": false
+      }
+   }
+  ```
