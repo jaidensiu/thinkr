@@ -21,9 +21,9 @@ export interface UserDTO {
  * Represents a document for data transfer between frontend <-> backend
  */
 export interface DocumentDTO {
-    url?: string;
     documentId: string;
     uploadTime: string;
+    activityGenerationComplete: boolean;
 }
 
 /**
@@ -32,7 +32,7 @@ export interface DocumentDTO {
 
 export interface FlashCardDTO {
     userId: string;
-    documentName: string;
+    documentId: string;
     flashcards: FlashCard[];
 }
 
@@ -47,7 +47,7 @@ export interface FlashCard {
 
 export interface QuizDTO {
     userId: string;
-    documentName: string;
+    documentId: string;
     quiz: Quiz[];
 }
 

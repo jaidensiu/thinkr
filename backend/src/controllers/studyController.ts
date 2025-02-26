@@ -7,16 +7,16 @@ export const generateFlashCards = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { path, userId } = req.body;
+        const { documentId, userId } = req.body;
 
-        if (!path || !userId) {
+        if (!documentId || !userId) {
             res.status(400).json({
-                message: 'You must provide a path and an userId identifier',
+                message: 'You must provide a documentId and an userId identifier',
             });
             return;
         }
 
-        const flashcards = await StudyService.createFlashCards(path, userId);
+        const flashcards = await StudyService.createFlashCards(documentId, userId);
 
         res.status(200).json({ data: flashcards } as Result);
     } catch (error) {
@@ -33,16 +33,16 @@ export const generateQuiz = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { path, userId } = req.body;
+        const { documentId, userId } = req.body;
 
-        if (!path || !userId) {
+        if (!documentId || !userId) {
             res.status(400).json({
-                message: 'You must provide a path and an userId identifier',
+                message: 'You must provide a documentId and an userId identifier',
             });
             return;
         }
 
-        const quiz = await StudyService.createQuiz(path, userId);
+        const quiz = await StudyService.createQuiz(documentId, userId);
 
         res.status(200).json({ data: quiz } as Result);
     } catch (error) {
@@ -59,16 +59,16 @@ export const retrieveFlashcards = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { paths, userId } = req.body;
+        const { documentIds, userId } = req.body;
 
-        if (!userId || (paths && !Array.isArray(paths))) {
+        if (!userId || (documentIds && !Array.isArray(documentIds))) {
             res.status(400).json({
                 message: 'You must provide a userId identifier',
             });
             return;
         }
 
-        const flashcards = await StudyService.retrieveFlashcards(paths, userId);
+        const flashcards = await StudyService.retrieveFlashcards(documentIds, userId);
 
         res.status(200).json({ data: flashcards } as Result);
     } catch (error) {
@@ -85,16 +85,16 @@ export const retrieveQuizzes = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { paths, userId } = req.body;
+        const { documentIds, userId } = req.body;
 
-        if (!userId || (paths && !Array.isArray(paths))) {
+        if (!userId || (documentIds && !Array.isArray(documentIds))) {
             res.status(400).json({
                 message: 'You must provide a userId identifier',
             });
             return;
         }
 
-        const quizzes = await StudyService.retrieveQuizzes(paths, userId);
+        const quizzes = await StudyService.retrieveQuizzes(documentIds, userId);
 
         res.status(200).json({ data: quizzes } as Result);
     } catch (error) {

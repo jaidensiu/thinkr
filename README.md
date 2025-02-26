@@ -181,7 +181,7 @@
   - Body: multipart/form-data
    ```json
    {
-      "documents": "<your file(s) here>",
+      "document": "<your file (single) here>",
       "userId": "userId"
    }
    ```
@@ -189,16 +189,10 @@
   ```json
    {
       "data": {
-         "docs": [
-            {
-               "documentId": "first file",
-               "uploadTime": "time of file upload"
-            },
-            {
-               "documentId": "second file",
-               "uploadTime": "time of file upload"
-            }
-         ]
+         "docs": {
+            "documentId": "first file",
+            "uploadTime": "time of file upload"
+         },
       }
    }
   ```
@@ -209,9 +203,9 @@
    ```json
    {
       "userId": "userId",
-      "paths": [
-         "path of first file",
-         "path of second file"
+      "documentIds": [
+         "documentId of first file",
+         "documentId of second file"
       ]
    }
    ```
@@ -219,13 +213,13 @@
 
   **Endpoint: `/document/retrieve`**
   - Method: `GET`
-  - Body: raw, paths is an OPTIONAL field
+  - Body: raw, documentIds is an OPTIONAL field
   ```json
    {
       "userId": "userId",
-      "paths": [
-         "path of first file",
-         "path of second file"
+      "documentIds": [
+         "documentId of first file",
+         "documentId of second file"
       ]
    }
   ```
@@ -245,10 +239,11 @@
                "uploadTime": "time of file upload"
             }
          ]
+         +
       }
    }
   ```
-  - Note: Returns all of the user's files if no paths are provided for `GET /document/retrieve`. The `paths` must include file types (e.g. `file1.pdf` is one path, not `file1` by itself)
+  - Note: Returns all of the user's files if no documentIds are provided for `GET /document/retrieve`. The `documentIds` must include file types (e.g. `file1.pdf` is one documentId, not `file1` by itself)
 
 - **Study:**
 
@@ -258,7 +253,7 @@
   ```json
    {
       "userId": "userId",
-      "path": "file path"
+      "documentId": "file documentId"
    }
   ```
   - Response:
@@ -266,7 +261,7 @@
   {
       "data": {
          "userId": "userId",
-         "documentName": "file path",
+         "documentId": "file documentId",
          "flashcards": [
             {
                "front": "first word",
@@ -287,7 +282,7 @@
    ```json
    {
       "userId": "userId",
-      "path": "file path"
+      "documentId": "file documentId"
    }
    ```
    - Response
@@ -295,7 +290,7 @@
    {
       "data": {
          "userId": "userId",
-         "documentName": "file path",
+         "documentId": "file documentId",
          "quiz": [
             {
                "question": "Question 1",
@@ -323,13 +318,13 @@
    ```
    **Endpoint: `/study/quiz`**
    - Method: `GET`
-   - Body: raw, paths is an OPTIONAL field
+   - Body: raw, documentIds is an OPTIONAL field
    ```json
    {
       "userId": "userId",
-      "paths": [
-         "file path 1", 
-         "file path 2"
+      "documentIds": [
+         "file documentId 1", 
+         "file documentId 2"
       ]
    }
    ```
@@ -339,7 +334,7 @@
       "data": [
          {
             "userId": "userId",
-            "documentName": "file path 1",
+            "documentId": "file documentId 1",
             "flashcards": [
                {
                   "front": "first word",
@@ -354,18 +349,18 @@
       ]
    }
    ```
-   - Note: if paths are not provided, we retrieve all of the user's past generated quizzes
+   - Note: if documentIds are not provided, we retrieve all of the user's past generated quizzes
 
 
    **Endpoint: `/study/flashcards`**
    - Method: `GET`
-   - Body: raw, paths is an OPTIONAL field
+   - Body: raw, documentIds is an OPTIONAL field
    ```json
    {
       "userId": "userId",
-      "paths": [
-         "file path 1", 
-         "file path 2"
+      "documentIds": [
+         "file documentId 1", 
+         "file documentId 2"
       ]
    }
    ```
@@ -375,7 +370,7 @@
       "data": [
          {
             "userId": "userId",
-            "documentName": "file path 1",
+            "documentId": "file documentId 1",
             "quiz": [
                {
                   "question": "Question 1",
@@ -402,7 +397,7 @@
       ]
    }
    ```
-   - Note: if paths are not provided, we retrieve all of the user's past generated flashcards
+   - Note: if documentIds are not provided, we retrieve all of the user's past generated flashcards
 
   **Endpoint: `/subscription`**
   - Method: `POST`

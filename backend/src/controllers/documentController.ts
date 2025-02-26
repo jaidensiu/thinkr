@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import DocumentService from '../services/documentService';
 import { Result } from '../interfaces';
+import StudyService from '../services/studyService';
+import Document from '../db/mongo/models/Document';
 
 /**
  * Handles document uploads
@@ -11,8 +13,8 @@ export const uploadDocuments = async (
     res: Response
 ): Promise<void> => {
     const { userId } = req.body;
-
-    if (!userId || !req.files || !Array.isArray(req.files)) {
+    
+    if (!userId || !req.file) {
         res.status(400).json({
             message: 'Bad Request, missing userId or files',
         } as Result);
@@ -20,12 +22,13 @@ export const uploadDocuments = async (
     }
 
     try {
-        const files = req.files as Express.Multer.File[];
-        const docs = await DocumentService.uploadDocuments(files, userId);
-
+        const file = req.file as Express.Multer.File;
+        const docs = await DocumentService.uploadDocument(file, userId);
+        
         res.status(200).json({
             data: { docs },
         } as Result);
+        generateStudyActivities(docs.documentId, userId);
     } catch (error) {
         console.error('Error uploading documents:', error);
 
@@ -35,6 +38,13 @@ export const uploadDocuments = async (
     }
 };
 
+const generateStudyActivities = async(documentId: string, userId: string) => {
+    await StudyService.createFlashCards(documentId, userId);
+    await StudyService.createQuiz(documentId, userId);
+    // Create chat
+    await Document.findOneAndUpdate({ userId: userId, name: documentId }, { activityGenerationComplete: true });
+}
+
 /**
  * Handles deleting documents
  *
@@ -43,17 +53,17 @@ export const deleteDocuments = async (
     req: Request,
     res: Response
 ): Promise<void> => {
-    const { userId, paths } = req.body;
+    const { userId, documentIds } = req.body;
 
-    if (!userId || !paths || !Array.isArray(paths)) {
+    if (!userId || !documentIds || !Array.isArray(documentIds)) {
         res.status(400).json({
-            message: 'Bad Request, userId and paths are required',
+            message: 'Bad Request, userId and documentIds are required',
         } as Result);
         return;
     }
 
     try {
-        await DocumentService.deleteDocuments(paths, userId);
+        await DocumentService.deleteDocuments(documentIds, userId);
         res.status(200).json();
         return;
     } catch (error) {
@@ -73,9 +83,9 @@ export const getDocuments = async (
     req: Request,
     res: Response
 ): Promise<void> => {
-    const { paths, userId } = req.body;
+    const { documentIds, userId } = req.body;
 
-    if (!userId || (paths && !Array.isArray(paths))) {
+    if (!userId || (documentIds && !Array.isArray(documentIds))) {
         res.status(400).json({
             message: 'Bad Request, userId is required',
         } as Result);
@@ -83,7 +93,7 @@ export const getDocuments = async (
     }
 
     try {
-        const docs = await DocumentService.getDocuments(paths, userId);
+        const docs = await DocumentService.getDocuments(documentIds, userId);
 
         const result: Result = {
             data: { docs },

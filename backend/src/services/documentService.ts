@@ -54,6 +54,7 @@ class DocumentService {
         file: Express.Multer.File,
         userId: string
     ): Promise<DocumentDTO> {
+        await this.ragService.ensureVectorStore(userId);
         const key = `${userId}-${file.originalname}`;
 
         const params = {
@@ -88,6 +89,7 @@ class DocumentService {
                 s3Path: key,
                 uploadDate: dateFormatted,
                 embeddingsId: embeddingsId,
+                activityGenerationComplete: false
             },
             { upsert: true, new: true }
         );
@@ -95,6 +97,7 @@ class DocumentService {
         return {
             documentId: file.originalname,
             uploadTime: dateFormatted,
+            activityGenerationComplete: false
         } as DocumentDTO;
     }
 
@@ -102,17 +105,17 @@ class DocumentService {
      * Uploads multiple files to s3 and mongodb
      *
      */
-    public async uploadDocuments(
-        files: Express.Multer.File[],
-        userId: string
-    ): Promise<DocumentDTO[]> {
-        await this.ragService.ensureVectorStore(userId);
+    // public async uploadDocuments(
+    //     files: Express.Multer.File[],
+    //     userId: string
+    // ): Promise<DocumentDTO[]> {
+    //     await this.ragService.ensureVectorStore(userId);
 
-        const docs = await Promise.all(
-            files.map((file) => this.uploadDocument(file, userId))
-        );
-        return docs as DocumentDTO[];
-    }
+    //     const docs = await Promise.all(
+    //         files.map((file) => this.uploadDocument(file, userId))
+    //     );
+    //     return docs as DocumentDTO[];
+    // }
 
     /**
      * Deletes a document on s3 and mongodb
@@ -129,7 +132,7 @@ class DocumentService {
         await this.s3Client.send(command);
 
         // mongodb
-        await Document.deleteOne({ s3Path: key });
+        await Document.deleteOne({ s3documentId: key });
         return;
     }
 
@@ -139,13 +142,13 @@ class DocumentService {
      */
 
     public async deleteDocuments(
-        paths: string[],
+        documentIds: string[],
         userId: string
     ): Promise<void> {
         await Promise.all(
-            paths.map((path) => this.deleteDocument(`${userId}-${path}`))
+            documentIds.map((documentId) => this.deleteDocument(`${userId}-${documentId}`))
         );
-        await this.ragService.deleteDocuments(paths, userId);
+        await this.ragService.deleteDocuments(documentIds, userId);
         return;
     }
 
@@ -156,23 +159,13 @@ class DocumentService {
     public async getDocument(
         key: string,
         userId: string,
-        expiresIn: number = 3600
     ): Promise<DocumentDTO> {
-        let params = {
-            Bucket: this.bucketName,
-            Key: `${userId}-${key}`,
-        };
-
-        const command = new GetObjectCommand(params);
-        const documentUrl = await getSignedUrl(this.s3Client, command, {
-            expiresIn,
-        });
         const doc = await Document.findOne({ s3Path: `${userId}-${key}` });
 
         return {
-            url: documentUrl,
             documentId: key,
-            uploadTime: doc!.uploadDate,
+            uploadTime: doc?.uploadDate,
+            activityGenerationComplete: doc?.activityGenerationComplete
         } as DocumentDTO;
     }
 
