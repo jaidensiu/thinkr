@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { generateFlashCards, generateQuiz, retrieveFlashcards, retrieveQuizzes } from '../controllers/studyController';
+import {
+    generateFlashCards,
+    generateQuiz,
+    retrieveFlashcards,
+    retrieveQuizzes,
+} from '../controllers/studyController';
 
 const router = Router();
 
