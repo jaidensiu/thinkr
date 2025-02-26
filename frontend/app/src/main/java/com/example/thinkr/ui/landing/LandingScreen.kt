@@ -50,7 +50,8 @@ fun LandingScreen(
     viewModel: LandingScreenViewModel = koinViewModel(),
     onLogin: () -> Unit,
     onSignUp: () -> Unit,
-    navigateToHome: () -> Unit
+    navigateToHome: () -> Unit,
+    onSignOut: () -> Unit
 ) {
     val state = viewModel.state.collectAsState()
     val interactionSource = remember { MutableInteractionSource() }
@@ -66,7 +67,7 @@ fun LandingScreen(
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
-            viewModel.onGoogleSignInResult(account?.idToken)
+            viewModel.onGoogleSignInResult(account, onSignOut)
             Log.d("ServerScreen", "Sign-in successful: ${account?.email}")
         } catch (e: ApiException) {
             Log.e("ServerScreen", "Sign-in failed: ${e.statusCode}", e)

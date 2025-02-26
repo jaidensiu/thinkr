@@ -65,7 +65,8 @@ class MainActivity : ComponentActivity() {
                                     viewModel = viewModel,
                                     onLogin = { navController.navigate(Route.Home) },
                                     onSignUp = { navController.navigate(Route.Home) },
-                                    navigateToHome = { navController.navigate(Route.Home) }
+                                    navigateToHome = { navController.navigate(Route.Home) },
+                                    onSignOut = { googleSignInClient.signOut() }
                                 )
                             }
 
