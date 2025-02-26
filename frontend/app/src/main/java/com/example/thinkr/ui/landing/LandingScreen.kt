@@ -15,10 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -38,16 +42,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thinkr.app.MainActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LandingScreen(
     viewModel: LandingScreenViewModel = koinViewModel(),
     onLogin: () -> Unit,
-    onSignUp: () -> Unit
+    onSignUp: () -> Unit,
+    navigateToHome: () -> Unit
 ) {
     val state = viewModel.state.collectAsState()
     val interactionSource = remember { MutableInteractionSource() }
@@ -61,7 +64,19 @@ fun LandingScreen(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        handleSignInResult(task, onLogin)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            viewModel.onGoogleSignInResult(account?.idToken)
+            Log.d("ServerScreen", "Sign-in successful: ${account?.email}")
+        } catch (e: ApiException) {
+            Log.e("ServerScreen", "Sign-in failed: ${e.statusCode}", e)
+        }
+    }
+
+    LaunchedEffect(state.value.isAuthenticated) {
+        if (state.value.isAuthenticated) {
+            navigateToHome()
+        }
     }
 
     Column(
@@ -75,90 +90,89 @@ fun LandingScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "<Logo goes here>")
+        Text(text = "Welcome to Thinkr")
         Spacer(modifier = Modifier.height(20.dp))
-        OutlinedTextField(
-            value = state.value.username,
-            onValueChange = viewModel::onEditUsername,
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .fillMaxWidth(fraction = 0.75f),
-            placeholder = { Text(text = "Username") },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = if (state.value.username.isNotEmpty()) {
-                    ImeAction.Next
-                } else {
-                    ImeAction.Done
-                }
-            ),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        OutlinedTextField(
-            value = state.value.password,
-            onValueChange = viewModel::onEditPassword,
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .fillMaxWidth(fraction = 0.75f),
-            placeholder = { Text(text = "Password") },
-            trailingIcon = {
-                TextButton(
-                    onClick = { passwordVisible = !passwordVisible },
-                    modifier = Modifier.padding(end = 8.dp)
-                ) {
-                    Text(
-                        text = if (passwordVisible) "hide" else "show",
-                        fontSize = 14.sp
-                    )
-                }
-            },
-            visualTransformation = if (passwordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                autoCorrectEnabled = false,
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = onLogin,
-            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
-        ) {
-            Text(text = "Login")
+//        OutlinedTextField(
+//            value = state.value.username,
+//            onValueChange = viewModel::onEditUsername,
+//            modifier = Modifier
+//                .focusRequester(focusRequester)
+//                .fillMaxWidth(fraction = 0.75f),
+//            placeholder = { Text(text = "Username") },
+//            keyboardOptions = KeyboardOptions.Default.copy(
+//                imeAction = if (state.value.username.isNotEmpty()) {
+//                    ImeAction.Next
+//                } else {
+//                    ImeAction.Done
+//                }
+//            ),
+//            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+//            singleLine = true
+//        )
+//        Spacer(modifier = Modifier.height(20.dp))
+//        OutlinedTextField(
+//            value = state.value.password,
+//            onValueChange = viewModel::onEditPassword,
+//            modifier = Modifier
+//                .focusRequester(focusRequester)
+//                .fillMaxWidth(fraction = 0.75f),
+//            placeholder = { Text(text = "Password") },
+//            trailingIcon = {
+//                TextButton(
+//                    onClick = { passwordVisible = !passwordVisible },
+//                    modifier = Modifier.padding(end = 8.dp)
+//                ) {
+//                    Text(
+//                        text = if (passwordVisible) "hide" else "show",
+//                        fontSize = 14.sp
+//                    )
+//                }
+//            },
+//            visualTransformation = if (passwordVisible) {
+//                VisualTransformation.None
+//            } else {
+//                PasswordVisualTransformation()
+//            },
+//            keyboardOptions = KeyboardOptions.Default.copy(
+//                autoCorrectEnabled = false,
+//                keyboardType = KeyboardType.Password,
+//                imeAction = ImeAction.Done
+//            ),
+//            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+//            singleLine = true
+//        )
+//        Spacer(modifier = Modifier.height(12.dp))
+//        Button(
+//            onClick = onLogin,
+//            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+//        ) {
+//            Text(text = "Login")
+//        }
+//        Spacer(modifier = Modifier.height(12.dp))
+//        Button(
+//            onClick = onSignUp,
+//            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+//        ) {
+//            Text(text = "Sign Up")
+//        }
+//        Spacer(modifier = Modifier.height(12.dp))
+        if (state.value.isLoading) {
+            CircularProgressIndicator()
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = onSignUp,
-            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
-        ) {
-            Text(text = "Sign Up")
-        }
-        Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = { signInLauncher.launch(signInIntent) },
             modifier = Modifier.fillMaxWidth(fraction = 0.5f)
         ) {
             Text(text = "Sign in with Google")
         }
-    }
-}
-
-private fun handleSignInResult(
-    completedTask: Task<GoogleSignInAccount>,
-    onLogin: () -> Unit
-) {
-    try {
-        val account = completedTask.getResult(ApiException::class.java)
-        onLogin()
-        Log.d("ServerScreen", "Sign-in successful: ${account?.email}")
-    } catch (e: ApiException) {
-        Log.e("ServerScreen", "Sign-in failed: ${e.statusCode}", e)
+        Text(
+            text = state.value.error ?: "",
+            color = if (state.value.error != null) {
+                MaterialTheme.colorScheme.error
+            } else {
+                Color.Transparent
+            },
+            modifier = Modifier.padding(top = 8.dp)
+        )
     }
 }
