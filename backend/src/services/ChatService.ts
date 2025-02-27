@@ -173,12 +173,11 @@ class ChatService {
                     session.messages.length - 1 - lastUserMessageIndex
                 ];
 
-            // Fetch relevant documents using RAG
-            const relevantDocs =
-                await this.ragService.fetchRelevantDocumentsFromQuery(
-                    lastUserMessage.content,
-                    'documents'
-                );
+            // Fetch relevant documents using RAG with userId
+            const relevantDocs = await this.ragService.fetchRelevantDocumentsFromQuery(
+                lastUserMessage.content,
+                session.userId || 'anonymous' // Use userId from session or default to 'anonymous'
+            );
 
             // Generate response using chat history and RAG context
             const response = await this.generateResponse(session, relevantDocs);
