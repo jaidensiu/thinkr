@@ -24,6 +24,9 @@ class StudyService {
         });
     }
 
+    /**
+     * Creates flashcards for a userId and based on the documentId (embeddingId) passed
+     */
     public async createFlashCards(
         embeddingId: string,
         collection: string
@@ -91,6 +94,9 @@ class StudyService {
         } as FlashCardDTO;
     }
 
+    /**
+     * Creates a quiz for a userId and based on the documentId (embeddingId) passed
+     */
     public async createQuiz(
         embeddingId: string,
         collection: string
@@ -165,6 +171,10 @@ class StudyService {
         } as QuizDTO;
     }
 
+    /**
+     * Retrieves quizzes for a userId and based on the documentIds passed
+     * Gets all quizzes for user if documentIds are not provided
+     */
     public async retrieveQuizzes(
         documentIds: string[],
         userId: string
@@ -186,6 +196,10 @@ class StudyService {
         })) as QuizDTO[];
     }
 
+    /**
+     * Retrieves flashcards for a userId and based on the documentIds passed
+     * Gets all flashcards for user if documentIds are not provided
+     */
     public async retrieveFlashcards(
         documentIds: string[],
         userId: string
@@ -206,6 +220,9 @@ class StudyService {
         })) as FlashCardDTO[];
     }
 
+    /**
+     * Generates both quizzes and flashcards for a documentId and userId and adds them to the db
+     */
     public async generateStudyActivities(documentId: string, userId: string) {
         const text = await DocumentService.extractTextFromFile(
             `${userId}-${documentId}`
@@ -221,6 +238,18 @@ class StudyService {
             { userId: userId, documentId: documentId },
             { activityGenerationComplete: true }
         );
+    }
+
+    /**
+     * Deletes quizzes and flashcards linked to a set of documentIds from the db
+     */
+    public async deleteStudyActivities(documentIds: string[], userId: string) {
+        await this.ragService.deleteDocuments(documentIds, userId);
+        await QuizSet.deleteMany({ documentId: { $in: documentIds }, userId });
+        await FlashcardSet.deleteMany({
+            documentId: { $in: documentIds },
+            userId,
+        });
     }
 }
 

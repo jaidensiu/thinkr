@@ -2,6 +2,9 @@ import { Result } from '../interfaces';
 import { Request, Response } from 'express';
 import StudyService from '../services/studyService';
 
+/**
+ * Handles generating flashcards based on documents provided
+ */
 export const generateFlashCards = async (
     req: Request,
     res: Response
@@ -32,6 +35,9 @@ export const generateFlashCards = async (
     }
 };
 
+/**
+ * Handles generating a quiz based on documents provided
+ */
 export const generateQuiz = async (
     req: Request,
     res: Response
@@ -59,6 +65,9 @@ export const generateQuiz = async (
     }
 };
 
+/**
+ * Handles retrieving flashcards based on documents provided or by userId
+ */
 export const retrieveFlashcards = async (
     req: Request,
     res: Response
@@ -88,6 +97,9 @@ export const retrieveFlashcards = async (
     }
 };
 
+/**
+ * Handles retrieving quizzes based on documents provided or by userId
+ */
 export const retrieveQuizzes = async (
     req: Request,
     res: Response

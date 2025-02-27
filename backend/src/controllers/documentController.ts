@@ -2,13 +2,9 @@ import { Request, Response } from 'express';
 import DocumentService from '../services/documentService';
 import { Result } from '../interfaces';
 import StudyService from '../services/studyService';
-import RAGService from '../services/RAGService';
-import QuizSet from '../db/mongo/models/QuizSet';
-import FlashcardSet from '../db/mongo/models/FlashcardSet';
 
 /**
  * Handles document uploads
- *
  */
 export const uploadDocuments = async (
     req: Request,
@@ -48,7 +44,6 @@ export const uploadDocuments = async (
 
 /**
  * Handles deleting documents
- *
  */
 export const deleteDocuments = async (
     req: Request,
@@ -65,17 +60,7 @@ export const deleteDocuments = async (
 
     try {
         await DocumentService.deleteDocuments(documentIds, userId);
-
-        const ragService = new RAGService({
-            openAIApiKey: process.env.OPENAI_API_KEY!,
-            vectorStoreUrl: process.env.VECTOR_STORE_URL!,
-        });
-        await ragService.deleteDocuments(documentIds, userId);
-        await QuizSet.deleteMany({ documentId: { $in: documentIds }, userId });
-        await FlashcardSet.deleteMany({
-            documentId: { $in: documentIds },
-            userId,
-        });
+        await StudyService.deleteStudyActivities(documentIds, userId);
 
         res.status(200).json();
         return;
@@ -90,7 +75,6 @@ export const deleteDocuments = async (
 
 /**
  * Handles retrieving documents
- *
  */
 export const getDocuments = async (
     req: Request,

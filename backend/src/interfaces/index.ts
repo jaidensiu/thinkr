@@ -7,7 +7,7 @@ export interface Result {
 }
 
 /**
- * Auth info payload for when user logs in
+ * Represents the login info request payload for when user wants logs in
  */
 export interface AuthPayload {
     googleId: string;
