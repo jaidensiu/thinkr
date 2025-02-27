@@ -10,9 +10,9 @@ export interface Result {
  * Auth info payload for when user logs in
  */
 export interface AuthPayload {
-    googleId: string
-    name: string
-    email: string
+    googleId: string;
+    name: string;
+    email: string;
 }
 
 /**
