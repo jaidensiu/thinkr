@@ -12,6 +12,8 @@ import { DocumentDTO } from '../interfaces';
 import {
     TextractClient,
     DetectDocumentTextCommand,
+    StartDocumentTextDetectionCommand,
+    GetDocumentTextDetectionCommand,
 } from '@aws-sdk/client-textract';
 
 dotenv.config();
@@ -198,7 +200,7 @@ class DocumentService {
      */
     private async extractTextFromFile(s3FilePath: string): Promise<string> {
         const params = {
-            Document: {
+            DocumentLocation: {
                 S3Object: {
                     Bucket: this.bucketName,
                     Name: s3FilePath,
@@ -207,19 +209,38 @@ class DocumentService {
         };
 
         try {
-            const command = new DetectDocumentTextCommand(params);
+            const command = new StartDocumentTextDetectionCommand(params);
             const response = await this.textractClient.send(command);
-
+            const jobId = response.JobId;
+            let jobStatus: string | undefined;
             let extractedText = '';
-            if (response.Blocks) {
-                for (const block of response.Blocks) {
-                    if (block.BlockType === 'LINE' && block.Text) {
-                        extractedText += block.Text + '\n';
-                    }
-                }
+
+            if (!jobId) {
+                throw new Error('Failed to start Textract job');
             }
 
-            return extractedText.trim();
+            do {    
+                const describeResponse = await this.textractClient.send(
+                    new GetDocumentTextDetectionCommand({ JobId: jobId })
+                );
+
+                jobStatus = describeResponse.JobStatus;
+
+                if (jobStatus === 'SUCCEEDED' && describeResponse.Blocks) {
+                    for (const block of describeResponse.Blocks) {
+                        if (block.BlockType === 'LINE' && block.Text) {
+                            extractedText += block.Text + '\n';
+                        }
+                    }
+                } else if (jobStatus === 'FAILED') {
+                    throw new Error('Textract job failed');
+                }
+
+                // Wait for a few seconds before checking the job status again
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+            } while (jobStatus === 'IN_PROGRESS');
+
+        return extractedText.trim();
         } catch (error) {
             console.error('Error extracting text from PDF:', error);
             throw new Error('Failed to extract text from PDF');

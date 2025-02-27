@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import UserService from '../services/userAuthService';
-import { Result, UserDTO } from '../interfaces';
+import { AuthPayload, Result, UserDTO } from '../interfaces';
 
 /**
  * Handles user login with google auth and jwt
@@ -9,29 +9,24 @@ export const userAuthLogin = async (
     req: Request,
     res: Response
 ): Promise<void> => {
-    const authHeader = req.headers.authorization;
+    const { googleId, name, email } = req.body;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!googleId || !name || !email) {
         res.status(400).json({
-            message: 'Authorization header is missing or invalid',
+            message: 'googleId, name, or email is missing or invalid',
         } as Result);
         return;
     }
 
-    const idToken = authHeader.split(' ')[1];
-    const googleUser = await UserService.verifyGoogleToken(idToken);
+    const authPayload: AuthPayload = {
+        googleId,
+        name,
+        email
+    };
 
-    if (!googleUser) {
-        res.status(401).json({
-            message: 'Invalid Google token',
-        } as Result);
-        return;
-    }
-
-    const user: UserDTO = await UserService.findCreateUser(googleUser);
-    const token = UserService.generateToken(user.userId);
+    const user: UserDTO = await UserService.findCreateUser(authPayload);
 
     res.status(200).json({
-        data: { token, user },
+        data: { user },
     } as Result);
 };
