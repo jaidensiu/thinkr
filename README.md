@@ -37,8 +37,14 @@
 
   **Endpoint: `/auth/login`**
   - Method: `POST`
-  - Headers: `Authorization: Bearer <Google ID Token>`
-  - Body: N/A
+  - Body: raw
+  ```json
+  {
+   "googleId": "google id of user",
+   "name": "name of user",
+   "email": "email of user"
+  }
+  ```
   - Response:
   ```json
   {
@@ -48,7 +54,6 @@
                "email": "user email",
                "name": "user name",
                "googleId": "google id of user",
-               "userId": "unique user id",
                "subscribed": false
          }
       }
@@ -80,7 +85,7 @@
   - Body: raw
   ```json
   {
-     "userId": "user123",
+     "googleId": "user123",
      "metadata": {
         "source": "web",
         "topic": "general"
@@ -93,7 +98,7 @@
      "data": {
         "session": {
            "sessionId": "unique-session-id",
-           "userId": "user123",
+           "googleId": "user123",
            "messages": [
               {
                  "role": "system",
@@ -136,7 +141,7 @@
      "data": {
         "session": {
            "sessionId": "unique-session-id",
-           "userId": "user123",
+           "googleId": "user123",
            "messages": [
               {
                  "role": "system",
@@ -182,7 +187,7 @@
    ```json
    {
       "document": "<your file (single) here>",
-      "userId": "userId"
+      "googleId": "googleId"
    }
    ```
   - Response:
@@ -191,7 +196,8 @@
       "data": {
          "docs": {
             "documentId": "first file",
-            "uploadTime": "time of file upload"
+            "uploadTime": "time of file upload",
+            "activityGenerationComplete": false
          },
       }
    }
@@ -202,7 +208,7 @@
   - Body: raw
    ```json
    {
-      "userId": "userId",
+      "googleId": "googleId",
       "documentIds": [
          "documentId of first file",
          "documentId of second file"
@@ -216,7 +222,7 @@
   - Body: raw, documentIds is an OPTIONAL field
   ```json
    {
-      "userId": "userId",
+      "googleId": "googleId",
       "documentIds": [
          "documentId of first file",
          "documentId of second file"
@@ -229,17 +235,16 @@
       "data": {
          "docs": [
             {
-               "url": "second file's s3 document urlt",
                "documentId": "first file",
-               "uploadTime": "time of file upload"
+               "uploadTime": "time of file upload",
+               "activityGenerationComplete": false
             },
             {
-               "url": "second file's s3 document url",
                "documentId": "second file",
-               "uploadTime": "time of file upload"
+               "uploadTime": "time of file upload",
+               "activityGenerationComplete": true
             }
          ]
-         +
       }
    }
   ```
@@ -252,7 +257,7 @@
   - Body: raw
   ```json
    {
-      "userId": "userId",
+      "googleId": "googleId",
       "documentId": "file documentId"
    }
   ```
@@ -260,7 +265,7 @@
   ```json
   {
       "data": {
-         "userId": "userId",
+         "googleId": "googleId",
          "documentId": "file documentId",
          "flashcards": [
             {
@@ -281,7 +286,7 @@
    - Body: raw
    ```json
    {
-      "userId": "userId",
+      "googleId": "googleId",
       "documentId": "file documentId"
    }
    ```
@@ -289,7 +294,7 @@
    ```json
    {
       "data": {
-         "userId": "userId",
+         "googleId": "googleId",
          "documentId": "file documentId",
          "quiz": [
             {
@@ -321,7 +326,7 @@
    - Body: raw, documentIds is an OPTIONAL field
    ```json
    {
-      "userId": "userId",
+      "googleId": "googleId",
       "documentIds": [
          "file documentId 1", 
          "file documentId 2"
@@ -333,7 +338,7 @@
    {
       "data": [
          {
-            "userId": "userId",
+            "googleId": "googleId",
             "documentId": "file documentId 1",
             "flashcards": [
                {
@@ -357,7 +362,7 @@
    - Body: raw, documentIds is an OPTIONAL field
    ```json
    {
-      "userId": "userId",
+      "googleId": "googleId",
       "documentIds": [
          "file documentId 1", 
          "file documentId 2"
@@ -369,7 +374,7 @@
    {
       "data": [
          {
-            "userId": "userId",
+            "googleId": "googleId",
             "documentId": "file documentId 1",
             "quiz": [
                {
@@ -404,7 +409,7 @@
   - Body: raw
   ```json
    {
-      "userId": "your user id"
+      "googleId": "your user id"
    }
   ```
   - Response
@@ -414,7 +419,6 @@
          "email": "user email",
          "name": "user name",
          "googleId": "google id of user",
-         "userId": "unique user id",
          "subscribed": true
       }
    }
@@ -425,7 +429,7 @@
   - Body: raw
   ```json
    {
-      "userId": "your user id"
+      "googleId": "your user id"
    }
   ```
   - Response
@@ -435,7 +439,6 @@
          "email": "user email",
          "name": "user name",
          "googleId": "google id of user",
-         "userId": "unique user id",
          "subscribed": false
       }
    }
