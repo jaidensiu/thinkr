@@ -1,11 +1,11 @@
 package com.example.thinkr.ui.home
 
 import android.net.Uri
-import com.example.thinkr.domain.DocumentManager
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.data.repositories.DocRepositoryImpl
+import com.example.thinkr.data.models.DocumentItem
 
 data class HomeScreenState(
-    val documentManager: DocumentManager,
+    val docRepositoryImpl: DocRepositoryImpl,
     val showDialog: Boolean = false,
     val clickedDocumentItem: DocumentItem? = null
 )

@@ -16,12 +16,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.thinkr.domain.DocumentManager
-import com.example.thinkr.domain.FlashcardsManager
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.data.models.DocumentItem
 import com.example.thinkr.ui.document_details.DocumentDetailsScreen
+import com.example.thinkr.ui.document_details.DocumentDetailsViewModel
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
 import com.example.thinkr.ui.flashcards.FlashcardsScreen
+import com.example.thinkr.ui.flashcards.FlashcardsViewModel
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreen
@@ -51,8 +51,6 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val account = remember { GoogleSignIn.getLastSignedInAccount(this) }
             val startDestination = remember { if (account != null) Route.Home else Route.Landing }
-            val documentManager = remember { DocumentManager() }
-            val flashcardsManager = remember { FlashcardsManager() }
 
             ThinkrTheme {
                 Column(modifier = Modifier.padding(start = 24.dp, top = 48.dp, end = 24.dp)) {
@@ -74,7 +72,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable<Route.Home> {
-                                val viewModel = HomeScreenViewModel(documentManager)
+                                val viewModel = koinViewModel<HomeScreenViewModel>()
 
                                 HomeScreen(
                                     navController = navController,
@@ -113,7 +111,9 @@ class MainActivity : ComponentActivity() {
                                     backStackEntry.arguments?.getString(Route.DocumentDetails.ARGUMENT)
                                         ?: ""
                                 val selectedUri = Uri.parse(Uri.decode(json))
-                                DocumentDetailsScreen(navController, selectedUri, documentManager)
+                                val viewModel = koinViewModel<DocumentDetailsViewModel>()
+
+                                DocumentDetailsScreen(navController, selectedUri, viewModel)
                             }
 
                             composable<Route.Profile> {
@@ -146,7 +146,9 @@ class MainActivity : ComponentActivity() {
                                         ?: ""
                                 val document =
                                     Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
-                                FlashcardsScreen(document, navController, flashcardsManager)
+                                val viewModel = koinViewModel<FlashcardsViewModel>()
+
+                                FlashcardsScreen(document, navController, viewModel)
                             }
                         }
                     }
