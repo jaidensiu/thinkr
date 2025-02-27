@@ -207,7 +207,9 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```json
 {
    "document": "<your file (single) here>",
-   "userId": "user google id"
+   "userId": "user google id",
+   "documentName": "<user's given name for this document>",
+   "context": "<user's provided context about this document>"
 }
 ```
 - Response:
@@ -258,11 +260,13 @@ The system uses ChromaDB to store document embeddings with the following archite
       "docs": [
          {
             "documentId": "first file",
+            "documentName": "<user's given name for this document>",
             "uploadTime": "time of file upload",
             "activityGenerationComplete": false
          },
          {
             "documentId": "second file",
+            "documentName": "<user's given name for this document>",
             "uploadTime": "time of file upload",
             "activityGenerationComplete": true
          }
