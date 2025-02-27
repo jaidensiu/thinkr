@@ -110,7 +110,6 @@ class DocumentService {
      * Deletes documents on s3 and mongodb
      *
      */
-
     public async deleteDocuments(
         documentIds: string[],
         userId: string
