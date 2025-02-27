@@ -1,7 +1,7 @@
 package com.example.thinkr.app
 
 import android.net.Uri
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.data.models.DocumentItem
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

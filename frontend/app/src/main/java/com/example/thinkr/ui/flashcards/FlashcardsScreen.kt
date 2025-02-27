@@ -38,17 +38,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.thinkr.R
-import com.example.thinkr.domain.FlashcardsManager
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.data.repositories.FlashcardsRepositoryImpl
+import com.example.thinkr.data.models.DocumentItem
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import com.example.thinkr.domain.model.FlashcardItem
+import com.example.thinkr.data.models.FlashcardItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun FlashcardsScreen(documentItem: DocumentItem, navController: NavController, flashcardsManager: FlashcardsManager, viewModel: FlashcardsViewModel = FlashcardsViewModel(flashcardsManager)) {
-    val flashcards = flashcardsManager.getFlashcards(documentItem)
+fun FlashcardsScreen(documentItem: DocumentItem, navController: NavController, viewModel: FlashcardsViewModel) {
+    val flashcards = viewModel.getFlashcards(documentItem)
     var currentIndex by remember { mutableIntStateOf(0) }
     var showAnswer by remember { mutableStateOf(false) }
 
