@@ -120,23 +120,41 @@ class RAGService {
      * Insert a document into a vector db collection
      */
     public async insertDocument(
-        collectionName: string,
-        text: string,
-        key: string
+        userId: string,
+        documentId: string,
+        text: string
     ): Promise<string> {
         try {
-            const docs = [
-                { pageContent: text, metadata: { source: collectionName } },
-            ];
-            const id = {
-                ids: [key],
+            // Create a collection name based on userId
+            const collectionName = `user_${userId}`;
+            
+            await this.initVectorStore(collectionName);
+            
+            // Split text into chunks if it's too large
+            const textChunks = this.splitTextIntoChunks(text, 1000);
+            
+            // Create documents with metadata including documentId
+            const docs = textChunks.map((chunk, index) => ({
+                pageContent: chunk,
+                metadata: { 
+                    userId, 
+                    documentId, 
+                    chunkIndex: index,
+                    source: documentId 
+                }
+            }));
+            
+            // Generate unique IDs for each chunk
+            const ids = {
+                ids: textChunks.map((_, index) => `${documentId}_chunk_${index}`)
             };
-            await this.vectorStore!.addDocuments(docs, id);
-
+            
+            await this.vectorStore!.addDocuments(docs, ids);
+            
             console.log(
-                `Text uploaded to Chroma DB in collection ${collectionName}: ${key}`
+                `Text uploaded to Chroma DB in collection ${collectionName} for document: ${documentId}`
             );
-            return key;
+            return documentId;
         } catch (error) {
             console.error('Error uploading text to Chroma DB:', error);
             throw new Error('Failed to upload text to Chroma DB');
@@ -144,46 +162,31 @@ class RAGService {
     }
 
     /**
-     * Deletes documents in a vector DB collection
+     * Split text into manageable chunks
      */
-    public async deleteDocuments(
-        ids: string[],
-        collectionName: string
-    ): Promise<void> {
-        try {
-            await this.ensureVectorStore(collectionName);
-            await this.vectorStore!.collection!.delete({ ids });
-
-            console.log(
-                `Deleted embeddings in Chroma DB collection ${collectionName}: ${ids}`
-            );
-            return;
-        } catch (error) {
-            console.error('Error deleting embeddings to Chroma DB:', error);
-            throw new Error('Failed to delete embeddings in Chroma DB');
+    private splitTextIntoChunks(text: string, chunkSize: number): string[] {
+        const chunks: string[] = [];
+        let currentChunk = '';
+        
+        // Split by paragraphs first
+        const paragraphs = text.split(/\n\s*\n/);
+        
+        for (const paragraph of paragraphs) {
+            // If adding this paragraph would exceed chunk size, save current chunk and start a new one
+            if (currentChunk.length + paragraph.length > chunkSize && currentChunk.length > 0) {
+                chunks.push(currentChunk);
+                currentChunk = paragraph;
+            } else {
+                currentChunk += (currentChunk ? '\n\n' : '') + paragraph;
+            }
         }
-    }
-
-    /**
-     * Fetch documents from vectorDB collection based on the embeddingIDs provided
-     */
-    public async fetchDocumentsFromVectorDB(
-        embeddingIds: string[],
-        collectionName: string
-    ): Promise<string[]> {
-        try {
-            await this.ensureVectorStore(collectionName);
-
-            const results = await this.vectorStore!.collection!.get({
-                ids: embeddingIds,
-            });
-
-            const documents = results.documents as string[];
-            return documents;
-        } catch (error) {
-            console.error('Error fetching documents from ChromaDB:', error);
-            throw new Error('Failed to fetch documents from ChromaDB');
+        
+        // Add the last chunk if it's not empty
+        if (currentChunk) {
+            chunks.push(currentChunk);
         }
+        
+        return chunks;
     }
 
     /**
@@ -191,30 +194,90 @@ class RAGService {
      */
     public async fetchRelevantDocumentsFromQuery(
         query: string,
-        collectionName: string
-    ): Promise<Document<DocumentMetadata>[]> {
+        userId: string,
+        documentId?: string
+    ): Promise<Document[]> {
         try {
-            if (!query.trim()) {
-                throw new RAGServiceError('Query cannot be empty');
-            }
-
-            await this.ensureVectorStore(collectionName);
-
-            if (!this.vectorStore) {
-                throw new RAGServiceError('Vector store not initialized');
-            }
-
-            const documents = await this.vectorStore.similaritySearch(query, 5);
-            return documents;
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                throw new RAGServiceError(
-                    `Error fetching relevant documents: ${error.message}`
-                );
-            }
-            throw new RAGServiceError(
-                'Error fetching relevant documents: Unknown error'
+            // Create collection name based on userId
+            const collectionName = `user_${userId}`;
+            
+            await this.initVectorStore(collectionName);
+            
+            // Set up filter if documentId is provided
+            const filter = documentId ? 
+                { documentId: documentId } : 
+                undefined;
+            
+            // Fetch relevant documents with optional filter
+            const docs = await this.vectorStore!.similaritySearch(
+                query,
+                5,  // Number of documents to retrieve
+                filter
             );
+            
+            return docs;
+        } catch (error) {
+            console.error('Error fetching relevant documents:', error);
+            throw new Error('Failed to fetch relevant documents');
+        }
+    }
+
+    /**
+     * Deletes documents in a vector DB collection
+     */
+    public async deleteDocuments(
+        documentIds: string[],
+        userId: string
+    ): Promise<void> {
+        try {
+            const collectionName = `user_${userId}`;
+            await this.initVectorStore(collectionName);
+            
+            // For each document ID, we need to find all chunks
+            for (const documentId of documentIds) {
+                // Get all chunks for this document
+                const results = await this.vectorStore!.collection!.get({
+                    where: { documentId: documentId }
+                });
+                
+                if (results.ids && results.ids.length > 0) {
+                    // Delete all chunks for this document
+                    await this.vectorStore!.collection!.delete({ 
+                        ids: results.ids 
+                    });
+                    
+                    console.log(
+                        `Deleted embeddings in Chroma DB collection ${collectionName} for document: ${documentId}`
+                    );
+                }
+            }
+            
+            return;
+        } catch (error) {
+            console.error('Error deleting embeddings from Chroma DB:', error);
+            throw new Error('Failed to delete embeddings from Chroma DB');
+        }
+    }
+
+    /**
+     * Fetch documents from vectorDB collection based on a documentId provided
+     */
+    public async fetchDocumentsFromVectorDB(
+        documentId: string,
+        collectionName: string
+    ): Promise<string[]> {
+        try {
+            await this.ensureVectorStore(`user_${collectionName}`);
+
+            const results = await this.vectorStore!.collection!.get({
+                where: { documentId: documentId }
+            });
+            
+            const documents = results.documents as string[];
+            return documents;
+        } catch (error) {
+            console.error('Error fetching documents from ChromaDB:', error);
+            throw new Error('Failed to fetch documents from ChromaDB');
         }
     }
 

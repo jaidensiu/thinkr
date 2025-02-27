@@ -7,11 +7,11 @@ import { Result } from '../interfaces';
  */
 export const queryRAG = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { query } = req.body;
+        const { query, userId, documentId } = req.body;
 
-        if (!query) {
+        if (!query || !userId) {
             res.status(400).json({
-                message: 'Query is required',
+                message: 'Query and userId are required',
             } as Result);
             return;
         }
@@ -21,10 +21,14 @@ export const queryRAG = async (req: Request, res: Response): Promise<void> => {
             vectorStoreUrl: process.env.VECTOR_STORE_URL!,
         });
 
+        // Fetch relevant documents from the user's collection
+        // If documentId is provided, filter to only that document
         const documents = await ragService.fetchRelevantDocumentsFromQuery(
             query,
-            'documents'
+            userId,
+            documentId
         );
+        
         const response = await ragService.queryLLM(query, documents);
 
         res.status(200).json({
