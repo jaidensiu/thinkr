@@ -72,7 +72,7 @@ class DocumentService {
                 userId: userId,
                 s3documentId: key,
                 uploadDate: dateFormatted,
-                activityGenerationComplete: false
+                activityGenerationComplete: false,
             },
             { upsert: true, new: true }
         );
@@ -128,7 +128,9 @@ class DocumentService {
         key: string,
         userId: string
     ): Promise<DocumentDTO> {
-        const doc = await Document.findOne({ s3documentId: `${userId}-${key}` });
+        const doc = await Document.findOne({
+            s3documentId: `${userId}-${key}`,
+        });
 
         return {
             documentId: key,

@@ -127,30 +127,32 @@ class RAGService {
         try {
             // Create a collection name based on userId
             const collectionName = `user_${userId}`;
-            
+
             await this.initVectorStore(collectionName);
-            
+
             // Split text into chunks if it's too large
             const textChunks = this.splitTextIntoChunks(text, 1000);
-            
+
             // Create documents with metadata including documentId
             const docs = textChunks.map((chunk, index) => ({
                 pageContent: chunk,
-                metadata: { 
-                    userId, 
-                    documentId, 
+                metadata: {
+                    userId,
+                    documentId,
                     chunkIndex: index,
-                    source: documentId 
-                }
+                    source: documentId,
+                },
             }));
-            
+
             // Generate unique IDs for each chunk
             const ids = {
-                ids: textChunks.map((_, index) => `${documentId}_chunk_${index}`)
+                ids: textChunks.map(
+                    (_, index) => `${documentId}_chunk_${index}`
+                ),
             };
-            
+
             await this.vectorStore!.addDocuments(docs, ids);
-            
+
             console.log(
                 `Text uploaded to Chroma DB in collection ${collectionName} for document: ${documentId}`
             );
@@ -167,25 +169,28 @@ class RAGService {
     private splitTextIntoChunks(text: string, chunkSize: number): string[] {
         const chunks: string[] = [];
         let currentChunk = '';
-        
+
         // Split by paragraphs first
         const paragraphs = text.split(/\n\s*\n/);
-        
+
         for (const paragraph of paragraphs) {
             // If adding this paragraph would exceed chunk size, save current chunk and start a new one
-            if (currentChunk.length + paragraph.length > chunkSize && currentChunk.length > 0) {
+            if (
+                currentChunk.length + paragraph.length > chunkSize &&
+                currentChunk.length > 0
+            ) {
                 chunks.push(currentChunk);
                 currentChunk = paragraph;
             } else {
                 currentChunk += (currentChunk ? '\n\n' : '') + paragraph;
             }
         }
-        
+
         // Add the last chunk if it's not empty
         if (currentChunk) {
             chunks.push(currentChunk);
         }
-        
+
         return chunks;
     }
 
@@ -200,21 +205,19 @@ class RAGService {
         try {
             // Create collection name based on userId
             const collectionName = `user_${userId}`;
-            
+
             await this.initVectorStore(collectionName);
-            
+
             // Set up filter if documentId is provided
-            const filter = documentId ? 
-                { documentId: documentId } : 
-                undefined;
-            
+            const filter = documentId ? { documentId: documentId } : undefined;
+
             // Fetch relevant documents with optional filter
             const docs = await this.vectorStore!.similaritySearch(
                 query,
-                5,  // Number of documents to retrieve
+                5, // Number of documents to retrieve
                 filter
             );
-            
+
             return docs;
         } catch (error) {
             console.error('Error fetching relevant documents:', error);
@@ -232,26 +235,26 @@ class RAGService {
         try {
             const collectionName = `user_${userId}`;
             await this.initVectorStore(collectionName);
-            
+
             // For each document ID, we need to find all chunks
             for (const documentId of documentIds) {
                 // Get all chunks for this document
                 const results = await this.vectorStore!.collection!.get({
-                    where: { documentId: documentId }
+                    where: { documentId: documentId },
                 });
-                
+
                 if (results.ids && results.ids.length > 0) {
                     // Delete all chunks for this document
-                    await this.vectorStore!.collection!.delete({ 
-                        ids: results.ids 
+                    await this.vectorStore!.collection!.delete({
+                        ids: results.ids,
                     });
-                    
+
                     console.log(
                         `Deleted embeddings in Chroma DB collection ${collectionName} for document: ${documentId}`
                     );
                 }
             }
-            
+
             return;
         } catch (error) {
             console.error('Error deleting embeddings from Chroma DB:', error);
@@ -270,9 +273,9 @@ class RAGService {
             await this.ensureVectorStore(`user_${collectionName}`);
 
             const results = await this.vectorStore!.collection!.get({
-                where: { documentId: documentId }
+                where: { documentId: documentId },
             });
-            
+
             const documents = results.documents as string[];
             return documents;
         } catch (error) {

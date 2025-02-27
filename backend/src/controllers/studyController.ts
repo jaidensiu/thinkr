@@ -97,7 +97,8 @@ export const retrieveQuizzes = async (
 
         if (!userId || (documentIds && !Array.isArray(documentIds))) {
             res.status(400).json({
-                message: 'You must provide a userId identifier or documentIds is invalid',
+                message:
+                    'You must provide a userId identifier or documentIds is invalid',
             });
             return;
         }

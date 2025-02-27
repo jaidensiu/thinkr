@@ -30,7 +30,7 @@ export const uploadDocuments = async (
         res.status(200).json({
             data: { docs },
         } as Result);
-        
+
         // generate activities as a background job
         StudyService.generateStudyActivities(docs.documentId, userId);
     } catch (error) {
@@ -67,8 +67,11 @@ export const deleteDocuments = async (
             vectorStoreUrl: process.env.VECTOR_STORE_URL!,
         });
         await ragService.deleteDocuments(documentIds, userId);
-        await QuizSet.deleteMany({ documentId: {$in: documentIds }, userId});
-        await FlashcardSet.deleteMany({ documentId: {$in: documentIds }, userId});
+        await QuizSet.deleteMany({ documentId: { $in: documentIds }, userId });
+        await FlashcardSet.deleteMany({
+            documentId: { $in: documentIds },
+            userId,
+        });
 
         res.status(200).json();
         return;
@@ -93,7 +96,7 @@ export const getDocuments = async (
 
     if (!userId || (documentIds && !Array.isArray(documentIds))) {
         res.status(400).json({
-            message: 'Bad Request, userId is required',
+            message: 'Bad Request, a userId is required or the documentIds provided is not a valid array',
         } as Result);
         return;
     }
@@ -106,9 +109,9 @@ export const getDocuments = async (
         };
         res.status(200).json(result);
     } catch (error) {
-        console.error('Error retrieving document URL:', error);
+        console.error('Error retrieving documents:', error);
         const result: Result = {
-            message: 'Failed to retrieve document URL',
+            message: 'Failed to retrieve documents',
         };
         res.status(500).json(result);
     }

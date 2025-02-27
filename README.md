@@ -54,9 +54,9 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
- "userId": "google id of user",
- "name": "name of user",
- "email": "email of user"
+   "userId": "google id of user",
+   "name": "name of user",
+   "email": "email of user"
 }
 ```
 - Response:
@@ -64,10 +64,10 @@ The system uses ChromaDB to store document embeddings with the following archite
 {
     "data": {
        "user": { 
-             "email": "user email",
-             "name": "user name",
-             "googleId": "google id of user",
-             "subscribed": false
+            "email": "user email",
+            "name": "user name",
+            "googleId": "google id of user",
+            "subscribed": false
        }
     }
  }
@@ -81,7 +81,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```json
 { 
    "query": "Your question here",
-   "userId": "user123",
+   "userId": "user google id",
    "documentId": "optional_specific_document.pdf"
 }
 ```
@@ -102,7 +102,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "userId": "user123",
+   "userId": "user google id",
    "metadata": {
       "source": "web",
       "topic": "general",
@@ -116,7 +116,7 @@ The system uses ChromaDB to store document embeddings with the following archite
    "data": {
       "session": {
          "sessionId": "unique-session-id",
-         "userId": "user123",
+         "userId": "user google id",
          "messages": [
             {
                "role": "system",
@@ -161,7 +161,7 @@ The system uses ChromaDB to store document embeddings with the following archite
    "data": {
       "session": {
          "sessionId": "unique-session-id",
-         "userId": "user123",
+         "userId": "user google id",
          "messages": [
             {
                "role": "system",
@@ -207,7 +207,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```json
 {
    "document": "<your file (single) here>",
-   "userId": "userId"
+   "userId": "user google id"
 }
 ```
 - Response:
@@ -222,14 +222,14 @@ The system uses ChromaDB to store document embeddings with the following archite
    }
 }
 ```
-- Note: The system supports PDF, JPEG, PNG, TIFF, and text files. Document text is extracted and stored in ChromaDB for retrieval.
+- Note: The system supports PDF, JPEG, PNG, TIFF, and text files. This will also extract document text into the ChromaDB, and create the quiz and flashcards associated with the document uploaded in a separate background process.
 
 **Endpoint: `/document/delete`**
 - Method: `DELETE`
 - Body: raw
 ```json
 {
-   "userId": "userId",
+   "userId": "user google id",
    "documentIds": [
       "documentId of first file",
       "documentId of second file"
@@ -237,14 +237,14 @@ The system uses ChromaDB to store document embeddings with the following archite
 }
 ```
 - Response: N/A
-- Note: This deletes both the document from S3 and its embeddings from ChromaDB.
+- Note: This deletes both the documents from S3, mongodb and its embeddings from ChromaDB and also deletes the study materials (quiz, flashcards) associated with the documents.
 
 **Endpoint: `/document/retrieve`**
 - Method: `GET`
 - Body: raw, documentIds is an OPTIONAL field
 ```json
 {
-   "userId": "userId",
+   "userId": "user google id",
    "documentIds": [
       "documentId of first file",
       "documentId of second file"
@@ -270,7 +270,7 @@ The system uses ChromaDB to store document embeddings with the following archite
    }
 }
 ```
-- Note: Returns all of the user's files if no documentIds are provided. The `documentIds` must include file types (e.g. `file1.pdf` is one documentId, not `file1` by itself)
+- Note: Returns all of the user's uploaded documents if no documentIds are provided. The `documentIds` must include file types (e.g. `file1.pdf` is one documentId, not `file1` by itself)
 
 ### Study
 
@@ -279,7 +279,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "userId": "userId",
+   "userId": "user google id",
    "documentId": "file documentId"
 }
 ```
@@ -287,7 +287,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```json
 {
    "data": {
-      "userId": "userId",
+      "userId": "user google id",
       "documentId": "file documentId",
       "flashcards": [
          {
@@ -308,7 +308,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "userId": "userId",
+   "userId": "user google id",
    "documentId": "file documentId"
 }
 ```
@@ -316,7 +316,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```json
 {
    "data": {
-      "userId": "userId",
+      "userId": "user google id",
       "documentId": "file documentId",
       "quiz": [
          {
@@ -349,7 +349,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw, documentIds is an OPTIONAL field
 ```json
 {
-   "userId": "userId",
+   "userId": "user google id",
    "documentIds": [
       "file documentId 1", 
       "file documentId 2"
@@ -361,7 +361,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 {
    "data": [
       {
-         "userId": "userId",
+         "userId": "user google id",
          "documentId": "file documentId 1",
          "quiz": [
             {
@@ -396,7 +396,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw, documentIds is an OPTIONAL field
 ```json
 {
-   "userId": "userId",
+   "userId": "user google id",
    "documentIds": [
       "file documentId 1", 
       "file documentId 2"
@@ -408,7 +408,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 {
    "data": [
       {
-         "userId": "userId",
+         "userId": "user google id",
          "documentId": "file documentId 1",
          "flashcards": [
             {
@@ -433,7 +433,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "userId": "your user id"
+   "userId": "user google id"
 }
 ```
 - Response
@@ -453,7 +453,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "userId": "your user id"
+   "userId": "user google id"
 }
 ```
 - Response

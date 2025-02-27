@@ -74,7 +74,7 @@ class ChatService {
         try {
             const sessionId = uuidv4();
             const now = new Date();
-            
+
             // Extract documentId from metadata if present
             const documentId = metadata?.documentId;
 
@@ -111,7 +111,9 @@ class ChatService {
                     updatedAt: now,
                     metadata,
                 });
-                console.log(`Chat session ${sessionId} created and stored in MongoDB`);
+                console.log(
+                    `Chat session ${sessionId} created and stored in MongoDB`
+                );
             }
 
             return session;
@@ -137,38 +139,40 @@ class ChatService {
             }
 
             // Fetch sessions from MongoDB
-            const sessions = await ChatSession.find(query).sort({ updatedAt: -1 });
-            
+            const sessions = await ChatSession.find(query).sort({
+                updatedAt: -1,
+            });
+
             // Convert to ChatSessionData format and cache in memory
-            sessions.forEach(session => {
+            sessions.forEach((session) => {
                 const sessionData: ChatSessionData = {
                     sessionId: session.sessionId,
                     userId: session.googleId,
                     documentId: session.documentId,
-                    messages: session.messages.map(msg => ({
+                    messages: session.messages.map((msg) => ({
                         role: msg.role,
                         content: msg.content,
-                        timestamp: msg.timestamp
+                        timestamp: msg.timestamp,
                     })),
                     createdAt: session.createdAt,
                     updatedAt: session.updatedAt,
-                    metadata: session.metadata
+                    metadata: session.metadata,
                 };
                 this.sessions.set(session.sessionId, sessionData);
             });
 
-            return sessions.map(session => ({
+            return sessions.map((session) => ({
                 sessionId: session.sessionId,
                 userId: session.googleId,
                 documentId: session.documentId,
-                messages: session.messages.map(msg => ({
+                messages: session.messages.map((msg) => ({
                     role: msg.role,
                     content: msg.content,
-                    timestamp: msg.timestamp
+                    timestamp: msg.timestamp,
                 })),
                 createdAt: session.createdAt,
                 updatedAt: session.updatedAt,
-                metadata: session.metadata
+                metadata: session.metadata,
             }));
         } catch (error) {
             console.error('Error loading user chat sessions:', error);
@@ -195,14 +199,14 @@ class ChatService {
                         sessionId: dbSession.sessionId,
                         userId: dbSession.googleId,
                         documentId: dbSession.documentId,
-                        messages: dbSession.messages.map(msg => ({
+                        messages: dbSession.messages.map((msg) => ({
                             role: msg.role,
                             content: msg.content,
-                            timestamp: msg.timestamp
+                            timestamp: msg.timestamp,
                         })),
                         createdAt: dbSession.createdAt,
                         updatedAt: dbSession.updatedAt,
-                        metadata: dbSession.metadata
+                        metadata: dbSession.metadata,
                     });
                 } else {
                     throw new ChatServiceError('Chat session not found');
@@ -229,10 +233,11 @@ class ChatService {
             }
 
             // Fetch relevant documents using RAG with userId and optional documentId
-            const relevantDocs = await this.ragService.fetchRelevantDocumentsFromQuery(
-                lastUserMessage.content,
-                session?.userId || 'anonymous'
-            );
+            const relevantDocs =
+                await this.ragService.fetchRelevantDocumentsFromQuery(
+                    lastUserMessage.content,
+                    session?.userId || 'anonymous'
+                );
 
             // Generate response using LLM
             const response = await this.generateResponse(
@@ -246,11 +251,11 @@ class ChatService {
                 content: response,
                 timestamp: new Date(),
             };
-            
+
             if (session) {
                 session.messages.push(assistantMessage);
                 session.updatedAt = new Date();
-                
+
                 // Update session in memory
                 this.sessions.set(sessionId, session);
             }
@@ -259,15 +264,15 @@ class ChatService {
             if (session?.userId) {
                 await ChatSession.findOneAndUpdate(
                     { sessionId },
-                    { 
-                        $push: { 
-                            messages: { 
-                                $each: [userMessage, assistantMessage] 
-                            }
+                    {
+                        $push: {
+                            messages: {
+                                $each: [userMessage, assistantMessage],
+                            },
                         },
-                        $set: { 
-                            updatedAt: session.updatedAt 
-                        }
+                        $set: {
+                            updatedAt: session.updatedAt,
+                        },
                     }
                 );
             }
@@ -345,7 +350,9 @@ class ChatService {
      * Gets a chat session by ID
      * Tries memory first, then MongoDB
      */
-    public async getSession(sessionId: string): Promise<ChatSessionData | null> {
+    public async getSession(
+        sessionId: string
+    ): Promise<ChatSessionData | null> {
         // Check in-memory cache first
         const session = this.sessions.get(sessionId);
         if (session) {
@@ -361,14 +368,14 @@ class ChatService {
                     sessionId: dbSession.sessionId,
                     userId: dbSession.googleId,
                     documentId: dbSession.documentId,
-                    messages: dbSession.messages.map(msg => ({
+                    messages: dbSession.messages.map((msg) => ({
                         role: msg.role,
                         content: msg.content,
-                        timestamp: msg.timestamp
+                        timestamp: msg.timestamp,
                     })),
                     createdAt: dbSession.createdAt,
                     updatedAt: dbSession.updatedAt,
-                    metadata: dbSession.metadata
+                    metadata: dbSession.metadata,
                 };
                 this.sessions.set(sessionId, sessionData);
                 return sessionData;
@@ -396,10 +403,10 @@ class ChatService {
         try {
             // Remove from memory
             const memoryResult = this.sessions.delete(sessionId);
-            
+
             // Remove from MongoDB
             const dbResult = await ChatSession.deleteOne({ sessionId });
-            
+
             return memoryResult || dbResult.deletedCount > 0;
         } catch (error) {
             console.error('Error deleting chat session:', error);
