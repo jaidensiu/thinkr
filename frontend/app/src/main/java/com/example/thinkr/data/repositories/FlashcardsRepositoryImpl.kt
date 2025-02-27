@@ -1,11 +1,11 @@
 package com.example.thinkr.data.repositories
 
-import com.example.thinkr.data.models.DocumentItem
+import com.example.thinkr.data.models.Document
 import com.example.thinkr.data.models.FlashcardItem
 import com.example.thinkr.data.remote.RemoteApiImpl
 
 class FlashcardsRepositoryImpl(private val remoteApi: RemoteApiImpl): FlashcardsRepository {
-    override fun getFlashcards(documentItem: DocumentItem): List<FlashcardItem> {
+    override fun getFlashcards(documentItem: Document): List<FlashcardItem> {
         // TODO: replace with get request
         return listOf(
             FlashcardItem("Question 1", "Answer 1"),

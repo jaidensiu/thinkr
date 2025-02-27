@@ -1,11 +1,18 @@
 package com.example.thinkr.data.repositories
 
-import android.net.Uri
-import com.example.thinkr.data.models.DocumentItem
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.example.thinkr.data.models.Document
+import java.io.InputStream
 
 interface DocRepository {
-    fun uploadDocument(name: String, uri: Uri)
-    fun getRetrievedDocuments(): MutableStateFlow<List<DocumentItem>>
-    fun getUploadingDocuments(): MutableStateFlow<List<DocumentItem>>
+    suspend fun getDocuments(
+        userId: String,
+        documentIds: List<String>?
+    ): List<Document>
+
+    suspend fun uploadDocument(
+        document: InputStream,
+        userId: String,
+        documentName: String,
+        documentContext: String
+    )
 }

@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,6 +58,10 @@ fun HomeScreen(
 ) {
     val state = viewModel.state.collectAsState()
     var showDialog by remember { mutableStateOf(value = false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.getDocuments()
+    }
 
     if (showDialog) {
         AlertDialog(

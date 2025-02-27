@@ -1,7 +1,7 @@
 package com.example.thinkr.app
 
 import android.net.Uri
-import com.example.thinkr.data.models.DocumentItem
+import com.example.thinkr.data.models.Document
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -17,11 +17,11 @@ sealed interface Route {
     data object Home : Route
 
     @Serializable
-    data class DocumentOptions(val documentItem: DocumentItem) : Route {
+    data class DocumentOptions(val documentItem: Document) : Route {
         companion object {
             const val ROUTE = "documentOptions/{documentJson}"
             const val ARGUMENT = "documentJson"
-            fun createRoute(document: DocumentItem): String {
+            fun createRoute(document: Document): String {
                 val json = Json.encodeToString(document)
                 return ROUTE.replace("{documentJson}", Uri.encode(json))
             }
@@ -46,11 +46,11 @@ sealed interface Route {
     data object Payment : Route
 
     @Serializable
-    data class Flashcards(val documentItem: DocumentItem) : Route {
+    data class Flashcards(val documentItem: Document) : Route {
         companion object {
             const val ROUTE = "flashcards/{documentJson}"
             const val ARGUMENT = "documentJson"
-            fun createRoute(document: DocumentItem): String {
+            fun createRoute(document: Document): String {
                 val json = Json.encodeToString(document)
                 return ROUTE.replace("{documentJson}", Uri.encode(json))
             }

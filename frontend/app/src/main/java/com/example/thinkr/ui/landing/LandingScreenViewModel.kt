@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LandingScreenViewModel(private val repository: AuthRepositoryImpl, private val userRepo: UserRepositoryImpl) : ViewModel() {
+class LandingScreenViewModel(
+    private val repository: AuthRepositoryImpl,
+    private val userRepo: UserRepositoryImpl
+) : ViewModel() {
     private val _state = MutableStateFlow(LandingScreenState())
     val state = _state.asStateFlow()
 
@@ -40,8 +43,8 @@ class LandingScreenViewModel(private val repository: AuthRepositoryImpl, private
             repository.login(account.id!!).fold(
                 onSuccess = {
                     userRepo.setUser(it.data.user.copy())
-                    _state.update {
-                        it.copy(
+                    _state.update { state ->
+                        state.copy(
                             isLoading = false,
                             isAuthenticated = true
                         )

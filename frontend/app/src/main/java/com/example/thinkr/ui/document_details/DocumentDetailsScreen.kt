@@ -88,7 +88,7 @@ fun DocumentDetailsScreen(
 
         OutlinedTextField(
             value = name,
-            onValueChange = { if (it.length <= DocRepositoryImpl.MAX_NAME_LENGTH) name = it },
+            onValueChange = { if (it.length <= DocumentDetailsViewModel.MAX_NAME_LENGTH) name = it },
             label = { Text("Name") },
             modifier = Modifier.fillMaxWidth(0.8f),
             singleLine = true,
@@ -99,7 +99,7 @@ fun DocumentDetailsScreen(
 
         OutlinedTextField(
             value = context,
-            onValueChange = { if (it.length <= DocRepositoryImpl.MAX_CONTEXT_LENGTH) context = it },
+            onValueChange = { if (it.length <= DocumentDetailsViewModel.MAX_CONTEXT_LENGTH) context = it },
             label = { Text("Context") },
             modifier = Modifier
                 .fillMaxWidth(0.8f) // Context box is now ~40% of the screen width

@@ -16,7 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.thinkr.data.models.DocumentItem
+import com.example.thinkr.data.models.Document
 import com.example.thinkr.ui.document_details.DocumentDetailsScreen
 import com.example.thinkr.ui.document_details.DocumentDetailsViewModel
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
                                     backStackEntry.arguments?.getString(Route.DocumentOptions.ARGUMENT)
                                         ?: ""
                                 val document =
-                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                    Json.decodeFromString<Document>(Uri.decode(json)) // Decode JSON back to object
                                 DocumentOptionsScreen(document)
                             }
 
@@ -145,7 +145,7 @@ class MainActivity : ComponentActivity() {
                                     backStackEntry.arguments?.getString(Route.Flashcards.ARGUMENT)
                                         ?: ""
                                 val document =
-                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                    Json.decodeFromString<Document>(Uri.decode(json)) // Decode JSON back to object
                                 val viewModel = koinViewModel<FlashcardsViewModel>()
 
                                 FlashcardsScreen(document, navController, viewModel)
