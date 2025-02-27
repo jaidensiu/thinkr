@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import DocumentService from '../services/documentService';
 import { Result } from '../interfaces';
 import StudyService from '../services/studyService';
-import Document from '../db/mongo/models/Document';
 import RAGService from '../services/RAGService';
+import QuizSet from '../db/mongo/models/QuizSet';
+import FlashcardSet from '../db/mongo/models/FlashcardSet';
 
 /**
  * Handles document uploads
@@ -29,7 +30,9 @@ export const uploadDocuments = async (
         res.status(200).json({
             data: { docs },
         } as Result);
-        generateStudyActivities(docs.documentId, userId);
+        
+        // generate activities as a background job
+        StudyService.generateStudyActivities(docs.documentId, userId);
     } catch (error) {
         console.error('Error uploading documents:', error);
 
@@ -37,29 +40,6 @@ export const uploadDocuments = async (
             message: 'Failed to upload documents',
         } as Result);
     }
-};
-
-const generateStudyActivities = async (documentId: string, userId: string) => {
-    // textract -> vector db
-    const ragService = new RAGService({
-        openAIApiKey: process.env.OPENAI_API_KEY!,
-        vectorStoreUrl: process.env.VECTOR_STORE_URL!,
-    });
-
-    await ragService.ensureVectorStore(userId);
-    const text = await DocumentService.extractTextFromFile(
-        `${userId}-${documentId}`
-    );
-    await ragService.insertDocument(userId, text, documentId);
-
-    // generate activities
-    await StudyService.createFlashCards(documentId, userId);
-    await StudyService.createQuiz(documentId, userId);
-    // Create chat
-    await Document.findOneAndUpdate(
-        { userId: userId, name: documentId },
-        { activityGenerationComplete: true }
-    );
 };
 
 /**
@@ -87,6 +67,8 @@ export const deleteDocuments = async (
             vectorStoreUrl: process.env.VECTOR_STORE_URL!,
         });
         await ragService.deleteDocuments(documentIds, userId);
+        await QuizSet.deleteMany({ documentId: {$in: documentIds }, userId});
+        await FlashcardSet.deleteMany({ documentId: {$in: documentIds }, userId});
 
         res.status(200).json();
         return;

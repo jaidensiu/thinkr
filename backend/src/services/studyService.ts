@@ -6,6 +6,8 @@ import { StructuredOutputParser } from '@langchain/core/output_parsers';
 import { z } from 'zod';
 import FlashcardSet from '../db/mongo/models/FlashcardSet';
 import QuizSet from '../db/mongo/models/QuizSet';
+import DocumentService from './documentService';
+import Document from '../db/mongo/models/Document';
 
 class StudyService {
     private llm: ChatOpenAI;
@@ -27,7 +29,7 @@ class StudyService {
         collection: string
     ): Promise<FlashCardDTO> {
         const docs = await this.ragService.fetchDocumentsFromVectorDB(
-            [embeddingId],
+            embeddingId,
             collection
         );
 
@@ -49,7 +51,7 @@ class StudyService {
             Content: {content}
             `,
         });
-
+        
         const flashcardSchema = z.array(
             z.object({
                 front: z.string().describe('The term or concept'),
@@ -94,7 +96,7 @@ class StudyService {
         collection: string
     ): Promise<QuizDTO> {
         const docs = await this.ragService.fetchDocumentsFromVectorDB(
-            [embeddingId],
+            embeddingId,
             collection
         );
 
@@ -203,6 +205,23 @@ class StudyService {
             })),
         })) as FlashCardDTO[];
     }
+
+    public async generateStudyActivities(documentId: string, userId: string) {
+        const text = await DocumentService.extractTextFromFile(
+            `${userId}-${documentId}`
+        );
+        await this.ragService.ensureVectorStore(userId);
+        await this.ragService.insertDocument(userId, documentId, text);
+    
+        // generate activities
+        await this.createFlashCards(documentId, userId);
+        await this.createQuiz(documentId, userId);
+        
+        await Document.findOneAndUpdate(
+            { userId: userId, name: documentId },
+            { activityGenerationComplete: true }
+        );
+    };
 }
 
 export default new StudyService();
