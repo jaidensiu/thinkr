@@ -9,6 +9,8 @@ import com.example.thinkr.data.repositories.DocRepository
 import com.example.thinkr.data.repositories.DocRepositoryImpl
 import com.example.thinkr.data.repositories.FlashcardsRepository
 import com.example.thinkr.data.repositories.FlashcardsRepositoryImpl
+import com.example.thinkr.data.repositories.UserRepository
+import com.example.thinkr.data.repositories.UserRepositoryImpl
 import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreenViewModel
 import com.example.thinkr.ui.payment.PaymentViewModel
@@ -29,6 +31,7 @@ val appModule = module {
     singleOf(::AuthRepositoryImpl).bind<AuthRepository>()
     singleOf(::DocRepositoryImpl).bind<DocRepository>()
     singleOf(::FlashcardsRepositoryImpl).bind<FlashcardsRepository>()
+    singleOf(::UserRepositoryImpl).bind<UserRepository>()
     viewModelOf(::LandingScreenViewModel)
     viewModelOf(::HomeScreenViewModel)
     viewModelOf(::ProfileViewModel)

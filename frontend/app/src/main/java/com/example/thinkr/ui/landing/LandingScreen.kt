@@ -93,70 +93,70 @@ fun LandingScreen(
     ) {
         Text(text = "Welcome to Thinkr")
         Spacer(modifier = Modifier.height(20.dp))
-//        OutlinedTextField(
-//            value = state.value.username,
-//            onValueChange = viewModel::onEditUsername,
-//            modifier = Modifier
-//                .focusRequester(focusRequester)
-//                .fillMaxWidth(fraction = 0.75f),
-//            placeholder = { Text(text = "Username") },
-//            keyboardOptions = KeyboardOptions.Default.copy(
-//                imeAction = if (state.value.username.isNotEmpty()) {
-//                    ImeAction.Next
-//                } else {
-//                    ImeAction.Done
-//                }
-//            ),
-//            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-//            singleLine = true
-//        )
-//        Spacer(modifier = Modifier.height(20.dp))
-//        OutlinedTextField(
-//            value = state.value.password,
-//            onValueChange = viewModel::onEditPassword,
-//            modifier = Modifier
-//                .focusRequester(focusRequester)
-//                .fillMaxWidth(fraction = 0.75f),
-//            placeholder = { Text(text = "Password") },
-//            trailingIcon = {
-//                TextButton(
-//                    onClick = { passwordVisible = !passwordVisible },
-//                    modifier = Modifier.padding(end = 8.dp)
-//                ) {
-//                    Text(
-//                        text = if (passwordVisible) "hide" else "show",
-//                        fontSize = 14.sp
-//                    )
-//                }
-//            },
-//            visualTransformation = if (passwordVisible) {
-//                VisualTransformation.None
-//            } else {
-//                PasswordVisualTransformation()
-//            },
-//            keyboardOptions = KeyboardOptions.Default.copy(
-//                autoCorrectEnabled = false,
-//                keyboardType = KeyboardType.Password,
-//                imeAction = ImeAction.Done
-//            ),
-//            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-//            singleLine = true
-//        )
-//        Spacer(modifier = Modifier.height(12.dp))
-//        Button(
-//            onClick = onLogin,
-//            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
-//        ) {
-//            Text(text = "Login")
-//        }
-//        Spacer(modifier = Modifier.height(12.dp))
-//        Button(
-//            onClick = onSignUp,
-//            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
-//        ) {
-//            Text(text = "Sign Up")
-//        }
-//        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedTextField(
+            value = state.value.username,
+            onValueChange = viewModel::onEditUsername,
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .fillMaxWidth(fraction = 0.75f),
+            placeholder = { Text(text = "Username") },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = if (state.value.username.isNotEmpty()) {
+                    ImeAction.Next
+                } else {
+                    ImeAction.Done
+                }
+            ),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        OutlinedTextField(
+            value = state.value.password,
+            onValueChange = viewModel::onEditPassword,
+            modifier = Modifier
+                .focusRequester(focusRequester)
+                .fillMaxWidth(fraction = 0.75f),
+            placeholder = { Text(text = "Password") },
+            trailingIcon = {
+                TextButton(
+                    onClick = { passwordVisible = !passwordVisible },
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Text(
+                        text = if (passwordVisible) "hide" else "show",
+                        fontSize = 14.sp
+                    )
+                }
+            },
+            visualTransformation = if (passwordVisible) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                autoCorrectEnabled = false,
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = onLogin,
+            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+        ) {
+            Text(text = "Login")
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = onSignUp,
+            modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+        ) {
+            Text(text = "Sign Up")
+        }
+        Spacer(modifier = Modifier.height(12.dp))
         if (state.value.isLoading) {
             CircularProgressIndicator()
         }
