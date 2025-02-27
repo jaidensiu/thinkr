@@ -23,12 +23,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thinkr.R
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.data.models.Document
 import com.example.thinkr.ui.home.HomeScreenAction
 
 
 @Composable
-fun ListItem(item: DocumentItem, onAction: (HomeScreenAction) -> Unit = {}) {
+fun ListItem(item: Document, onAction: (HomeScreenAction) -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

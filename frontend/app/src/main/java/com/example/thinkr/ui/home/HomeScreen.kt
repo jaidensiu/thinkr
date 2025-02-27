@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,6 +58,10 @@ fun HomeScreen(
 ) {
     val state = viewModel.state.collectAsState()
     var showDialog by remember { mutableStateOf(value = false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.getDocuments()
+    }
 
     if (showDialog) {
         AlertDialog(
@@ -94,8 +99,8 @@ fun HomeScreenContent(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val retrievedDocuments = state.value.documentManager.getRetrievedDocuments().collectAsState()
-        val uploadingDocuments = state.value.documentManager.getUploadingDocuments().collectAsState()
+        val retrievedDocuments = state.value.docRepositoryImpl.getRetrievedDocuments().collectAsState()
+        val uploadingDocuments = state.value.docRepositoryImpl.getUploadingDocuments().collectAsState()
         // Top Row with two buttons
         Row(
             modifier = Modifier.fillMaxWidth(),
