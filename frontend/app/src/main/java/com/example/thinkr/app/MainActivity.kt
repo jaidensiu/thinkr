@@ -30,6 +30,7 @@ import com.example.thinkr.ui.payment.PaymentScreen
 import com.example.thinkr.ui.payment.PaymentViewModel
 import com.example.thinkr.ui.profile.ProfileScreen
 import com.example.thinkr.ui.profile.ProfileViewModel
+import com.example.thinkr.ui.quiz.QuizScreen
 import com.example.thinkr.ui.theme.ThinkrTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -147,6 +148,20 @@ class MainActivity : ComponentActivity() {
                                 val document =
                                     Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
                                 FlashcardsScreen(document, navController, flashcardsManager)
+                            }
+
+                            composable(
+                                route = Route.Quiz.ROUTE,
+                                arguments = listOf(navArgument(Route.Quiz.ARGUMENT) {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val json =
+                                    backStackEntry.arguments?.getString(Route.Quiz.ARGUMENT)
+                                        ?: ""
+                                val document =
+                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                QuizScreen(document, navController)
                             }
                         }
                     }
