@@ -27,7 +27,7 @@ class DocumentService {
 
     constructor() {
         this.s3Client = new S3Client({
-            region: process.env.region,
+            region: process.env.AWS_REGION,
             credentials: {
                 accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
                 secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
@@ -49,15 +49,36 @@ class DocumentService {
     }
 
     /**
+     * Extracts text from a file using AWS Textract and stores it in ChromaDB
+     */
+    private async processAndStoreDocument(
+        s3FilePath: string,
+        userId: string,
+        documentId: string
+    ): Promise<void> {
+        try {
+            // Extract text from the document
+            const extractedText = await this.extractTextFromFile(s3FilePath);
+            
+            // Store the document text in ChromaDB
+            await this.ragService.insertDocument(userId, documentId, extractedText);
+            
+            console.log(`Document processed and stored: ${documentId} for user ${userId}`);
+        } catch (error) {
+            console.error('Error processing document:', error);
+            throw new Error('Failed to process and store document');
+        }
+    }
+
+    /**
      * Uploads a file to s3 and mongodb
-     *
      */
     public async uploadDocument(
         file: Express.Multer.File,
         userId: string
     ): Promise<DocumentDTO> {
-        await this.ragService.ensureVectorStore(userId);
         const key = `${userId}-${file.originalname}`;
+        const documentId = file.originalname;
 
         const params = {
             Bucket: this.bucketName,
@@ -74,30 +95,25 @@ class DocumentService {
             .replace(/T/, ' ')
             .replace(/\..+/, '');
 
-        // textract -> vector db
-        const text = await this.extractTextFromFile(key);
-        const embeddingsId = await this.ragService.insertDocument(
-            userId,
-            text,
-            file.originalname
-        );
+        // Process and store document text in ChromaDB
+        await this.processAndStoreDocument(key, userId, documentId);
 
         // mongodb
         await Document.findOneAndUpdate(
             { s3Path: key },
             {
-                name: file.originalname,
+                name: documentId,
                 userId,
                 s3Path: key,
                 uploadDate: dateFormatted,
-                embeddingsId: embeddingsId,
+                embeddingsId: documentId,
                 activityGenerationComplete: false
             },
             { upsert: true, new: true }
         );
 
         return {
-            documentId: file.originalname,
+            documentId: documentId,
             uploadTime: dateFormatted,
             activityGenerationComplete: false
         } as DocumentDTO;
