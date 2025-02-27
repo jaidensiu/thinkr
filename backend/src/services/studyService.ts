@@ -218,7 +218,7 @@ class StudyService {
         await this.createQuiz(documentId, userId);
 
         await Document.findOneAndUpdate(
-            { userId: userId, name: documentId },
+            { userId: userId, documentId: documentId },
             { activityGenerationComplete: true }
         );
     }

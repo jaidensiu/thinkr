@@ -32,6 +32,7 @@ export interface DocumentDTO {
     documentId: string;
     uploadTime: string;
     activityGenerationComplete: boolean;
+    documentName: string;
 }
 
 /**

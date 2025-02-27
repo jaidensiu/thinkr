@@ -44,7 +44,8 @@ class DocumentService {
      */
     public async uploadDocument(
         file: Express.Multer.File,
-        userId: string
+        userId: string,
+        name: string
     ): Promise<DocumentDTO> {
         const key = `${userId}-${file.originalname}`;
         const documentId = file.originalname;
@@ -66,11 +67,12 @@ class DocumentService {
 
         // mongodb
         await Document.findOneAndUpdate(
-            { name: documentId, userId: userId },
+            { documentId: documentId, userId: userId },
             {
-                name: documentId,
+                name: name,
                 userId: userId,
                 s3documentId: key,
+                documentId: documentId,
                 uploadDate: dateFormatted,
                 activityGenerationComplete: false,
             },
@@ -81,6 +83,7 @@ class DocumentService {
             documentId: documentId,
             uploadTime: dateFormatted,
             activityGenerationComplete: false,
+            documentName: name,
         } as DocumentDTO;
     }
 
@@ -129,13 +132,15 @@ class DocumentService {
         userId: string
     ): Promise<DocumentDTO> {
         const doc = await Document.findOne({
-            s3documentId: `${userId}-${key}`,
+            documentId: key,
+            userId: userId,
         });
 
         return {
-            documentId: key,
+            documentId: doc?.documentId,
             uploadTime: doc?.uploadDate,
             activityGenerationComplete: doc?.activityGenerationComplete,
+            documentName: doc?.name,
         } as DocumentDTO;
     }
 
@@ -154,7 +159,7 @@ class DocumentService {
             );
         } else {
             const allKeys = (await Document.find({ userId: userId })).map(
-                (doc) => doc.name
+                (doc) => doc.documentId
             );
             documents = await Promise.all(
                 allKeys.map((key) => this.getDocument(key, userId))
