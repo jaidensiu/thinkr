@@ -11,12 +11,16 @@ export const generateFlashCards = async (
 
         if (!documentId || !userId) {
             res.status(400).json({
-                message: 'You must provide a documentId and an userId identifier',
+                message:
+                    'You must provide a documentId and an userId identifier',
             });
             return;
         }
 
-        const flashcards = await StudyService.createFlashCards(documentId, userId);
+        const flashcards = await StudyService.createFlashCards(
+            documentId,
+            userId
+        );
 
         res.status(200).json({ data: flashcards } as Result);
     } catch (error) {
@@ -37,7 +41,8 @@ export const generateQuiz = async (
 
         if (!documentId || !userId) {
             res.status(400).json({
-                message: 'You must provide a documentId and an userId identifier',
+                message:
+                    'You must provide a documentId and an userId identifier',
             });
             return;
         }
@@ -68,7 +73,10 @@ export const retrieveFlashcards = async (
             return;
         }
 
-        const flashcards = await StudyService.retrieveFlashcards(documentIds, userId);
+        const flashcards = await StudyService.retrieveFlashcards(
+            documentIds,
+            userId
+        );
 
         res.status(200).json({ data: flashcards } as Result);
     } catch (error) {

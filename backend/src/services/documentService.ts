@@ -2,16 +2,12 @@ import {
     S3Client,
     PutObjectCommand,
     DeleteObjectCommand,
-    GetObjectCommand,
 } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import dotenv from 'dotenv';
 import Document from '../db/mongo/models/Document';
-import RAGService from './RAGService';
 import { DocumentDTO } from '../interfaces';
 import {
     TextractClient,
-    DetectDocumentTextCommand,
     StartDocumentTextDetectionCommand,
     GetDocumentTextDetectionCommand,
 } from '@aws-sdk/client-textract';
@@ -22,7 +18,6 @@ class DocumentService {
     private s3Client: S3Client;
     private bucketName: string;
     private date: Date;
-    private ragService: RAGService;
     private textractClient: TextractClient;
 
     constructor() {
@@ -35,10 +30,6 @@ class DocumentService {
         });
         this.bucketName = process.env.S3_BUCKET_NAME!;
         this.date = new Date();
-        this.ragService = new RAGService({
-            openAIApiKey: process.env.OPENAI_API_KEY!,
-            vectorStoreUrl: process.env.VECTOR_STORE_URL!,
-        });
         this.textractClient = new TextractClient({
             region: process.env.AWS_REGION,
             credentials: {
@@ -115,25 +106,9 @@ class DocumentService {
         return {
             documentId: documentId,
             uploadTime: dateFormatted,
-            activityGenerationComplete: false
+            activityGenerationComplete: false,
         } as DocumentDTO;
     }
-
-    /**
-     * Uploads multiple files to s3 and mongodb
-     *
-     */
-    // public async uploadDocuments(
-    //     files: Express.Multer.File[],
-    //     userId: string
-    // ): Promise<DocumentDTO[]> {
-    //     await this.ragService.ensureVectorStore(userId);
-
-    //     const docs = await Promise.all(
-    //         files.map((file) => this.uploadDocument(file, userId))
-    //     );
-    //     return docs as DocumentDTO[];
-    // }
 
     /**
      * Deletes a document on s3 and mongodb
@@ -164,9 +139,10 @@ class DocumentService {
         userId: string
     ): Promise<void> {
         await Promise.all(
-            documentIds.map((documentId) => this.deleteDocument(`${userId}-${documentId}`))
+            documentIds.map((documentId) =>
+                this.deleteDocument(`${userId}-${documentId}`)
+            )
         );
-        await this.ragService.deleteDocuments(documentIds, userId);
         return;
     }
 
@@ -176,14 +152,14 @@ class DocumentService {
      */
     public async getDocument(
         key: string,
-        userId: string,
+        userId: string
     ): Promise<DocumentDTO> {
         const doc = await Document.findOne({ s3Path: `${userId}-${key}` });
 
         return {
             documentId: key,
             uploadTime: doc?.uploadDate,
-            activityGenerationComplete: doc?.activityGenerationComplete
+            activityGenerationComplete: doc?.activityGenerationComplete,
         } as DocumentDTO;
     }
 
@@ -214,7 +190,7 @@ class DocumentService {
     /**
      * Extracts text from a file using AWS Textract.
      */
-    private async extractTextFromFile(s3FilePath: string): Promise<string> {
+    public async extractTextFromFile(s3FilePath: string): Promise<string> {
         const params = {
             DocumentLocation: {
                 S3Object: {
@@ -235,7 +211,7 @@ class DocumentService {
                 throw new Error('Failed to start Textract job');
             }
 
-            do {    
+            do {
                 const describeResponse = await this.textractClient.send(
                     new GetDocumentTextDetectionCommand({ JobId: jobId })
                 );
@@ -252,11 +228,10 @@ class DocumentService {
                     throw new Error('Textract job failed');
                 }
 
-                // Wait for a few seconds before checking the job status again
                 await new Promise((resolve) => setTimeout(resolve, 1000));
             } while (jobStatus === 'IN_PROGRESS');
 
-        return extractedText.trim();
+            return extractedText.trim();
         } catch (error) {
             console.error('Error extracting text from PDF:', error);
             throw new Error('Failed to extract text from PDF');

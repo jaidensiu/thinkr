@@ -15,7 +15,11 @@ const documentSchema = new Schema<IDocument>({
     uploadDate: { type: String, required: true },
     s3Path: { type: String, required: true, unique: true },
     embeddingsId: { type: String, required: true },
-    activityGenerationComplete: { type: Boolean, required: true, default: false}
+    activityGenerationComplete: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
 });
 
 const Document = model<IDocument>('Document', documentSchema);
