@@ -14,18 +14,22 @@ export const uploadDocuments = async (
     req: Request,
     res: Response
 ): Promise<void> => {
-    const { userId } = req.body;
+    const { userId, documentName } = req.body;
 
-    if (!userId || !req.file) {
+    if (!userId || !req.file || !documentName) {
         res.status(400).json({
-            message: 'Bad Request, missing userId or files',
+            message: 'Bad Request, missing userId or documentName or file',
         } as Result);
         return;
     }
 
     try {
         const file = req.file as Express.Multer.File;
-        const docs = await DocumentService.uploadDocument(file, userId);
+        const docs = await DocumentService.uploadDocument(
+            file,
+            userId,
+            documentName
+        );
 
         res.status(200).json({
             data: { docs },
@@ -96,7 +100,8 @@ export const getDocuments = async (
 
     if (!userId || (documentIds && !Array.isArray(documentIds))) {
         res.status(400).json({
-            message: 'Bad Request, a userId is required or the documentIds provided is not a valid array',
+            message:
+                'Bad Request, a userId is required or the documentIds provided is not a valid array',
         } as Result);
         return;
     }
