@@ -51,7 +51,7 @@ class StudyService {
             Content: {content}
             `,
         });
-        
+
         const flashcardSchema = z.array(
             z.object({
                 front: z.string().describe('The term or concept'),
@@ -212,16 +212,16 @@ class StudyService {
         );
         await this.ragService.ensureVectorStore(userId);
         await this.ragService.insertDocument(userId, documentId, text);
-    
+
         // generate activities
         await this.createFlashCards(documentId, userId);
         await this.createQuiz(documentId, userId);
-        
+
         await Document.findOneAndUpdate(
             { userId: userId, name: documentId },
             { activityGenerationComplete: true }
         );
-    };
+    }
 }
 
 export default new StudyService();

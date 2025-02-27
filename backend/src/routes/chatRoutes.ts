@@ -4,7 +4,7 @@ import {
     getChatSession,
     sendChatMessage,
     deleteChatSession,
-    getUserChatSessions
+    getUserChatSessions,
 } from '../controllers/chatController';
 
 const router = Router();
