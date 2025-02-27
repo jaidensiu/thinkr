@@ -21,7 +21,7 @@ export const userAuthLogin = async (
     const authPayload: AuthPayload = {
         googleId,
         name,
-        email
+        email,
     };
 
     const user: UserDTO = await UserService.findCreateUser(authPayload);
