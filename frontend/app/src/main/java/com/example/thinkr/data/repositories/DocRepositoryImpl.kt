@@ -1,7 +1,8 @@
-package com.example.thinkr.domain
+package com.example.thinkr.data.repositories
 
 import android.net.Uri
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.data.models.DocumentItem
+import com.example.thinkr.data.remote.RemoteApiImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class DocumentManager {
+class DocRepositoryImpl(private val remoteApi: RemoteApiImpl): DocRepository {
     companion object {
         val MAX_NAME_LENGTH = 50
         val MAX_CONTEXT_LENGTH = 500
@@ -27,7 +28,7 @@ class DocumentManager {
         )
     }
 
-    fun uploadDocument(name: String, uri: Uri) {
+    override fun uploadDocument(name: String, uri: Uri) {
         CoroutineScope(Dispatchers.IO).launch {
             _uploadingDocuments.update { it + DocumentItem(name, false) }
             // TODO: Upload documents to the database
@@ -37,6 +38,6 @@ class DocumentManager {
         }
     }
 
-    fun getRetrievedDocuments() = _retrievedDocuments
-    fun getUploadingDocuments() = _uploadingDocuments
+    override fun getRetrievedDocuments() = _retrievedDocuments
+    override fun getUploadingDocuments() = _uploadingDocuments
 }

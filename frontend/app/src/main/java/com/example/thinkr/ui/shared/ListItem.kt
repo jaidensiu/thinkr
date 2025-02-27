@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thinkr.R
-import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.data.models.DocumentItem
 import com.example.thinkr.ui.home.HomeScreenAction
 
 

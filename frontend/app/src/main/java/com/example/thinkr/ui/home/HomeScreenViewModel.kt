@@ -3,18 +3,18 @@ package com.example.thinkr.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.thinkr.app.Route
-import com.example.thinkr.domain.DocumentManager
+import com.example.thinkr.data.repositories.DocRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class HomeScreenViewModel(documentManager: DocumentManager) : ViewModel() {
+class HomeScreenViewModel(docRepositoryImpl: DocRepositoryImpl) : ViewModel() {
     init {
-        documentManager.loadDocuments()
+        docRepositoryImpl.loadDocuments()
     }
 
     private val _state = MutableStateFlow(
-        HomeScreenState(documentManager)
+        HomeScreenState(docRepositoryImpl)
     )
 
     var state: StateFlow<HomeScreenState> = _state.asStateFlow()
@@ -28,7 +28,9 @@ class HomeScreenViewModel(documentManager: DocumentManager) : ViewModel() {
                 navController.navigate(Route.Profile)
             }
             is HomeScreenAction.DocumentItemClicked -> {
-                navController.navigate(Route.DocumentOptions.createRoute(action.documentItem))
+                // TODO: This is for debug/testing flashcards, replace with DocumentOptions
+//                navController.navigate(Route.DocumentOptions.createRoute(action.documentItem))
+                navController.navigate(Route.Flashcards.createRoute(action.documentItem))
             }
             HomeScreenAction.AddButtonClicked -> {
                 // Handle add button click action

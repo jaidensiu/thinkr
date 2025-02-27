@@ -1,4 +1,4 @@
-package com.example.thinkr.domain.model
+package com.example.thinkr.data.models
 
 import kotlinx.serialization.Serializable
 
