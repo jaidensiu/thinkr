@@ -260,19 +260,19 @@ class RAGService {
     }
 
     /**
-     * Fetch documents from vectorDB collection based on the embeddingIDs provided
+     * Fetch documents from vectorDB collection based on a documentId provided
      */
     public async fetchDocumentsFromVectorDB(
-        embeddingIds: string[],
+        documentId: string,
         collectionName: string
     ): Promise<string[]> {
         try {
-            await this.ensureVectorStore(collectionName);
+            await this.ensureVectorStore(`user_${collectionName}`);
 
             const results = await this.vectorStore!.collection!.get({
-                ids: embeddingIds,
+                where: { documentId: documentId }
             });
-
+            
             const documents = results.documents as string[];
             return documents;
         } catch (error) {

@@ -20,7 +20,7 @@ class SubscriptionService {
         userId: string,
         subscribe: boolean
     ): Promise<UserDTO> {
-        let user = await User.findOne({ _id: userId });
+        let user = await User.findOne({ googleId: userId });
         if (!user) {
             throw new Error('Error: User not found');
         }
@@ -32,7 +32,7 @@ class SubscriptionService {
         }
 
         await User.updateOne(
-            { _id: userId },
+            { googleId: userId },
             {
                 subscribed: subscribe,
             }
@@ -42,7 +42,6 @@ class SubscriptionService {
             email: user.email!,
             name: user.name,
             googleId: user.googleId,
-            userId: user._id,
             subscribed: subscribe,
         } as UserDTO;
     }

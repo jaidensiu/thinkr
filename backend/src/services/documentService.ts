@@ -40,28 +40,6 @@ class DocumentService {
     }
 
     /**
-     * Extracts text from a file using AWS Textract and stores it in ChromaDB
-     */
-    private async processAndStoreDocument(
-        s3FilePath: string,
-        userId: string,
-        documentId: string
-    ): Promise<void> {
-        try {
-            // Extract text from the document
-            const extractedText = await this.extractTextFromFile(s3FilePath);
-            
-            // Store the document text in ChromaDB
-            await this.ragService.insertDocument(userId, documentId, extractedText);
-            
-            console.log(`Document processed and stored: ${documentId} for user ${userId}`);
-        } catch (error) {
-            console.error('Error processing document:', error);
-            throw new Error('Failed to process and store document');
-        }
-    }
-
-    /**
      * Uploads a file to s3 and mongodb
      */
     public async uploadDocument(
@@ -86,18 +64,14 @@ class DocumentService {
             .replace(/T/, ' ')
             .replace(/\..+/, '');
 
-        // Process and store document text in ChromaDB
-        await this.processAndStoreDocument(key, userId, documentId);
-
         // mongodb
         await Document.findOneAndUpdate(
-            { s3Path: key },
+            { name: documentId, userId: userId },
             {
                 name: documentId,
-                userId,
-                s3Path: key,
+                userId: userId,
+                s3documentId: key,
                 uploadDate: dateFormatted,
-                embeddingsId: documentId,
                 activityGenerationComplete: false
             },
             { upsert: true, new: true }
@@ -154,7 +128,7 @@ class DocumentService {
         key: string,
         userId: string
     ): Promise<DocumentDTO> {
-        const doc = await Document.findOne({ s3Path: `${userId}-${key}` });
+        const doc = await Document.findOne({ s3documentId: `${userId}-${key}` });
 
         return {
             documentId: key,
