@@ -12,6 +12,8 @@ import { DocumentDTO } from '../interfaces';
 import {
     TextractClient,
     DetectDocumentTextCommand,
+    StartDocumentTextDetectionCommand,
+    GetDocumentTextDetectionCommand,
 } from '@aws-sdk/client-textract';
 
 dotenv.config();
@@ -54,6 +56,7 @@ class DocumentService {
         file: Express.Multer.File,
         userId: string
     ): Promise<DocumentDTO> {
+        await this.ragService.ensureVectorStore(userId);
         const key = `${userId}-${file.originalname}`;
 
         const params = {
@@ -88,6 +91,7 @@ class DocumentService {
                 s3Path: key,
                 uploadDate: dateFormatted,
                 embeddingsId: embeddingsId,
+                activityGenerationComplete: false
             },
             { upsert: true, new: true }
         );
@@ -95,6 +99,7 @@ class DocumentService {
         return {
             documentId: file.originalname,
             uploadTime: dateFormatted,
+            activityGenerationComplete: false
         } as DocumentDTO;
     }
 
@@ -102,17 +107,17 @@ class DocumentService {
      * Uploads multiple files to s3 and mongodb
      *
      */
-    public async uploadDocuments(
-        files: Express.Multer.File[],
-        userId: string
-    ): Promise<DocumentDTO[]> {
-        await this.ragService.ensureVectorStore(userId);
+    // public async uploadDocuments(
+    //     files: Express.Multer.File[],
+    //     userId: string
+    // ): Promise<DocumentDTO[]> {
+    //     await this.ragService.ensureVectorStore(userId);
 
-        const docs = await Promise.all(
-            files.map((file) => this.uploadDocument(file, userId))
-        );
-        return docs as DocumentDTO[];
-    }
+    //     const docs = await Promise.all(
+    //         files.map((file) => this.uploadDocument(file, userId))
+    //     );
+    //     return docs as DocumentDTO[];
+    // }
 
     /**
      * Deletes a document on s3 and mongodb
@@ -129,7 +134,7 @@ class DocumentService {
         await this.s3Client.send(command);
 
         // mongodb
-        await Document.deleteOne({ s3Path: key });
+        await Document.deleteOne({ s3documentId: key });
         return;
     }
 
@@ -139,13 +144,13 @@ class DocumentService {
      */
 
     public async deleteDocuments(
-        paths: string[],
+        documentIds: string[],
         userId: string
     ): Promise<void> {
         await Promise.all(
-            paths.map((path) => this.deleteDocument(`${userId}-${path}`))
+            documentIds.map((documentId) => this.deleteDocument(`${userId}-${documentId}`))
         );
-        await this.ragService.deleteDocuments(paths, userId);
+        await this.ragService.deleteDocuments(documentIds, userId);
         return;
     }
 
@@ -156,23 +161,13 @@ class DocumentService {
     public async getDocument(
         key: string,
         userId: string,
-        expiresIn: number = 3600
     ): Promise<DocumentDTO> {
-        let params = {
-            Bucket: this.bucketName,
-            Key: `${userId}-${key}`,
-        };
-
-        const command = new GetObjectCommand(params);
-        const documentUrl = await getSignedUrl(this.s3Client, command, {
-            expiresIn,
-        });
         const doc = await Document.findOne({ s3Path: `${userId}-${key}` });
 
         return {
-            url: documentUrl,
             documentId: key,
-            uploadTime: doc!.uploadDate,
+            uploadTime: doc?.uploadDate,
+            activityGenerationComplete: doc?.activityGenerationComplete
         } as DocumentDTO;
     }
 
@@ -205,7 +200,7 @@ class DocumentService {
      */
     private async extractTextFromFile(s3FilePath: string): Promise<string> {
         const params = {
-            Document: {
+            DocumentLocation: {
                 S3Object: {
                     Bucket: this.bucketName,
                     Name: s3FilePath,
@@ -214,19 +209,38 @@ class DocumentService {
         };
 
         try {
-            const command = new DetectDocumentTextCommand(params);
+            const command = new StartDocumentTextDetectionCommand(params);
             const response = await this.textractClient.send(command);
-
+            const jobId = response.JobId;
+            let jobStatus: string | undefined;
             let extractedText = '';
-            if (response.Blocks) {
-                for (const block of response.Blocks) {
-                    if (block.BlockType === 'LINE' && block.Text) {
-                        extractedText += block.Text + '\n';
-                    }
-                }
+
+            if (!jobId) {
+                throw new Error('Failed to start Textract job');
             }
 
-            return extractedText.trim();
+            do {    
+                const describeResponse = await this.textractClient.send(
+                    new GetDocumentTextDetectionCommand({ JobId: jobId })
+                );
+
+                jobStatus = describeResponse.JobStatus;
+
+                if (jobStatus === 'SUCCEEDED' && describeResponse.Blocks) {
+                    for (const block of describeResponse.Blocks) {
+                        if (block.BlockType === 'LINE' && block.Text) {
+                            extractedText += block.Text + '\n';
+                        }
+                    }
+                } else if (jobStatus === 'FAILED') {
+                    throw new Error('Textract job failed');
+                }
+
+                // Wait for a few seconds before checking the job status again
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+            } while (jobStatus === 'IN_PROGRESS');
+
+        return extractedText.trim();
         } catch (error) {
             console.error('Error extracting text from PDF:', error);
             throw new Error('Failed to extract text from PDF');

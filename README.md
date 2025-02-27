@@ -37,8 +37,14 @@
 
   **Endpoint: `/auth/login`**
   - Method: `POST`
-  - Headers: `Authorization: Bearer <Google ID Token>`
-  - Body: N/A
+  - Body: raw
+  ```json
+  {
+   "googleId": "google id of user",
+   "name": "name of user",
+   "email": "email of user"
+  }
+  ```
   - Response:
   ```json
   {
@@ -48,7 +54,6 @@
                "email": "user email",
                "name": "user name",
                "googleId": "google id of user",
-               "userId": "unique user id",
                "subscribed": false
          }
       }
@@ -80,7 +85,7 @@
   - Body: raw
   ```json
   {
-     "userId": "user123",
+     "googleId": "user123",
      "metadata": {
         "source": "web",
         "topic": "general"
@@ -93,7 +98,7 @@
      "data": {
         "session": {
            "sessionId": "unique-session-id",
-           "userId": "user123",
+           "googleId": "user123",
            "messages": [
               {
                  "role": "system",
@@ -136,7 +141,7 @@
      "data": {
         "session": {
            "sessionId": "unique-session-id",
-           "userId": "user123",
+           "googleId": "user123",
            "messages": [
               {
                  "role": "system",
@@ -181,24 +186,19 @@
   - Body: multipart/form-data
    ```json
    {
-      "documents": "<your file(s) here>",
-      "userId": "userId"
+      "document": "<your file (single) here>",
+      "googleId": "googleId"
    }
    ```
   - Response:
   ```json
    {
       "data": {
-         "docs": [
-            {
-               "documentId": "first file",
-               "uploadTime": "time of file upload"
-            },
-            {
-               "documentId": "second file",
-               "uploadTime": "time of file upload"
-            }
-         ]
+         "docs": {
+            "documentId": "first file",
+            "uploadTime": "time of file upload",
+            "activityGenerationComplete": false
+         },
       }
    }
   ```
@@ -208,10 +208,10 @@
   - Body: raw
    ```json
    {
-      "userId": "userId",
-      "paths": [
-         "path of first file",
-         "path of second file"
+      "googleId": "googleId",
+      "documentIds": [
+         "documentId of first file",
+         "documentId of second file"
       ]
    }
    ```
@@ -219,13 +219,13 @@
 
   **Endpoint: `/document/retrieve`**
   - Method: `GET`
-  - Body: raw, paths is an OPTIONAL field
+  - Body: raw, documentIds is an OPTIONAL field
   ```json
    {
-      "userId": "userId",
-      "paths": [
-         "path of first file",
-         "path of second file"
+      "googleId": "googleId",
+      "documentIds": [
+         "documentId of first file",
+         "documentId of second file"
       ]
    }
   ```
@@ -235,20 +235,20 @@
       "data": {
          "docs": [
             {
-               "url": "second file's s3 document urlt",
                "documentId": "first file",
-               "uploadTime": "time of file upload"
+               "uploadTime": "time of file upload",
+               "activityGenerationComplete": false
             },
             {
-               "url": "second file's s3 document url",
                "documentId": "second file",
-               "uploadTime": "time of file upload"
+               "uploadTime": "time of file upload",
+               "activityGenerationComplete": true
             }
          ]
       }
    }
   ```
-  - Note: Returns all of the user's files if no paths are provided for `GET /document/retrieve`. The `paths` must include file types (e.g. `file1.pdf` is one path, not `file1` by itself)
+  - Note: Returns all of the user's files if no documentIds are provided for `GET /document/retrieve`. The `documentIds` must include file types (e.g. `file1.pdf` is one documentId, not `file1` by itself)
 
 - **Study:**
 
@@ -257,16 +257,16 @@
   - Body: raw
   ```json
    {
-      "userId": "userId",
-      "path": "file path"
+      "googleId": "googleId",
+      "documentId": "file documentId"
    }
   ```
   - Response:
   ```json
   {
       "data": {
-         "userId": "userId",
-         "documentName": "file path",
+         "googleId": "googleId",
+         "documentId": "file documentId",
          "flashcards": [
             {
                "front": "first word",
@@ -286,16 +286,16 @@
    - Body: raw
    ```json
    {
-      "userId": "userId",
-      "path": "file path"
+      "googleId": "googleId",
+      "documentId": "file documentId"
    }
    ```
    - Response
    ```json
    {
       "data": {
-         "userId": "userId",
-         "documentName": "file path",
+         "googleId": "googleId",
+         "documentId": "file documentId",
          "quiz": [
             {
                "question": "Question 1",
@@ -323,13 +323,13 @@
    ```
    **Endpoint: `/study/quiz`**
    - Method: `GET`
-   - Body: raw, paths is an OPTIONAL field
+   - Body: raw, documentIds is an OPTIONAL field
    ```json
    {
-      "userId": "userId",
-      "paths": [
-         "file path 1", 
-         "file path 2"
+      "googleId": "googleId",
+      "documentIds": [
+         "file documentId 1", 
+         "file documentId 2"
       ]
    }
    ```
@@ -338,8 +338,8 @@
    {
       "data": [
          {
-            "userId": "userId",
-            "documentName": "file path 1",
+            "googleId": "googleId",
+            "documentId": "file documentId 1",
             "flashcards": [
                {
                   "front": "first word",
@@ -354,18 +354,18 @@
       ]
    }
    ```
-   - Note: if paths are not provided, we retrieve all of the user's past generated quizzes
+   - Note: if documentIds are not provided, we retrieve all of the user's past generated quizzes
 
 
    **Endpoint: `/study/flashcards`**
    - Method: `GET`
-   - Body: raw, paths is an OPTIONAL field
+   - Body: raw, documentIds is an OPTIONAL field
    ```json
    {
-      "userId": "userId",
-      "paths": [
-         "file path 1", 
-         "file path 2"
+      "googleId": "googleId",
+      "documentIds": [
+         "file documentId 1", 
+         "file documentId 2"
       ]
    }
    ```
@@ -374,8 +374,8 @@
    {
       "data": [
          {
-            "userId": "userId",
-            "documentName": "file path 1",
+            "googleId": "googleId",
+            "documentId": "file documentId 1",
             "quiz": [
                {
                   "question": "Question 1",
@@ -402,14 +402,14 @@
       ]
    }
    ```
-   - Note: if paths are not provided, we retrieve all of the user's past generated flashcards
+   - Note: if documentIds are not provided, we retrieve all of the user's past generated flashcards
 
   **Endpoint: `/subscription`**
   - Method: `POST`
   - Body: raw
   ```json
    {
-      "userId": "your user id"
+      "googleId": "your user id"
    }
   ```
   - Response
@@ -419,7 +419,6 @@
          "email": "user email",
          "name": "user name",
          "googleId": "google id of user",
-         "userId": "unique user id",
          "subscribed": true
       }
    }
@@ -430,7 +429,7 @@
   - Body: raw
   ```json
    {
-      "userId": "your user id"
+      "googleId": "your user id"
    }
   ```
   - Response
@@ -440,7 +439,6 @@
          "email": "user email",
          "name": "user name",
          "googleId": "google id of user",
-         "userId": "unique user id",
          "subscribed": false
       }
    }

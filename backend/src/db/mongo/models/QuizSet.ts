@@ -1,15 +1,15 @@
-import { Schema, model, HydratedDocumentFromSchema } from 'mongoose';
-import { Quiz, QuizDTO } from '../../../interfaces';
+import { Schema, model } from 'mongoose';
+import { Quiz } from '../../../interfaces';
 
 export interface IQuizSet extends Document {
     userId: string;
-    documentName: string;
+    documentId: string;
     quiz: Quiz[];
 }
 
 const quizSetSchema = new Schema<IQuizSet>({
     userId: { type: String, required: true },
-    documentName: { type: String, required: true, trim: true },
+    documentId: { type: String, required: true, trim: true },
     quiz: [
         {
             question: { type: String, required: true, trim: true },

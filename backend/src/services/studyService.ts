@@ -67,24 +67,24 @@ class StudyService {
 
         const existingFlashCard = await FlashcardSet.findOne({
             userId: collection,
-            documentName: embeddingId,
+            documentId: embeddingId,
         });
         if (existingFlashCard) {
             await FlashcardSet.updateOne(
-                { userId: collection, documentName: embeddingId },
+                { userId: collection, documentId: embeddingId },
                 { flashcards }
             );
         } else {
             await FlashcardSet.create({
                 userId: collection,
-                documentName: embeddingId,
+                documentId: embeddingId,
                 flashcards,
             });
         }
 
         return {
             userId: collection,
-            documentName: embeddingId,
+            documentId: embeddingId,
             flashcards: flashcards,
         } as FlashCardDTO;
     }
@@ -138,44 +138,44 @@ class StudyService {
         });
 
         const existingQuiz = await QuizSet.findOne(
-            { userId: collection, documentName: embeddingId },
+            { userId: collection, documentId: embeddingId },
             {
                 quiz,
             }
         );
         if (existingQuiz) {
             await QuizSet.updateOne(
-                { userId: collection, documentName: embeddingId },
+                { userId: collection, documentId: embeddingId },
                 { quiz }
             );
         } else {
             await QuizSet.create({
                 userId: collection,
-                documentName: embeddingId,
+                documentId: embeddingId,
                 quiz,
             });
         }
 
         return {
             userId: collection,
-            documentName: embeddingId,
+            documentId: embeddingId,
             quiz: quiz,
         } as QuizDTO;
     }
 
     public async retrieveQuizzes(
-        paths: string[],
+        documentIds: string[],
         userId: string
     ): Promise<QuizDTO[]> {
         const quizzes = await QuizSet.find({ userId: userId });
         const filteredQuizzes =
-            paths && paths.length > 0
-                ? quizzes.filter((q) => paths.includes(q.documentName))
+            documentIds && documentIds.length > 0
+                ? quizzes.filter((q) => documentIds.includes(q.documentId))
                 : quizzes;
 
         return filteredQuizzes.map((q) => ({
             userId: userId,
-            documentName: q.documentName,
+            documentId: q.documentId,
             quiz: q.quiz.map((quiz) => ({
                 question: quiz.question,
                 answer: quiz.answer,
@@ -185,18 +185,18 @@ class StudyService {
     }
 
     public async retrieveFlashcards(
-        paths: string[],
+        documentIds: string[],
         userId: string
     ): Promise<FlashCardDTO[]> {
         const flashCards = await FlashcardSet.find({ userId: userId });
         const filteredFlashcards =
-            paths && paths.length > 0
-                ? flashCards.filter((f) => paths.includes(f.documentName))
+            documentIds && documentIds.length > 0
+                ? flashCards.filter((f) => documentIds.includes(f.documentId))
                 : flashCards;
 
         return filteredFlashcards.map((f) => ({
             userId: userId,
-            documentName: f.documentName,
+            documentId: f.documentId,
             flashcards: f.flashcards.map((flashcard) => ({
                 front: flashcard.front,
                 back: flashcard.back,

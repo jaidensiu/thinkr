@@ -7,13 +7,21 @@ export interface Result {
 }
 
 /**
+ * Auth info payload for when user logs in
+ */
+export interface AuthPayload {
+    googleId: string
+    name: string
+    email: string
+}
+
+/**
  * Represents a user for data transfer between frontend <-> backend
  */
 export interface UserDTO {
     email: string;
     name?: string;
-    googleId?: string;
-    userId: string;
+    googleId: string;
     subscribed: boolean;
 }
 
@@ -21,18 +29,17 @@ export interface UserDTO {
  * Represents a document for data transfer between frontend <-> backend
  */
 export interface DocumentDTO {
-    url?: string;
     documentId: string;
     uploadTime: string;
+    activityGenerationComplete: boolean;
 }
 
 /**
  * Represents a flashcard for data transfer between frontend <-> backend
  */
-
 export interface FlashCardDTO {
     userId: string;
-    documentName: string;
+    documentId: string;
     flashcards: FlashCard[];
 }
 
@@ -44,10 +51,9 @@ export interface FlashCard {
 /**
  * Represents a multiple choice quiz for data transfer between frontend <-> backend
  */
-
 export interface QuizDTO {
     userId: string;
-    documentName: string;
+    documentId: string;
     quiz: Quiz[];
 }
 
