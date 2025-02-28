@@ -1,29 +1,26 @@
 package com.example.thinkr.ui.flashcards
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.thinkr.R
 import com.example.thinkr.domain.FlashcardsManager
 import com.example.thinkr.domain.model.DocumentItem
 import androidx.compose.material3.*
 import com.example.thinkr.ui.shared.AnimatedCardDeck
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashcardsScreen(documentItem: DocumentItem, navController: NavController, flashcardsManager: FlashcardsManager, viewModel: FlashcardsViewModel = FlashcardsViewModel(flashcardsManager)) {
     val flashcards = flashcardsManager.getFlashcards(documentItem)
@@ -58,15 +55,19 @@ fun FlashcardsScreen(documentItem: DocumentItem, navController: NavController, f
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
-        Row {
-            Image(
-                painter = painterResource(id = R.drawable.arrow_back),
-                contentDescription = "Back",
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable { viewModel.onBackPressed(navController) }
-            )
-        }
+        TopAppBar(
+            title = { Text("Flashcards") },
+            navigationIcon = {
+                IconButton(
+                    onClick = { viewModel.onBackPressed(navController) }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        )
 
         Box(
             modifier = Modifier
