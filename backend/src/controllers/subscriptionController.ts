@@ -39,7 +39,7 @@ export const unsubscribe = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { userId } = req.body;
+        const userId = req.query.userId as string;
 
         if (!userId) {
             res.status(400).json({

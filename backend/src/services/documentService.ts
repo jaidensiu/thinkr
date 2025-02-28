@@ -107,22 +107,6 @@ class DocumentService {
     }
 
     /**
-     * Deletes documents on s3 and mongodb
-     *
-     */
-    public async deleteDocuments(
-        documentIds: string[],
-        userId: string
-    ): Promise<void> {
-        await Promise.all(
-            documentIds.map((documentId) =>
-                this.deleteDocument(`${userId}-${documentId}`)
-            )
-        );
-        return;
-    }
-
-    /**
      * Retrieves a document from s3
      *
      */
@@ -144,26 +128,17 @@ class DocumentService {
     }
 
     /**
-     * Retrieves multiple documents from s3
+     * Retrieves all of users documents
      *
      */
-    public async getDocuments(
-        keys: string[],
-        userId: string
-    ): Promise<DocumentDTO[]> {
-        let documents;
-        if (keys) {
-            documents = await Promise.all(
-                keys.map((key) => this.getDocument(key, userId))
-            );
-        } else {
-            const allKeys = (await Document.find({ userId: userId })).map(
-                (doc) => doc.documentId
-            );
-            documents = await Promise.all(
-                allKeys.map((key) => this.getDocument(key, userId))
-            );
-        }
+    public async getDocuments(userId: string): Promise<DocumentDTO[]> {
+        const allKeys = (await Document.find({ userId: userId })).map(
+            (doc) => doc.documentId
+        );
+        const documents = await Promise.all(
+            allKeys.map((key) => this.getDocument(key, userId))
+        );
+
         return documents;
     }
 
