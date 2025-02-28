@@ -17,6 +17,7 @@ data class Message(
     val timestamp: Long,
     val isSender: Boolean
 )
+
 val Message.formattedTime: String
     get() {
         val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())

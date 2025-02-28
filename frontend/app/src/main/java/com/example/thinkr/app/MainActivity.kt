@@ -20,8 +20,8 @@ import com.example.thinkr.domain.DocumentManager
 import com.example.thinkr.domain.FlashcardsManager
 import com.example.thinkr.domain.model.DocumentItem
 import com.example.thinkr.ui.chat.ChatScreen
-import com.example.thinkr.ui.document_upload.DocumentUploadScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
+import com.example.thinkr.ui.document_upload.DocumentUploadScreen
 import com.example.thinkr.ui.flashcards.FlashcardsScreen
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.home.HomeScreenViewModel
@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity() {
                                         ?: ""
                                 val document =
                                     Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
-                                DocumentOptionsScreen(document)
+                                DocumentOptionsScreen(document, navController)
                             }
 
                             composable(

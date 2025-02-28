@@ -1,6 +1,6 @@
 package com.example.thinkr.ui.quiz
 
-data class QuizState (
+data class QuizState(
     var quiz: Quiz = Quiz(),
     var selectedAnswerIndices: List<Int> = emptyList(),
     var started: Boolean = false,

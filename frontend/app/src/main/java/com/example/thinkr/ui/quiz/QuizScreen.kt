@@ -336,7 +336,8 @@ private fun formatTime(seconds: Int): String {
 
 private fun vibrate(context: Context) {
     val vibrator = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        val vibratorManager =
+            context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
         vibratorManager.defaultVibrator
     } else {
         @Suppress("DEPRECATION")
