@@ -16,7 +16,7 @@ router.post('/', createChatSession);
 router.get('/:sessionId', getChatSession);
 
 // Get all chat sessions for a user
-router.post('/user/sessions', getUserChatSessions);
+router.get('/user/sessions', getUserChatSessions);
 
 // Send a message to a chat session
 router.post('/:sessionId/message', sendChatMessage);

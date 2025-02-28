@@ -78,16 +78,19 @@ export const getUserChatSessions = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { userId, documentId } = req.body;
+        const { userId, documentId } = req.query;
 
-        if (!userId) {
+        if (!userId || typeof userId !== 'string') {
             res.status(400).json({
-                message: 'userId is required',
+                message: 'userId is required as a query parameter',
             } as Result);
             return;
         }
 
-        const sessions = await ChatService.loadUserSessions(userId, documentId);
+        const sessions = await ChatService.loadUserSessions(
+            userId,
+            documentId as string | undefined
+        );
 
         res.status(200).json({
             data: { sessions },
