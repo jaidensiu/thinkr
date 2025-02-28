@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,9 +31,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,11 +53,6 @@ import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 
-data class Quiz(
-    var multipleChoiceQuestions: List<Pair<String, List<String>>> = emptyList(),
-    var correctAnswerIndexList: List<Int> = emptyList()
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizScreen(
@@ -67,36 +60,23 @@ fun QuizScreen(
     navController: NavController,
     viewModel: QuizViewModel = koinViewModel()
 ) {
-    val totalTimeSeconds = 20
-    val quiz = Quiz(
-        multipleChoiceQuestions = listOf(
-            Pair("What is the capital of France?", listOf("Paris", "London", "Berlin", "Madrid")),
-            Pair("Which planet is known as the Red Planet?", listOf("Mars", "Venus", "Jupiter", "Saturn")),
-            Pair("What is the largest mammal in the world?", listOf("Blue Whale", "Elephant", "Giraffe", "Hippopotamus")),
-        ),
-        correctAnswerIndexList = listOf(0, 1, 2)
-    )
+    val state by viewModel.state.collectAsState()
 
     val context = LocalContext.current
 
-    val selectedAnswerIndices = remember { mutableStateListOf<Int>().apply { repeat(quiz.multipleChoiceQuestions.size) { add(-1) } } }
-
-    var started by remember { mutableStateOf(value = false) }
-    var revealAnswer by remember { mutableStateOf(value = false) }
-    var totalScore by remember { mutableIntStateOf(value = 0) }
-
     val frontBackPairs: List<Pair<@Composable () -> Unit, @Composable () -> Unit>> = remember {
-        quiz.multipleChoiceQuestions.mapIndexed { index, questionAnswerPair ->
+        state.quiz.multipleChoiceQuestions.mapIndexed { index, questionAnswerPair ->
             Pair(
                 // First composable function
                 {
                     MultipleChoiceQuizCard(
+                        quizState = state,
+                        quizViewModel = viewModel,
                         questionIndex = index,
                         question = questionAnswerPair.first,
                         choices = questionAnswerPair.second,
-                        correctAnswerIndex = quiz.correctAnswerIndexList[index],
-                        revealAnswer = revealAnswer,
-                        selectedAnswerIndices = selectedAnswerIndices,
+                        correctAnswerIndex = state.quiz.correctAnswerIndexList[index],
+                        revealAnswer = state.revealAnswer,
                     )
                 },
                 // Second composable function (back) Empty composable
@@ -105,7 +85,7 @@ fun QuizScreen(
         }
     }
 
-    if (!started) {
+    if (!state.started) {
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
@@ -128,7 +108,7 @@ fun QuizScreen(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Button(onClick = { started = true }) {
+                Button(onClick = { viewModel.onStartQuiz() }) {
                     Text(text = "Start Quiz")
                 }
             }
@@ -154,25 +134,18 @@ fun QuizScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             QuizTimer(
-                totalTimeSeconds = totalTimeSeconds,
+                totalTimeSeconds = state.totalTimeSeconds,
                 onTimeUp = {
-                    revealAnswer = true
+                    viewModel.onQuizTimeUp()
                     vibrate(context)
-                    totalScore = 0
-                    selectedAnswerIndices.forEachIndexed { index, selectedIndex ->
-                        Log.d("Quiz", "Question: $index, Selected Index: $selectedIndex, Correct Index: ${quiz.correctAnswerIndexList[index]}")
-                        if (selectedIndex == quiz.correctAnswerIndexList[index]) {
-                            totalScore++
-                        }
-                    }
                 }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (revealAnswer) {
+            if (state.revealAnswer) {
                 Text(
-                    text = "Score: $totalScore / ${quiz.multipleChoiceQuestions.size}",
+                    text = "Score: ${state.totalScore} / ${state.quiz.multipleChoiceQuestions.size}",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -202,12 +175,13 @@ fun QuizScreen(
 
 @Composable
 fun MultipleChoiceQuizCard(
+    quizState: QuizState,
+    quizViewModel: QuizViewModel,
     questionIndex: Int,
     question: String,
     choices: List<String>,
     correctAnswerIndex: Int,
     revealAnswer: Boolean = false,
-    selectedAnswerIndices: MutableList<Int>
 ) {
     Column(
         modifier = Modifier
@@ -227,7 +201,7 @@ fun MultipleChoiceQuizCard(
 
         // Choices
         choices.forEachIndexed { index, choice ->
-            val isSelected = selectedAnswerIndices.get(questionIndex) == index
+            val isSelected = quizState.selectedAnswerIndices.get(questionIndex) == index
             val isCorrect = index == correctAnswerIndex
             val backgroundColor = when {
                 !revealAnswer -> if (isSelected) Color.Gray else Color.Transparent
@@ -252,9 +226,9 @@ fun MultipleChoiceQuizCard(
                         onClick = {
                             if (!revealAnswer) {
                                 if (isSelected) {
-                                    selectedAnswerIndices[questionIndex] = -1
+                                    quizViewModel.onAnswerSelected(questionIndex, -1)
                                 } else {
-                                    selectedAnswerIndices[questionIndex] = index
+                                    quizViewModel.onAnswerSelected(questionIndex, index)
                                 }
                             }
                         }
