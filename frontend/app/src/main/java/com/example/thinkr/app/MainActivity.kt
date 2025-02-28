@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity() {
                                         ?: ""
                                 val document =
                                     Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
-                                DocumentOptionsScreen(document)
+                                DocumentOptionsScreen(document, navController)
                             }
 
                             composable(

@@ -5,6 +5,7 @@ import com.example.thinkr.data.remote.RemoteApi
 import com.example.thinkr.data.remote.RemoteApiImpl
 import com.example.thinkr.data.repositories.AuthRepository
 import com.example.thinkr.data.repositories.AuthRepositoryImpl
+import com.example.thinkr.ui.document_options.DocumentOptionsViewModel
 import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreenViewModel
 import com.example.thinkr.ui.payment.PaymentViewModel
@@ -25,6 +26,7 @@ val appModule = module {
     singleOf(::AuthRepositoryImpl).bind<AuthRepository>()
     viewModelOf(::LandingScreenViewModel)
     viewModelOf(::HomeScreenViewModel)
+    viewModelOf(::DocumentOptionsViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::PaymentViewModel)
     viewModelOf(::QuizViewModel)
