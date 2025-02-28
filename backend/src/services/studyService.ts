@@ -172,21 +172,21 @@ class StudyService {
     }
 
     /**
-     * Retrieves quizzes for a userId and based on the documentIds passed
-     * Gets all quizzes for user if documentIds are not provided
+     * Retrieves quizzes for a userId and based on the documentId passed
+     * Gets all quizzes for user if documentId is not provided
      */
     public async retrieveQuizzes(
-        documentIds: string[],
+        documentId: string,
         userId: string
-    ): Promise<QuizDTO[]> {
-        const quizzes = await QuizSet.find({ userId: userId });
-        const filteredQuizzes =
-            documentIds && documentIds.length > 0
-                ? quizzes.filter((q) => documentIds.includes(q.documentId))
-                : quizzes;
+    ): Promise<QuizDTO[] | QuizDTO> {
+        const quizzes = await QuizSet.find({ userId });
 
-        return filteredQuizzes.map((q) => ({
-            userId: userId,
+        const filteredQuizzes = documentId
+            ? quizzes.filter((q) => q.documentId === documentId)
+            : quizzes;
+
+        const mappedQuizzes = filteredQuizzes.map((q) => ({
+            userId,
             documentId: q.documentId,
             quiz: q.quiz.map((quiz) => ({
                 question: quiz.question,
@@ -194,6 +194,8 @@ class StudyService {
                 options: quiz.options,
             })),
         })) as QuizDTO[];
+
+        return documentId ? mappedQuizzes[0] : mappedQuizzes;
     }
 
     /**
@@ -201,16 +203,15 @@ class StudyService {
      * Gets all flashcards for user if documentIds are not provided
      */
     public async retrieveFlashcards(
-        documentIds: string[],
+        documentId: string,
         userId: string
-    ): Promise<FlashCardDTO[]> {
+    ): Promise<FlashCardDTO[] | FlashCardDTO> {
         const flashCards = await FlashcardSet.find({ userId: userId });
-        const filteredFlashcards =
-            documentIds && documentIds.length > 0
-                ? flashCards.filter((f) => documentIds.includes(f.documentId))
-                : flashCards;
+        const filteredFlashcards = documentId
+            ? flashCards.filter((f) => documentId === f.documentId)
+            : flashCards;
 
-        return filteredFlashcards.map((f) => ({
+        const mappedFlashcards = filteredFlashcards.map((f) => ({
             userId: userId,
             documentId: f.documentId,
             flashcards: f.flashcards.map((flashcard) => ({
@@ -218,6 +219,8 @@ class StudyService {
                 back: flashcard.back,
             })),
         })) as FlashCardDTO[];
+
+        return documentId ? mappedFlashcards[0] : mappedFlashcards;
     }
 
     /**
@@ -241,14 +244,14 @@ class StudyService {
     }
 
     /**
-     * Deletes quizzes and flashcards linked to a set of documentIds from the db
+     * Deletes quizzes and flashcards linked to a documentId from the db
      */
-    public async deleteStudyActivities(documentIds: string[], userId: string) {
-        await this.ragService.deleteDocuments(documentIds, userId);
-        await QuizSet.deleteMany({ documentId: { $in: documentIds }, userId });
-        await FlashcardSet.deleteMany({
-            documentId: { $in: documentIds },
-            userId,
+    public async deleteStudyActivities(documentId: string, userId: string) {
+        await this.ragService.deleteDocuments([documentId], userId);
+        await QuizSet.deleteOne({ documentId: documentId, userId: userId });
+        await FlashcardSet.deleteOne({
+            documentId: documentId,
+            userId: userId,
         });
     }
 }

@@ -73,17 +73,17 @@ export const retrieveFlashcards = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { documentIds, userId } = req.body;
+        const userId = req.query.userId as string;
+        const documentId = req.query.documentId as string;
 
-        if (!userId || (documentIds && !Array.isArray(documentIds))) {
+        if (!userId) {
             res.status(400).json({
                 message: 'You must provide a userId identifier',
             });
             return;
         }
-
         const flashcards = await StudyService.retrieveFlashcards(
-            documentIds,
+            documentId,
             userId
         );
 
@@ -105,17 +105,17 @@ export const retrieveQuizzes = async (
     res: Response
 ): Promise<void> => {
     try {
-        const { documentIds, userId } = req.body;
+        const userId = req.query.userId as string;
+        const documentId = req.query.documentId as string;
 
-        if (!userId || (documentIds && !Array.isArray(documentIds))) {
+        if (!userId) {
             res.status(400).json({
-                message:
-                    'You must provide a userId identifier or documentIds is invalid',
+                message: 'You must provide a userId identifier',
             });
             return;
         }
 
-        const quizzes = await StudyService.retrieveQuizzes(documentIds, userId);
+        const quizzes = await StudyService.retrieveQuizzes(documentId, userId);
 
         res.status(200).json({ data: quizzes } as Result);
     } catch (error) {

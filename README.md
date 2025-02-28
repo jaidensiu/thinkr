@@ -198,6 +198,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ### Documents
 
 **Endpoint: `/document/upload`**
+- Uploads a single document
 - Method: `POST`
 - Body: multipart/form-data
 ```json
@@ -223,33 +224,27 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Note: The system supports PDF, JPEG, PNG, TIFF, and text files. This will also extract document text into the ChromaDB, and create the quiz and flashcards associated with the document uploaded in a separate background process.
 
 **Endpoint: `/document/delete`**
+- Deletes one document given a userId and the documentId you want to delete
 - Method: `DELETE`
-- Body: raw
+- Params:
 ```json
-{
    "userId": "user google id",
-   "documentIds": [
-      "documentId of first file",
-      "documentId of second file"
-   ]
-}
+   "documentId": "document id 1"
 ```
 - Response: N/A
-- Note: This deletes both the documents from S3, mongodb and its embeddings from ChromaDB and also deletes the study materials (quiz, flashcards) associated with the documents.
+- Note: This deletes both the document from S3, mongodb and its embeddings from ChromaDB and also deletes the study materials (quiz, flashcards) associated with the document.
 
 **Endpoint: `/document/retrieve`**
+- Retrieves the user's documents. Retrieves one if a single documentId is provided and all of them if no documentId is provided
 - Method: `GET`
-- Body: raw, documentIds is an OPTIONAL field
+- Params: documentId is an OPTIONAL field
 ```json
-{
    "userId": "user google id",
-   "documentIds": [
-      "documentId of first file",
-      "documentId of second file"
-   ]
-}
+   "documentId": "document id 1"
 ```
 - Response:
+
+`Multiple`
 ```json
 {
    "data": {
@@ -270,7 +265,19 @@ The system uses ChromaDB to store document embeddings with the following archite
    }
 }
 ```
-- Note: Returns all of the user's uploaded documents if no documentIds are provided. The `documentIds` must include file types (e.g. `file1.pdf` is one documentId, not `file1` by itself)
+`Single`
+```json
+{
+   "data": {
+      "docs": {
+         "documentId": "first file",
+         "documentName": "<user's given name for this document>",
+         "uploadTime": "time of file upload",
+         "activityGenerationComplete": false
+      }
+   }
+}
+```
 
 ### Study
 
@@ -345,18 +352,16 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```
 
 **Endpoint: `/study/quiz`**
+- Retrieves the quizzes associated with a documentId from a user. If no documentId is provided, all of the user's quizzes are retrieved.
 - Method: `GET`
-- Body: raw, documentIds is an OPTIONAL field
+- Params: documentId is an OPTIONAL field
 ```json
-{
    "userId": "user google id",
-   "documentIds": [
-      "file documentId 1", 
-      "file documentId 2"
-   ]
-}
+   "documentId": "document id 1"
 ```
 - Response
+
+`Multiple`
 ```json
 {
    "data": [
@@ -389,21 +394,49 @@ The system uses ChromaDB to store document embeddings with the following archite
    ]
 }
 ```
-- Note: if documentIds are not provided, we retrieve all of the user's past generated quizzes
-
-**Endpoint: `/study/flashcards`**
-- Method: `GET`
-- Body: raw, documentIds is an OPTIONAL field
+`Singular`
 ```json
 {
-   "userId": "user google id",
-   "documentIds": [
-      "file documentId 1", 
-      "file documentId 2"
-   ]
+   "data": {
+      "userId": "user google id",
+      "documentId": "file documentId 1",
+      "quiz": [
+         {
+            "question": "Question 1",
+            "answer": "C",
+            "options": {
+               "A": "Answer 1",
+               "B": "Answer 2",
+               "C": "Answer 3",
+               "D": "Answer 4"
+            } 
+         },
+         {
+            "question": "Question 2",
+            "answer": "A",
+            "options": {
+               "A": "Answer 1",
+               "B": "Answer 2",
+               "C": "Answer 3",
+               "D": "Answer 4"
+            }
+         }
+      ]
+   }
 }
 ```
+
+**Endpoint: `/study/flashcards`**
+- Retrieves the flashcards associated with a documentId from a user. If no documentId is provided, all of the user's flashcards are retrieved. 
+- Method: `GET`
+- Params: documentId is an OPTIONAL field
+```json
+   "userId": "user google id",
+   "documentId": "document id 1"
+```
 - Response
+
+`Multiple`
 ```json
 {
    "data": [
@@ -424,7 +457,27 @@ The system uses ChromaDB to store document embeddings with the following archite
    ]
 }
 ```
-- Note: if documentIds are not provided, we retrieve all of the user's past generated flashcards
+`Singular`
+
+```json
+{
+   "data": {
+      "userId": "user google id",
+      "documentId": "file documentId 1",
+      "flashcards": [
+         {
+            "front": "first word",
+            "back": "definition of first word"
+         },
+         {
+            "front": "second word",
+            "back": "definition of second word"
+         }
+      ]
+   }
+}
+```
+
 
 ### Subscription
 
@@ -450,11 +503,9 @@ The system uses ChromaDB to store document embeddings with the following archite
 
 **Endpoint: `/subscription`**
 - Method: `DELETE`
-- Body: raw
+- Params:
 ```json
-{
-   "userId": "user google id"
-}
+   "userId": "user google id",
 ```
 - Response
 ```json
