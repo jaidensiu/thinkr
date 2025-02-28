@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class DocumentOptionsViewModel: ViewModel() {
+class DocumentOptionsViewModel : ViewModel() {
     private val _state = MutableStateFlow(DocumentOptionsState())
     val state = _state.asStateFlow()
 

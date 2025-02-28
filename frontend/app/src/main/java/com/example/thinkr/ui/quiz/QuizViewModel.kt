@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class QuizViewModel: ViewModel() {
+class QuizViewModel : ViewModel() {
     private var _state = MutableStateFlow(QuizState())
     val state = _state.asStateFlow()
 
@@ -20,9 +20,18 @@ class QuizViewModel: ViewModel() {
             it.copy(
                 quiz = Quiz(
                     multipleChoiceQuestions = listOf(
-                        Pair("What is the capital of France?", listOf("Paris", "London", "Berlin", "Madrid")),
-                        Pair("Which planet is known as the Red Planet?", listOf("Mars", "Venus", "Jupiter", "Saturn")),
-                        Pair("What is the largest mammal in the world?", listOf("Blue Whale", "Elephant", "Giraffe", "Hippopotamus")),
+                        Pair(
+                            "What is the capital of France?",
+                            listOf("Paris", "London", "Berlin", "Madrid")
+                        ),
+                        Pair(
+                            "Which planet is known as the Red Planet?",
+                            listOf("Mars", "Venus", "Jupiter", "Saturn")
+                        ),
+                        Pair(
+                            "What is the largest mammal in the world?",
+                            listOf("Blue Whale", "Elephant", "Giraffe", "Hippopotamus")
+                        ),
                     ),
                     correctAnswerIndexList = listOf(0, 1, 2)
                 ),
@@ -69,7 +78,8 @@ class QuizViewModel: ViewModel() {
 
 private fun vibrate(context: Context) {
     val vibrator = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        val vibratorManager =
+            context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
         vibratorManager.defaultVibrator
     } else {
         @Suppress("DEPRECATION")

@@ -94,8 +94,10 @@ fun HomeScreenContent(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        val retrievedDocuments = state.value.documentManager.getRetrievedDocuments().collectAsState()
-        val uploadingDocuments = state.value.documentManager.getUploadingDocuments().collectAsState()
+        val retrievedDocuments =
+            state.value.documentManager.getRetrievedDocuments().collectAsState()
+        val uploadingDocuments =
+            state.value.documentManager.getUploadingDocuments().collectAsState()
         // Top Row with two buttons
         Row(
             modifier = Modifier.fillMaxWidth(),

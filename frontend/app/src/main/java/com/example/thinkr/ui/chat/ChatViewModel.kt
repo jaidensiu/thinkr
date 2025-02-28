@@ -62,7 +62,7 @@ class ChatViewModel : ViewModel() {
         // TODO: Remove this, just for demonstration purposes
         viewModelScope.launch {
             kotlinx.coroutines.delay(1000)
-            onReceiveMessage( "I received your message: \"$content\"")
+            onReceiveMessage("I received your message: \"$content\"")
         }
     }
 

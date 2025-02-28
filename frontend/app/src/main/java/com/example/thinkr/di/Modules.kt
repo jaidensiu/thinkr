@@ -5,13 +5,13 @@ import com.example.thinkr.data.remote.RemoteApi
 import com.example.thinkr.data.remote.RemoteApiImpl
 import com.example.thinkr.data.repositories.AuthRepository
 import com.example.thinkr.data.repositories.AuthRepositoryImpl
+import com.example.thinkr.ui.chat.ChatViewModel
 import com.example.thinkr.ui.document_options.DocumentOptionsViewModel
 import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreenViewModel
 import com.example.thinkr.ui.payment.PaymentViewModel
 import com.example.thinkr.ui.profile.ProfileViewModel
 import com.example.thinkr.ui.quiz.QuizViewModel
-import com.example.thinkr.ui.chat.ChatViewModel
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.core.module.dsl.singleOf

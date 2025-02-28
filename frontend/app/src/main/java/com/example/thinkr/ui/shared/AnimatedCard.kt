@@ -64,7 +64,7 @@ fun AnimatedCardDeck(
         isChangingCard = isChangingCard,
         slideDirection = slideDirection,
         onSwipeRight = {
-            if (enableHorizontalSwipe &&  !isFlipping && !isChangingCard) {
+            if (enableHorizontalSwipe && !isFlipping && !isChangingCard) {
                 coroutineScope.launch {
                     isFlipping = true
                     delay(300) // Allow animation to play
@@ -75,7 +75,7 @@ fun AnimatedCardDeck(
             }
         },
         onSwipeLeft = {
-            if (enableHorizontalSwipe &&  !isFlipping && !isChangingCard) {
+            if (enableHorizontalSwipe && !isFlipping && !isChangingCard) {
                 coroutineScope.launch {
                     isFlipping = true
                     delay(300) // Allow animation to play

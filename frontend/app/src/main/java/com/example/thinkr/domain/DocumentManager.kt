@@ -15,8 +15,10 @@ class DocumentManager {
         val MAX_CONTEXT_LENGTH = 500
     }
 
-    private val _retrievedDocuments = MutableStateFlow<List<DocumentItem>>(emptyList()) // 🔄 Reactive state
-    private val _uploadingDocuments = MutableStateFlow<List<DocumentItem>>(emptyList()) // 🔄 Reactive state
+    private val _retrievedDocuments =
+        MutableStateFlow<List<DocumentItem>>(emptyList()) // 🔄 Reactive state
+    private val _uploadingDocuments =
+        MutableStateFlow<List<DocumentItem>>(emptyList()) // 🔄 Reactive state
 
     fun loadDocuments() {
         // TODO: Load documents from the database
