@@ -20,7 +20,7 @@ import com.example.thinkr.domain.DocumentManager
 import com.example.thinkr.domain.FlashcardsManager
 import com.example.thinkr.domain.model.DocumentItem
 import com.example.thinkr.ui.chat.ChatScreen
-import com.example.thinkr.ui.document_details.DocumentDetailsScreen
+import com.example.thinkr.ui.document_upload.DocumentUploadScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
 import com.example.thinkr.ui.flashcards.FlashcardsScreen
 import com.example.thinkr.ui.home.HomeScreen
@@ -106,16 +106,16 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable(
-                                route = Route.DocumentDetails.ROUTE,
-                                arguments = listOf(navArgument(Route.DocumentDetails.ARGUMENT) {
+                                route = Route.DocumentUpload.ROUTE,
+                                arguments = listOf(navArgument(Route.DocumentUpload.ARGUMENT) {
                                     type = NavType.StringType
                                 })
                             ) { backStackEntry ->
                                 val json =
-                                    backStackEntry.arguments?.getString(Route.DocumentDetails.ARGUMENT)
+                                    backStackEntry.arguments?.getString(Route.DocumentUpload.ARGUMENT)
                                         ?: ""
                                 val selectedUri = Uri.parse(Uri.decode(json))
-                                DocumentDetailsScreen(navController, selectedUri, documentManager)
+                                DocumentUploadScreen(navController, selectedUri, documentManager)
                             }
 
                             composable<Route.Profile> {

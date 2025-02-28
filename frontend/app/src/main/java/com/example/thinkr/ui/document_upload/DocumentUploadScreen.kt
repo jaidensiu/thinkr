@@ -1,4 +1,4 @@
-package com.example.thinkr.ui.document_details
+package com.example.thinkr.ui.document_upload
 
 import android.net.Uri
 import android.widget.Toast
@@ -37,11 +37,11 @@ import com.example.thinkr.R
 import com.example.thinkr.domain.DocumentManager
 
 @Composable
-fun DocumentDetailsScreen(
+fun DocumentUploadScreen(
     navController: NavController,
     selectedUri: Uri,
     documentManager: DocumentManager,
-    viewModel: DocumentDetailsViewModel = DocumentDetailsViewModel(documentManager = documentManager)
+    viewModel: DocumentUploadViewModel = DocumentUploadViewModel(documentManager = documentManager)
 ) {
     var name by remember { mutableStateOf("") }
     var context by remember { mutableStateOf("") }
