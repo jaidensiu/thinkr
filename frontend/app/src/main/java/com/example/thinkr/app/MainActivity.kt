@@ -19,6 +19,7 @@ import androidx.navigation.navigation
 import com.example.thinkr.domain.DocumentManager
 import com.example.thinkr.domain.FlashcardsManager
 import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.ui.chat.ChatScreen
 import com.example.thinkr.ui.document_details.DocumentDetailsScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
 import com.example.thinkr.ui.flashcards.FlashcardsScreen
@@ -162,6 +163,20 @@ class MainActivity : ComponentActivity() {
                                 val document =
                                     Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
                                 QuizScreen(document, navController)
+                            }
+
+                            composable(
+                                route = Route.Chat.ROUTE,
+                                arguments = listOf(navArgument(Route.Chat.ARGUMENT) {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val json =
+                                    backStackEntry.arguments?.getString(Route.Chat.ARGUMENT)
+                                        ?: ""
+                                val document =
+                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                ChatScreen(document, navController)
                             }
                         }
                     }
