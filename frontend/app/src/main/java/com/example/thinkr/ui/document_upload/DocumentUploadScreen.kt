@@ -1,13 +1,11 @@
-package com.example.thinkr.ui.document_details
+package com.example.thinkr.ui.document_upload
 
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,32 +40,38 @@ import androidx.navigation.NavController
 import com.example.thinkr.R
 import com.example.thinkr.domain.DocumentManager
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DocumentDetailsScreen(
+fun DocumentUploadScreen(
     navController: NavController,
     selectedUri: Uri,
     documentManager: DocumentManager,
-    viewModel: DocumentDetailsViewModel = DocumentDetailsViewModel(documentManager = documentManager)
+    viewModel: DocumentUploadViewModel = DocumentUploadViewModel(documentManager = documentManager)
 ) {
     var name by remember { mutableStateOf("") }
     var context by remember { mutableStateOf("") }
     val contextForToast = LocalContext.current
 
-    Row {
-        Image(
-            painter = painterResource(id = R.drawable.arrow_back),
-            contentDescription = "Back",
-            modifier = Modifier
-                .size(48.dp)
-                .clickable { viewModel.onBackPressed(navController) }
-        )
-    }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        TopAppBar(
+            title = { Text("Upload Document") },
+            navigationIcon = {
+                IconButton(
+                    onClick = { viewModel.onBackPressed(navController) }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        )
+
         Spacer(modifier = Modifier.height(80.dp))
 
         Box(

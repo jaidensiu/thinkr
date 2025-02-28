@@ -29,9 +29,9 @@ sealed interface Route {
     }
 
     @Serializable
-    data class DocumentDetails(val selectedUri: String) : Route {
+    data class DocumentUpload(val selectedUri: String) : Route {
         companion object {
-            const val ROUTE = "documentDetails/{selectedUri}"
+            const val ROUTE = "documentUpload/{selectedUri}"
             const val ARGUMENT = "selectedUri"
             fun createRoute(selectedUri: Uri): String {
                 return ROUTE.replace("{selectedUri}", Uri.encode(selectedUri.toString()))
@@ -61,6 +61,18 @@ sealed interface Route {
     data class Quiz(val documentItem: DocumentItem) : Route {
         companion object {
             const val ROUTE = "quiz/{documentJson}"
+            const val ARGUMENT = "documentJson"
+            fun createRoute(document: DocumentItem): String {
+                val json = Json.encodeToString(document)
+                return ROUTE.replace("{documentJson}", Uri.encode(json))
+            }
+        }
+    }
+
+    @Serializable
+    data class Chat(val documentItem: DocumentItem) : Route {
+        companion object {
+            const val ROUTE = "chat/{documentJson}"
             const val ARGUMENT = "documentJson"
             fun createRoute(document: DocumentItem): String {
                 val json = Json.encodeToString(document)

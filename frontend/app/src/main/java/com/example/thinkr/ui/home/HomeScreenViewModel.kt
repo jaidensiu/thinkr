@@ -40,7 +40,7 @@ class HomeScreenViewModel(documentManager: DocumentManager) : ViewModel() {
             }
             is HomeScreenAction.FileSelected -> {
                 // Handle file selected action
-                navController.navigate(Route.DocumentDetails.createRoute(action.selectedUri))
+                navController.navigate(Route.DocumentUpload.createRoute(action.selectedUri))
             }
         }
     }
