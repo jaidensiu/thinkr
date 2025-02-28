@@ -1,4 +1,7 @@
 package com.example.thinkr.ui.flashcards
 
-class FlashcardsState {
-}
+import com.example.thinkr.domain.model.FlashcardItem
+
+data class FlashcardsState (
+    var flashcards: List<FlashcardItem> = emptyList()
+)

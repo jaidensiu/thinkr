@@ -18,15 +18,18 @@ import androidx.navigation.NavController
 import com.example.thinkr.domain.FlashcardsManager
 import com.example.thinkr.domain.model.DocumentItem
 import androidx.compose.material3.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.thinkr.ui.shared.AnimatedCardDeck
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashcardsScreen(documentItem: DocumentItem, navController: NavController, flashcardsManager: FlashcardsManager, viewModel: FlashcardsViewModel = FlashcardsViewModel(flashcardsManager)) {
-    val flashcards = flashcardsManager.getFlashcards(documentItem)
+    viewModel.onStart(documentItem)
+    val state by viewModel.state.collectAsState()
 
     val frontBackPairs: List<Pair<@Composable () -> Unit, @Composable () -> Unit>> = remember {
-        flashcards.map { flashcard ->
+        state.flashcards.map { flashcard ->
             Pair(
                 // First composable function (front)
                 {
