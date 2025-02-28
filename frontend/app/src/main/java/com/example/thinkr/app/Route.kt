@@ -56,4 +56,16 @@ sealed interface Route {
             }
         }
     }
+
+    @Serializable
+    data class Quiz(val documentItem: DocumentItem) : Route {
+        companion object {
+            const val ROUTE = "quiz/{documentJson}"
+            const val ARGUMENT = "documentJson"
+            fun createRoute(document: DocumentItem): String {
+                val json = Json.encodeToString(document)
+                return ROUTE.replace("{documentJson}", Uri.encode(json))
+            }
+        }
+    }
 }
