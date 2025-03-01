@@ -1,11 +1,34 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-<!-- Leave blank for M3 -->
+- Added new feature that allows users to view suggested quizzes and flashcards that are created by other users, algorithm recommends quizzes and flashcards most similar to what a user has been studying
+    - Date of Modification: Feb 28
+    - Modified Sections: 3.1, 3.3, 4.4, 4.6, 4.8
+    - Rationale: new feature to showcase a complex algorithm that calculates document similarity with cosine similarity between a user's document and every other document that exists in the app.
+- On document upload, flashcards and quizzes are generated as a background process for that document, so users can only create quizzes and flashcards from a document upload directly.
+    - Date of Modification: Feb 26
+    - Modified Sections: 3.1, 3.3, 4.4, 4.6
+    - Rationale: this allows users to still browse the application while their study materials are generating as the processing of the documents are now unblocking; improves user experience.
+- DocumentParser and DocumentSummarizer are no longer separate components but merged with DocumentService
+    - Date of Modification: Feb 26
+    - Modified Sections: 3.3, 4.4, 4.6
+    - Rationale: There was no reason to decouple these functionalities together as they are very similar; text extraction or document text processing shouldn't be its own interface, but is just one part of the document upload processing.
+- Changed subscription to be free
+    - Date of Modification: Feb 24
+    - Modified Sections: 3.3, 4.4, 4.6
+    - Rationale: Payments are not central to the user application and to allow more users to test our chat feature, we decided to make it free for now.
+- Coupled StudyResourceDB and UserDB into a single MongoDB database and defined MongoDB schemas for app resources
+    - Date of Modification: Feb 25
+    - Modified Sections: 4.2, 4.6
+    - Rationale: There was no point in separating StudyResourcesDB and UserDB into two separate databases, it made more sense to keep them in one database but as separate collections in MongoDB to make finding user's owned documents easier and lessens complexity with a single DB. We defined the schemas to be able to represent application data in the database for flashcards, quizzes, documents, users, and chat so that data is saved.
+- Google Authenticator is now only on the frontend and no longer used in the backend
+    - Date of Modification: Feb 25
+    - Modified Sections: 4.6
+    - Rationale: Google authenticator is already used on the frontend, so doing it again on the backend was unneccessary.
 
 ## 2. Project Description
 
-Thinkr is an Android mobile app that is geared towards helping students study through AI-generated multiple-choice quizzes and notes. Students can create and share quizzes/notes with other users.
+Thinkr is an Android mobile app that is geared towards helping students study through AI-generated multiple-choice quizzes and notes. Students can generate quizzes and flashcards based on a document they upload, they may also ask a chatbot questions about the document uploaded. Students are also able to view quizzes and flashcards created by other users that are similar to theirs for extra study material.
 
 ## 3. Requirements Specification
 
@@ -14,71 +37,79 @@ Thinkr is an Android mobile app that is geared towards helping students study th
 
 ### **3.2. Actors Description**
 
-1. **Regular users**: Can only access the Flashcards feature and the Quiz feature.
-2. **Premium users**: Can ask questions to an AI assistant about their uploaded documents along with the features normal students can use.
+1. **Regular users**: Can access basic features like document upload, flashcards, and quizzes.
+2. **Premium users**: Can use all regular features plus chat with an AI assistant about their uploaded documents.
 
 Note: Users and Students will be used synonymously in this document.
 
 ### **3.3. Functional Requirements**
 
-1. **Account Setup** 
-    - **Description**: Users can create an account and log in.
+1. **Setup Account** 
+    - **Description**: Users can sign up and log in.
     - **Primary actor(s)**: Premium and regular students.
     - **Main success scenario**:
-        - Users are able to create accounts and are able to log in to the account they just created.
+        1. Users are able to create accounts and are able to log in to the account they just created.
     - **Failure scenario(s)**:
-        - Users create an account and are unable to log into the account that they tried to create.
-            - An error message is displayed on the screen telling them login was unsuccessful.
+        1a. Users create an account and are unable to log into the account that they tried to create.
+            1a1. An error message is displayed on the screen telling them login was unsuccessful.
 
-2. **Premium Subscription** 
-    - **Description**: Users can pay for a premium subscription for more features.
+2. **Subscribe** 
+    - **Description**: Users can upgrade to premium status for additional features.
     - **Primary actor(s)**: Premium and regular users.
     - **Main success scenario**:
-        - User successfully completes their purchase and obtains premium status.
-        - User's billing cycle is accurate.
+        1. User successfully obtains premium status.
     - **Failure scenario(s)**:
-        - User's payment method fails.
-            - Shows an error screen and asks the user to check if the payment card is valid.
+        1a. Subscription update fails.
+            1a1. System shows an error message explaining the failure.
 
-3. **Document Uploads**
-    - **Description**: Users can upload documents to the application for parsing. Supported formats are PDF or image.
+3. **Upload Documents**
+    - **Description**: Users can upload documents (PDF or image) to the application for processing and generates a quiz and a flashcard set based on the documents uploaded.
     - **Primary actor(s)**: Regular and Premium Users.
     - **Main success scenario**:
-        - User successfully uploads the document and is able to access the main features (Chat, Notes, Flashcards, Quiz).
+        1. User successfully uploads the document.
+        2. System processes the document and generates study materials.
     - **Failure scenario(s)**:
-        - File upload fails, and user is unable to access the main features (Chat, Notes, Flashcards, Quiz).
-            - If the upload failed due to network errors, show a message asking user to check their connection.
-            - If the format of the document is not supported, show a message asking user to check their file format.
+        1a. File upload fails, and user is unable to access the quiz and flashcard set for the document they uploaded.
+            1a1. If the upload failed due to network errors, show a message asking user to check their connection.
+            1a2. If the format of the document is not supported, show a message asking user to check their file format.
 
-4. **Conversational AI (regarding the documents uploaded)**
+4. **Chat with AI**
     - **Description**: Premium users can chat with the AI about the documents they have uploaded.
     - **Primary actor(s)**: Premium Users.
     - **Main success scenario**:
-        - The AI returns context-aware responses in the chat.
-        - The AI understands the information of the uploaded documents.
+        1. The AI returns context-aware responses in the chat.
+        2. The AI understands the information of the uploaded documents.
     - **Failure scenario(s)**:
-        - App fails to return a response because of the Network Error.
-            - Show a message asking user to check their connection.
-        - User's message exceeds the context length limit.
-            - Disable the send button, and user cannot send until they shorten their input.
+        1a. App fails to return a response because of the Network Error.
+            1a1. Show a message asking user to check their connection.
+        1b. User's message exceeds the context length limit.
+            1b1. Disable the send button, and user cannot send until they shorten their input.
 
-5. **Review Flashcards**
+5. **View Generated Flashcards**
     - **Description**: Users can browse and interact with AI-generated flashcards.
     - **Primary actor(s)**: Regular and Premium Users.
     - **Main success scenario**:
-        - Flashcards are generated based on the documents we have provided.
+        1. User can use the flashcards that were generated when they uploaded a document
     - **Failure scenario(s)**:
-        - Flashcards are not generated due to errors.
-            - Asks user to upload or try again.
+        1a. Flashcards are not generated due to errors.
+            1a1. Asks user to re-upload their document and try again.
 
-6. **Timed Quiz**
-    - **Description**: Users can take a timed, multiple-choice quiz based on the documents uploaded.
+6. **View Quiz**
+    - **Description**: Users can view and take a timed, multiple-choice quiz based on the documents uploaded.
     - **Primary actor(s)**: Regular and Premium Users.
     - **Main success scenario**:
-        - Multiple choice quizzes are generated based on the documents provided.
+        1. User can use the quiz that was generated when they uploaded a document
     - **Failure scenario(s)**:
-        - AI fails to generate a quiz because it was unable to parse the document.
-            - Tells the user to try again, by either clicking the button or uploading the docs.
+        1a. Quiz is not generated due to errors.
+            1a1. Asks user to re-upload their document and try again.
+7. **View Suggested Study Materials From other users**
+    - **Description**: Users can choose to retrieve suggested flashcards and quizzes that other users have created based on similarity between two user's uploaded documents
+    - **Primary actor(s)**: Regular and Premium Users.
+    - **Main success scenario**:
+        1. User can retrieve flashcards and quizzes from other users based on document similarity
+    - **Failure scenario(s)**:
+        1a. No quizzes or flashcards are retrieved.
+            1a1. Tells user that no quizzes or flashcards can be retrieved because we could not find any quizzes or flashcards similar to theirs.
 
 ### **3.4. Screen Mockups**
 
@@ -98,56 +129,46 @@ Note: Users and Students will be used synonymously in this document.
 
 ### **4.1. Main Components**
 
-1. **UserService**
-    - **Purpose and rationale**: Encapsulates functionalities related to users such as account creation, authentication, and login.
+1. **UserAuthService**
+    - **Purpose and rationale**: Encapsulates functionalities related to users such as account creation, and login.
 
 2. **DocumentService**
-    - **Purpose and rationale**: Encapsulates functionalities related to documents such as adding, modifying, or deleting.
+    - **Purpose and rationale**: Encapsulates functionalities related to documents such as retrieving, creating, deleting, and text extraction.
 
-3. **Subscription**
+3. **SubscriptionService**
     - **Purpose and rationale**: Handles user subscriptions to differentiate regular and premium users.
 
-4. **Chat**
+4. **ChatService**
     - **Purpose and rationale**: Encapsulates functionalities related to message streaming with the chatbot trained on the selected document's context such as creating a session and receiving/sending messages.
 
-5. **DocumentParser**
-    - **Purpose and rationale**: Extract text from the document into embeddings and store into vector database.
-
-6. **RAGService**
+5. **RAGService**
     - **Purpose and rationale**: Fetches documents from the vector database and prompts LLM with query + relevant context.
 
-7. **FlashcardsQuizGenerator**
-    - **Purpose and rationale**: Use the parsed document to generate and format flashcards and quizzes for the frontend.
+6. **StudyService**
+    - **Purpose and rationale**: Generates and allows for retrieval of flashcards and quizzes based on the extracted text of a provided document.
 
 
 ### **4.2. Databases**  
 
-1. **`UserDB`**  
-   - **Purpose**: Stores user account details and study resource associations.  
-   - **Fields**:  
-     - User credentials (username, email, hashed password if not using Google Authenticator)  
-     - Subscription status (Premium or Standard)  
-     - Study resources (list of IDs referencing `StudyResourceDB`)  
+1. **MongoDB Collections**
+   - **Users**: Stores user account information
+     - Fields: email, name, googleId, subscribed
+   - **Documents**: Stores document metadata
+     - Fields: name, documentId, userId, uploadDate, s3documentId, activityGenerationComplete
+   - **FlashcardSets**: Stores flashcard content for specific documents
+     - Fields: userId, documentId, flashcards (array of {front, back})
+   - **QuizSets**: Stores quiz content for specific documents
+     - Fields: userId, documentId, quiz (array of {question, answer, options})
+   - **ChatSessions**: Stores chat history
+     - Fields: sessionId, googleId, documentId, messages, createdAt, updatedAt, metadata
 
-2. **`StudyResourceDB`**  
-   - **Purpose**: Stores study materials, including documents, chats, quizzes, and flashcards.  
-   - **Fields**:  
-     - **Document Details**: Name, upload date, embedding id, and path to the S3 object  
-     - **Chat History**: User messages and RAG-generated replies  
-     - **Quizzes**: List of associated questions and answers  
-     - **Flashcards**: Flashcard deck containing front and back text  
+2. **AWS S3**
+   - **Document Storage**: Stores the actual document files uploaded by users
 
-3. **`DocumentS3`**  
-   - **Purpose**: Cloud-based storage for user-uploaded documents.  
-   - **Fields**:  
-     - Stored files linked via paths in `StudyResourceDB`  
-     
-
-4. **`EmbeddingsDB`**  
-   - **Purpose**: Stores vector embeddings of documents to enable retrieval for the RAGService.
-   - **Fields**:  
-     - **Document ID**: Reference to the corresponding document in `StudyResourceDB`  
-     - **Embedding Vector**: High-dimensional representation of the document content  
+3. **ChromaDB (Vector Database)**
+   - **Purpose**: Stores document embeddings for semantic search
+   - **Collections**: One collection per user (user_{userId})
+   - **Fields**: Document chunks with metadata including documentId, userId, and chunking information
      
 
 ### **4.3. External Modules**
@@ -155,7 +176,7 @@ Note: Users and Students will be used synonymously in this document.
 1. **Google Authentication** 
     - **Purpose**: Facilitating user login.
 
-2. **LLM API: OpenAI or DeepSeek**
+2. **LLM API: OpenAI**
     - **Purpose**: Used for the chat-with-document feature, and for generating the quiz and flashcards.
 
 ### **4.4 Interfaces**
@@ -164,166 +185,176 @@ Note: Users and Students will be used synonymously in this document.
 
     ```java
     /**
-     * Invoked when user signs up to create a new account.
-     *
-     * @param username the username of the new account
-     * @param password the password of the new account
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result signUp(String username, String password);
-
-    /**
-     * Invoked when user signs in with an existing account.
-     *
-     * @param username the username of the existing account
-     * @param password the password of the existing account
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result signIn(String username, String password);
+    * Handles login/signup for a user after having logged in through Google Auth in frontend
+    *
+    * @param googleId The Google ID of the user
+    * @param name The name of the user
+    * @param email The email of the user
+    * @return User object containing user information including subscription status
+    */
+    User login(String googleId, String name, String email);
     ```
 
 2. **DocumentService**
 
     ```java
     /**
-     * Invoked when user adds a new document.
-     *
-     * @param document the document to be added
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result createDocument(Document document);
+     * Uploads a document and starts async generation of study materials.
+    *
+    * @param file The document file (PDF, JPEG, PNG, TIFF, or text)
+    * @param userId The Google ID of the user
+    * @param documentName The user's name for this document
+    * @param context Optional user-provided context about the document
+    * @return Document metadata including generation status
+    */
+    Document uploadDocument(File file, String userId, String documentName, String context);
 
     /**
-     * Invoked when user deletes an existing document.
-     *
-     * @param document the document to be deleted
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result deleteDocument(Document document);
+    * Deletes a document and all associated study materials.
+    *
+    * @param userId The Google ID of the user
+    * @param documentId The ID of the document to delete
+    * @return True if deletion was successful
+    */
+    boolean deleteDocument(String userId, String documentId);
 
     /**
-     * Invoked when user edits an existing document.
-     *
-     * @param document the document to be edited
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result editDocument(Document document);
-
-    /**
-     * Invoked when user views an existing document.
-     *
-     * @param id the id of the document to be viewed
-     * @return the Document object corresponding to the given id
-     */
-    Document viewDocument(int id);
+    * Retrieves documents for a user, either all documents or a specific one.
+    *
+    * @param userId The Google ID of the user
+    * @param documentId Optional ID of a specific document to retrieve
+    * @return List of document metadata or a single document
+    */
+    List<Document> getDocuments(String userId, String documentId);
     ```
 
-3. **Subscription**
+3. **SubscriptionService**
 
     ```java
     /**
-     * Invoked to check a boolean flag of the user to get the premium status.
-     *
-     * @param userId the id of the user
-     * @return a boolean indicating whether the user is a premium user
-     */
-    Boolean isPremium(int userId);
+    * Upgrades a user to premium subscription status.
+    *
+    * @param userId The Google ID of the user
+    * @return Updated user data with subscription status set to true
+    */
+    User subscribe(String userId);
+
+    /**
+    * Downgrades a user to regular subscription status.
+    *
+    * @param userId The Google ID of the user
+    * @return Updated user data with subscription status set to false
+    */
+    User unsubscribe(String userId);
     ```
 
-4. **Chat**
+4. **ChatService**
 
     ```java
     /**
-     * Invoked when user creates a chat session.
-     *
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result createChat();
+     * Creates a new chat session.
+    *
+    * @param userId The Google ID of the user
+    * @param metadata Optional metadata including source, topic, and optional documentId
+    * @return New chat session data
+    */
+    ChatSession createChatSession(String userId, Map<String, Object> metadata);
 
     /**
-     * Invoked when user sends a message/prompt.
-     *
-     * @param message the message to be sent
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result sendMessage(String message);
+    * Sends a message to an existing chat session and gets an AI response.
+    *
+    * @param sessionId The unique ID of the chat session
+    * @param message The user's message text
+    * @return AI-generated response
+    */
+    String sendChatMessage(String sessionId, String message);
 
     /**
-     * Invoked when chatbot streams a message to the user.
-     *
-     * @param message the message received from the chatbot
-     * @return a Result object indicating the success or failure of the operation
-     */
-    Result receiveMessage(String message);
+    * Retrieves a specific chat session with its message history.
+    *
+    * @param sessionId The unique ID of the chat session
+    * @return Chat session data including message history
+    */
+    ChatSession getChatSession(String sessionId);
+
+    /**
+    * Deletes a chat session.
+    *
+    * @param sessionId The unique ID of the chat session to delete
+    * @return True if deletion was successful
+    */
+    boolean deleteChatSession(String sessionId);
+
+    /**
+    * Gets all chat sessions for a user, optionally filtered by document.
+    *
+    * @param userId The Google ID of the user
+    * @param documentId Optional document ID to filter by
+    * @return List of chat sessions
+    */
+    List<ChatSession> getUserChatSessions(String userId, String documentId);
     ```
 
-5. **DocumentParser**
+5. **RAGService**
 
     ```java
     /**
-     * Generates embeddings from the extracted text and stores them in the vector database.
-     *
-     * @param document the document to be parsed
-     * @return a ParsedDocument object containing the extracted information
-     */
-    ParsedDocument extractInformation(Document document);
+     * Queries documents using Retrieval Augmented Generation.
+    *
+    * @param query The user's question
+    * @param userId The Google ID of the user
+    * @param documentId Optional ID of a specific document to query (null to search all user documents)
+    * @return AI-generated answer based on the user's documents
+    */
+    String queryDocuments(String query, String userId, String documentId);
     ```
 
-6. **RAGService**
+6. **StudyService**
 
     ```java
     /**
-     * Fetches documents from the vector database relevant to the given query.
-     *
-     * @param query the query to search for relevant documents
-     * @return a list of Document objects relevant to the query
-     */
-    List<Document> fetchRelevantDocuments(String query);
+     * Generates flashcards based on a document.
+    *
+    * @param userId The Google ID of the user
+    * @param documentId The ID of the document
+    * @return Generated flashcards as term-definition pairs
+    */
+    FlashcardDTO generateFlashcards(String userId, String documentId);
 
     /**
-     * Prompts the LLM API with the provided context/documents and query.
-     *
-     * @param query the query to be sent to the LLM
-     * @param contextDocuments the list of context documents to be provided to the LLM
-     * @return a string response from the LLM
-     */
-    String queryLLM(String query, List<Document> contextDocuments);
-    ```
-
-7. **FlashcardsQuizGenerator**
-
-    ```java
-    /**
-     * Uses the parsed document to generate flashcards.
-     *
-     * @param document the document to generate flashcards from
-     * @return a list of Flashcard objects generated from the document
-     */
-    List<Flashcard> generateFlashcards(Document document);
+    * Generates a multiple-choice quiz based on a document.
+    *
+    * @param userId The Google ID of the user
+    * @param documentId The ID of the document
+    * @return Generated quiz with questions, options, and correct answers
+    */
+    QuizDTO generateQuiz(String userId, String documentId);
 
     /**
-     * Uses the parsed document to generate a quiz.
-     *
-     * @param document the document to generate a quiz from
-     * @return a Quiz object generated from the document
-     */
-    Quiz generateQuiz(Document document);
+    * Retrieves quizzes for a user, optionally filtered by document.
+    *
+    * @param userId The Google ID of the user
+    * @param documentId Optional ID to filter by a specific document
+    * @return List of quizzes or a single quiz
+    */
+    Object retrieveQuizzes(String userId, String documentId);
 
     /**
-     * Formats the extracted data into a JSON to send to the frontend.
-     *
-     * @param quiz the quiz object to be formatted
-     * @return a string containing the formatted quiz in JSON
-     */
-    String formatQuiz(Quiz quiz);
+    * Retrieves flashcards for a user, optionally filtered by document.
+    *
+    * @param userId The Google ID of the user
+    * @param documentId Optional ID to filter by a specific document
+    * @return List of flashcards or a single flashcard set
+    */
+    Object retrieveFlashcards(String userId, String documentId);
 
     /**
-     * Formats a list of flashcards to send to the frontend.
-     *
-     * @param flashcards the list of flashcards to be formatted
-     * @return a string containing the formatted flashcards in JSON
-     */
-    String formatFlashcards(List<Flashcard> flashcards);
+    * Retrieves flashcards and quizzes that other people have uploaded for a user based on documents similarity 
+    *
+    * @param userId The Google ID of the user
+    * @return List of flashcards and quizzes 
+    */
+    Object getSuggestedStudyMaterials(String userId);
     ```
 
 ### **4.5. Frameworks**
@@ -369,27 +400,26 @@ Note: Users and Students will be used synonymously in this document.
 ![Dependency Diagram](./image/design-diagram.jpg)
 
 ### **4.6. Functional Requirements Sequence Diagram**
-1. [**[Account Setup]**](#fr1)\
+1. [**[Setup Account]**](#fr1)\
 ![Account Setup Diagram](./image/user-sign-in-sequence-diagram.jpg)
 
-2. [**[Premium Subscription]**](#fr1)\
-![Premium Subscription](./image/subscription-sequence-diagram.jpg)
+2. [**[Subscribe]**](#fr1)\
+![Subscribe](./image/subscription-sequence-diagram.jpg)
 
-3. [**[Document Uploads]**](#fr1)\
-![Premium Subscription](./image/document-upload-diagram.jpg)
+3. [**[Upload Documents]**](#fr1)\
+![Upload documents](./image/document-upload-sequence-diagram.jpg)
 
-4. [**[Conversational AI]**](#fr1)\
+4. [**[Chat with AI]**](#fr1)\
 ![Chat Diagram](./image/chat-sequence-diagram.jpg)
 
-5. [**[Document Parser]**](#fr1)\
-![Document Parser Diagram](./image/document-parser-sequence-diagram.jpg)
+5. [**[View Generated Flashcards]**](#fr1)\
+![View Flashcards](./image/flashcards-sequence-diagram.jpg)
 
-6. [**[RAG Service]**](#fr1)\
-![RAGService Diagram](./image/rag-sequence-diagram.jpg)
+6. [**[View Quiz]**](#fr1)\
+![View Quiz](./image/view-quiz-sequence-diagram.jpg)
 
-7. [**[Review Flashcards]**](#fr1)\
-![Flashcards Diagram](./image/flashcards-sequence-diagram.jpg)
-
+7. [**[View Suggested Study Materials From other users]**](#fr1)\
+![View Suggested](./image/get-suggested-sequence-diagram.jpg)
 
 ### **4.7. Non-Functional Requirements Design**
 1. [**[Quiz/flashcard generation performance]**](#nfr1)
@@ -399,44 +429,53 @@ Note: Users and Students will be used synonymously in this document.
 
 ### **4.8. Main Project Complexity Design**
 
-**Fan-in Fan-out Document Processing**
-- **Description**: A parallel processing pattern used to efficiently extract and process text from uploaded documents by splitting the document into pages and processing them concurrently.
-- **Why complex?**: Requires careful coordination of multiple concurrent processes, handling of race conditions, and efficient aggregation of results. The system must maintain document order while maximizing throughput and managing system resources effectively.
+**Calculating Documents Similarity**
+- **Description**: This feature (use case #7) suggests study materials (flashcards and quizzes) to users based on similarity between their documents and other users' documents. The core of this feature is the similarity calcuation between users' documents to determine what flashcards and quizzes to show to a user that are similar to what they usually study.
+- **Why complex?**: Vector similarity calculation requires multidimensional embedding comparison across potentially hundreds of documents. And cosine similarity computation between high-dimensional vectors is computationally intensive, and must be optimized to maintain acceptable performance at scale. We are also comparing a user to every other user that exists and finding the materials that have highest similarity, which requires complex and intensive computations to do so.
 - **Design**:
-    - **Input**: PDF or image document with multiple pages
-    - **Output**: Processed text content with preserved page order and structure
-    - **Main computational logic**: 
-        1. Fan-out phase splits document into individual pages
-        2. Each page is processed independently in parallel
-        3. Fan-in phase aggregates results while maintaining order
-    - **Pseudo-code**:
-        ```python
-        async def process_document(document):
-            # Fan-out: Split document into pages
-            pages = split_into_pages(document)
-            tasks = []
-            
-            # Create concurrent tasks for each page
-            for page in pages:
-                task = create_task(process_page(page))
-                tasks.append(task)
-            
-            # Fan-in: Wait for all tasks and combine results
-            processed_pages = []
-            for task in tasks:
-                result = await task
-                processed_pages.append(result)
-            
-            # Maintain original document order
-            return combine_pages(processed_pages)
-        
-        async def process_page(page):
-            # Extract text using OCR
-            text = await extract_text(page)
-            # Process text (cleanup, formatting)
-            processed_text = await process_text(text)
-            return processed_text
-        ```
+   - **Input**: 
+       - User ID (for whom to provide suggestions)
+       - Similarity threshold (configurable minimum similarity score)
+   - **Output**: 
+       - Suggested flashcards from similar documents
+       - Suggested quizzes from similar documents
+   - **Main computational logic**: 
+       - Retrieve embeddings for the user's documents from ChromaDB
+       - For each user document, find similar documents across other users using vector similarity search (these are custom cosine similarity or dot product functions)
+       - Filter results by similarity threshold and remove duplicates
+       - Retrieve associated flashcards and quizzes for matching documents
+   - **Pseudo-code**:
+       ```javascript
+       function suggestStudyMaterials(userId, similarityThreshold):
+           userDocuments = getDocuments(userId)
+           similarDocuments = []
+           
+           for each document in userDocuments:
+               // Use RAG service to find similar documents
+               similarDocs = findSimilarDocuments(document.id, userId)
+               
+               for each doc in similarDocs:
+                   if doc.similarity >= similarityThreshold:
+                       similarDocuments.add(doc)
+           
+           // Remove duplicates and sort by similarity
+           uniqueDocs = removeDuplicates(similarDocuments)
+           sortedDocs = sortByDescendingSimilarity(uniqueDocs)
+           
+           suggestedFlashcards = []
+           suggestedQuizzes = []
+           
+           for each doc in sortedDocs:
+               flashcards = getFlashcards(doc.userId, doc.documentId)
+               quizzes = getQuizzes(doc.userId, doc.documentId)
+               
+               if flashcards exists:
+                   suggestedFlashcards.add(flashcards)
+               if quizzes exists:
+                   suggestedQuizzes.add(quizzes)
+           
+           return {suggestedFlashcards, suggestedQuizzes}
+       ```
 
 **Retrieval Augmented Generation (RAG)**
 - **Description**: An AI architecture that enhances Large Language Model responses by providing relevant context from the user's uploaded documents.
@@ -494,6 +533,12 @@ Note: Users and Students will be used synonymously in this document.
     - Creating the use case diagram
     - Creating sequence diagrams for case functional requirements 1-3
     - Coming up with some frameworks, components and interfaces for those components
+    - Setup backend with standard API patterns
+    - Set up MongoDB and schemas for user, flashcards, documents, quizzes
+    - Created user login feature
+    - Created document service for uploading to MongoDB, S3 and ChromaDB, retrieving, and deleting documents and text extraction
+    - Created flashcards and quiz generation feature
+    - Created subscription feature
 
 - **Parshan Javanrood**
     - Helped with designing the user flow and Drew screen mockups
