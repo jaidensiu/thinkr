@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-    deleteDocuments,
+    deleteDocument,
     getDocuments,
     uploadDocuments,
 } from '../controllers/documentController';
@@ -10,7 +10,7 @@ const upload = multer();
 const router = Router();
 
 router.post('/upload', upload.single('document'), uploadDocuments);
-router.delete('/delete', deleteDocuments);
+router.delete('/delete', deleteDocument);
 router.get('/retrieve', getDocuments);
 
 export default router;
