@@ -6,7 +6,7 @@ dotenv.config();
 
 class UserAuthService {
     /**
-     * Finds user and creates user if user is not found based on googleId.
+     * Finds user and creates user if user is not found, identified via googleId.
      */
     public async findCreateUser(authPayload: AuthPayload): Promise<UserDTO> {
         let user = await User.findOne({ googleId: authPayload.googleId });

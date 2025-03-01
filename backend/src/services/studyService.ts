@@ -6,6 +6,8 @@ import { StructuredOutputParser } from '@langchain/core/output_parsers';
 import { z } from 'zod';
 import FlashcardSet from '../db/mongo/models/FlashcardSet';
 import QuizSet from '../db/mongo/models/QuizSet';
+import DocumentService from './documentService';
+import Document from '../db/mongo/models/Document';
 
 class StudyService {
     private llm: ChatOpenAI;
@@ -22,12 +24,15 @@ class StudyService {
         });
     }
 
+    /**
+     * Creates flashcards for a userId and based on the documentId (embeddingId) passed
+     */
     public async createFlashCards(
         embeddingId: string,
         collection: string
     ): Promise<FlashCardDTO> {
         const docs = await this.ragService.fetchDocumentsFromVectorDB(
-            [embeddingId],
+            embeddingId,
             collection
         );
 
@@ -89,12 +94,15 @@ class StudyService {
         } as FlashCardDTO;
     }
 
+    /**
+     * Creates a quiz for a userId and based on the documentId (embeddingId) passed
+     */
     public async createQuiz(
         embeddingId: string,
         collection: string
     ): Promise<QuizDTO> {
         const docs = await this.ragService.fetchDocumentsFromVectorDB(
-            [embeddingId],
+            embeddingId,
             collection
         );
 
@@ -163,18 +171,22 @@ class StudyService {
         } as QuizDTO;
     }
 
+    /**
+     * Retrieves quizzes for a userId and based on the documentId passed
+     * Gets all quizzes for user if documentId is not provided
+     */
     public async retrieveQuizzes(
-        documentIds: string[],
+        documentId: string,
         userId: string
-    ): Promise<QuizDTO[]> {
-        const quizzes = await QuizSet.find({ userId: userId });
-        const filteredQuizzes =
-            documentIds && documentIds.length > 0
-                ? quizzes.filter((q) => documentIds.includes(q.documentId))
-                : quizzes;
+    ): Promise<QuizDTO[] | QuizDTO> {
+        const quizzes = await QuizSet.find({ userId });
 
-        return filteredQuizzes.map((q) => ({
-            userId: userId,
+        const filteredQuizzes = documentId
+            ? quizzes.filter((q) => q.documentId === documentId)
+            : quizzes;
+
+        const mappedQuizzes = filteredQuizzes.map((q) => ({
+            userId,
             documentId: q.documentId,
             quiz: q.quiz.map((quiz) => ({
                 question: quiz.question,
@@ -182,19 +194,24 @@ class StudyService {
                 options: quiz.options,
             })),
         })) as QuizDTO[];
+
+        return documentId ? mappedQuizzes[0] : mappedQuizzes;
     }
 
+    /**
+     * Retrieves flashcards for a userId and based on the documentIds passed
+     * Gets all flashcards for user if documentIds are not provided
+     */
     public async retrieveFlashcards(
-        documentIds: string[],
+        documentId: string,
         userId: string
-    ): Promise<FlashCardDTO[]> {
+    ): Promise<FlashCardDTO[] | FlashCardDTO> {
         const flashCards = await FlashcardSet.find({ userId: userId });
-        const filteredFlashcards =
-            documentIds && documentIds.length > 0
-                ? flashCards.filter((f) => documentIds.includes(f.documentId))
-                : flashCards;
+        const filteredFlashcards = documentId
+            ? flashCards.filter((f) => documentId === f.documentId)
+            : flashCards;
 
-        return filteredFlashcards.map((f) => ({
+        const mappedFlashcards = filteredFlashcards.map((f) => ({
             userId: userId,
             documentId: f.documentId,
             flashcards: f.flashcards.map((flashcard) => ({
@@ -202,6 +219,40 @@ class StudyService {
                 back: flashcard.back,
             })),
         })) as FlashCardDTO[];
+
+        return documentId ? mappedFlashcards[0] : mappedFlashcards;
+    }
+
+    /**
+     * Generates both quizzes and flashcards for a documentId and userId and adds them to the db
+     */
+    public async generateStudyActivities(documentId: string, userId: string) {
+        const text = await DocumentService.extractTextFromFile(
+            `${userId}-${documentId}`
+        );
+        await this.ragService.ensureVectorStore(userId);
+        await this.ragService.insertDocument(userId, documentId, text);
+
+        // generate activities
+        await this.createFlashCards(documentId, userId);
+        await this.createQuiz(documentId, userId);
+
+        await Document.findOneAndUpdate(
+            { userId: userId, documentId: documentId },
+            { activityGenerationComplete: true }
+        );
+    }
+
+    /**
+     * Deletes quizzes and flashcards linked to a documentId from the db
+     */
+    public async deleteStudyActivities(documentId: string, userId: string) {
+        await this.ragService.deleteDocuments([documentId], userId);
+        await QuizSet.deleteOne({ documentId: documentId, userId: userId });
+        await FlashcardSet.deleteOne({
+            documentId: documentId,
+            userId: userId,
+        });
     }
 }
 

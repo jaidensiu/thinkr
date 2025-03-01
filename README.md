@@ -4,12 +4,8 @@
 
 1. `npm install`.
 2. Set up mongoDB (connection URI)
-3. Set up google auth credentials (client id) in Google Cloud Console.
-4. Generate JWT secret, you can use this https://jwtsecret.com/generate.
-5. Create a `.env` file in the `backend` directory with the following variables:
+3. Create a `.env` file in the `backend` directory with the following variables:
    ```plaintext
-   GOOGLE_CLIENT_ID=<your_google_client_id>
-   JWT_SECRET=<your_jwt_secret>
    MONGO_URI=<your_mongodb_uri>
    OPENAI_API_KEY=<your_openai_api_key>
    VECTOR_STORE_URL=http://localhost:8000
@@ -18,18 +14,18 @@
    AWS_REGION=<your aws_region>
    S3_BUCKET_NAME=<your s3 bucket name>
    ```
-6. **Run ChromaDB:**
+4. **Run ChromaDB:**
    Ensure Docker is running, then execute:
    ```bash
    docker pull chromadb/chroma
    docker run -d -p 8000:8000 chromadb/chroma
    ```
-7. **Initialize ChromaDB:**
+5. **Initialize ChromaDB:**
    Populate ChromaDB with initial documents:
    ```bash
    npm run init-chroma
    ```
-8. `npm start` or `npm run dev` (nodemon).
+6. `npm start` or `npm run dev` (nodemon).
 
 ## Architecture Overview
 
@@ -37,9 +33,9 @@
 
 The system uses ChromaDB to store document embeddings with the following architecture:
 
-- **User-Specific Collections**: Each user has their own ChromaDB collection named `user_{googleId}`
+- **User-Specific Collections**: Each user has their own ChromaDB collection named `user_{userId}`
 - **Document Metadata**: Documents within a collection are tagged with metadata including:
-  - `googleId`: The owner of the document
+  - `userId`: The owner of the document
   - `documentId`: The identifier of the document
   - `chunkIndex`: Position of the chunk within the document
 - **Document Chunking**: Large documents are split into manageable chunks for better retrieval
@@ -54,9 +50,9 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
- "googleId": "google id of user",
- "name": "name of user",
- "email": "email of user"
+   "userId": "google id of user",
+   "name": "name of user",
+   "email": "email of user"
 }
 ```
 - Response:
@@ -64,10 +60,10 @@ The system uses ChromaDB to store document embeddings with the following archite
 {
     "data": {
        "user": { 
-             "email": "user email",
-             "name": "user name",
-             "googleId": "google id of user",
-             "subscribed": false
+            "email": "user email",
+            "name": "user name",
+            "googleId": "google id of user",
+            "subscribed": false
        }
     }
  }
@@ -81,7 +77,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```json
 { 
    "query": "Your question here",
-   "googleId": "user123",
+   "userId": "user google id",
    "documentId": "optional_specific_document.pdf"
 }
 ```
@@ -102,7 +98,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "googleId": "user123",
+   "userId": "user google id",
    "metadata": {
       "source": "web",
       "topic": "general",
@@ -116,7 +112,7 @@ The system uses ChromaDB to store document embeddings with the following archite
    "data": {
       "session": {
          "sessionId": "unique-session-id",
-         "googleId": "user123",
+         "userId": "user google id",
          "messages": [
             {
                "role": "system",
@@ -161,7 +157,7 @@ The system uses ChromaDB to store document embeddings with the following archite
    "data": {
       "session": {
          "sessionId": "unique-session-id",
-         "googleId": "user123",
+         "userId": "user google id",
          "messages": [
             {
                "role": "system",
@@ -202,12 +198,15 @@ The system uses ChromaDB to store document embeddings with the following archite
 ### Documents
 
 **Endpoint: `/document/upload`**
+- Uploads a single document
 - Method: `POST`
 - Body: multipart/form-data
 ```json
 {
    "document": "<your file (single) here>",
-   "googleId": "googleId"
+   "userId": "user google id",
+   "documentName": "<user's given name for this document>",
+   "context": "<user's provided context about this document>"
 }
 ```
 - Response:
@@ -222,47 +221,43 @@ The system uses ChromaDB to store document embeddings with the following archite
    }
 }
 ```
-- Note: The system supports PDF, JPEG, PNG, TIFF, and text files. Document text is extracted and stored in ChromaDB for retrieval.
+- Note: The system supports PDF, JPEG, PNG, TIFF, and text files. This will also extract document text into the ChromaDB, and create the quiz and flashcards associated with the document uploaded in a separate background process.
 
 **Endpoint: `/document/delete`**
+- Deletes one document given a userId and the documentId you want to delete
 - Method: `DELETE`
-- Body: raw
+- Params:
 ```json
-{
-   "googleId": "googleId",
-   "documentIds": [
-      "documentId of first file",
-      "documentId of second file"
-   ]
-}
+   "userId": "user google id",
+   "documentId": "document id 1"
 ```
 - Response: N/A
-- Note: This deletes both the document from S3 and its embeddings from ChromaDB.
+- Note: This deletes both the document from S3, mongodb and its embeddings from ChromaDB and also deletes the study materials (quiz, flashcards) associated with the document.
 
 **Endpoint: `/document/retrieve`**
+- Retrieves the user's documents. Retrieves one if a single documentId is provided and all of them if no documentId is provided
 - Method: `GET`
-- Body: raw, documentIds is an OPTIONAL field
+- Params: documentId is an OPTIONAL field
 ```json
-{
-   "googleId": "googleId",
-   "documentIds": [
-      "documentId of first file",
-      "documentId of second file"
-   ]
-}
+   "userId": "user google id",
+   "documentId": "document id 1"
 ```
 - Response:
+
+`Multiple`
 ```json
 {
    "data": {
       "docs": [
          {
             "documentId": "first file",
+            "documentName": "<user's given name for this document>",
             "uploadTime": "time of file upload",
             "activityGenerationComplete": false
          },
          {
             "documentId": "second file",
+            "documentName": "<user's given name for this document>",
             "uploadTime": "time of file upload",
             "activityGenerationComplete": true
          }
@@ -270,7 +265,19 @@ The system uses ChromaDB to store document embeddings with the following archite
    }
 }
 ```
-- Note: Returns all of the user's files if no documentIds are provided. The `documentIds` must include file types (e.g. `file1.pdf` is one documentId, not `file1` by itself)
+`Single`
+```json
+{
+   "data": {
+      "docs": {
+         "documentId": "first file",
+         "documentName": "<user's given name for this document>",
+         "uploadTime": "time of file upload",
+         "activityGenerationComplete": false
+      }
+   }
+}
+```
 
 ### Study
 
@@ -279,7 +286,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "googleId": "googleId",
+   "userId": "user google id",
    "documentId": "file documentId"
 }
 ```
@@ -287,7 +294,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```json
 {
    "data": {
-      "googleId": "googleId",
+      "userId": "user google id",
       "documentId": "file documentId",
       "flashcards": [
          {
@@ -308,7 +315,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "googleId": "googleId",
+   "userId": "user google id",
    "documentId": "file documentId"
 }
 ```
@@ -316,7 +323,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```json
 {
    "data": {
-      "googleId": "googleId",
+      "userId": "user google id",
       "documentId": "file documentId",
       "quiz": [
          {
@@ -345,23 +352,21 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```
 
 **Endpoint: `/study/quiz`**
+- Retrieves the quizzes associated with a documentId from a user. If no documentId is provided, all of the user's quizzes are retrieved.
 - Method: `GET`
-- Body: raw, documentIds is an OPTIONAL field
+- Params: documentId is an OPTIONAL field
 ```json
-{
-   "googleId": "googleId",
-   "documentIds": [
-      "file documentId 1", 
-      "file documentId 2"
-   ]
-}
+   "userId": "user google id",
+   "documentId": "document id 1"
 ```
 - Response
+
+`Multiple`
 ```json
 {
    "data": [
       {
-         "googleId": "googleId",
+         "userId": "user google id",
          "documentId": "file documentId 1",
          "quiz": [
             {
@@ -389,26 +394,54 @@ The system uses ChromaDB to store document embeddings with the following archite
    ]
 }
 ```
-- Note: if documentIds are not provided, we retrieve all of the user's past generated quizzes
-
-**Endpoint: `/study/flashcards`**
-- Method: `GET`
-- Body: raw, documentIds is an OPTIONAL field
+`Singular`
 ```json
 {
-   "googleId": "googleId",
-   "documentIds": [
-      "file documentId 1", 
-      "file documentId 2"
-   ]
+   "data": {
+      "userId": "user google id",
+      "documentId": "file documentId 1",
+      "quiz": [
+         {
+            "question": "Question 1",
+            "answer": "C",
+            "options": {
+               "A": "Answer 1",
+               "B": "Answer 2",
+               "C": "Answer 3",
+               "D": "Answer 4"
+            } 
+         },
+         {
+            "question": "Question 2",
+            "answer": "A",
+            "options": {
+               "A": "Answer 1",
+               "B": "Answer 2",
+               "C": "Answer 3",
+               "D": "Answer 4"
+            }
+         }
+      ]
+   }
 }
 ```
+
+**Endpoint: `/study/flashcards`**
+- Retrieves the flashcards associated with a documentId from a user. If no documentId is provided, all of the user's flashcards are retrieved. 
+- Method: `GET`
+- Params: documentId is an OPTIONAL field
+```json
+   "userId": "user google id",
+   "documentId": "document id 1"
+```
 - Response
+
+`Multiple`
 ```json
 {
    "data": [
       {
-         "googleId": "googleId",
+         "userId": "user google id",
          "documentId": "file documentId 1",
          "flashcards": [
             {
@@ -424,7 +457,27 @@ The system uses ChromaDB to store document embeddings with the following archite
    ]
 }
 ```
-- Note: if documentIds are not provided, we retrieve all of the user's past generated flashcards
+`Singular`
+
+```json
+{
+   "data": {
+      "userId": "user google id",
+      "documentId": "file documentId 1",
+      "flashcards": [
+         {
+            "front": "first word",
+            "back": "definition of first word"
+         },
+         {
+            "front": "second word",
+            "back": "definition of second word"
+         }
+      ]
+   }
+}
+```
+
 
 ### Subscription
 
@@ -433,7 +486,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 - Body: raw
 ```json
 {
-   "googleId": "your user id"
+   "userId": "user google id"
 }
 ```
 - Response
@@ -442,7 +495,7 @@ The system uses ChromaDB to store document embeddings with the following archite
    "data": {
       "email": "user email",
       "name": "user name",
-      "googleId": "google id of user",
+      "userId": "google id of user",
       "subscribed": true
    }
 }
@@ -450,11 +503,9 @@ The system uses ChromaDB to store document embeddings with the following archite
 
 **Endpoint: `/subscription`**
 - Method: `DELETE`
-- Body: raw
+- Params:
 ```json
-{
-   "googleId": "your user id"
-}
+   "userId": "user google id",
 ```
 - Response
 ```json
@@ -462,7 +513,7 @@ The system uses ChromaDB to store document embeddings with the following archite
    "data": {
       "email": "user email",
       "name": "user name",
-      "googleId": "google id of user",
+      "userId": "google id of user",
       "subscribed": false
    }
 }
@@ -474,20 +525,20 @@ Here are some example cURL commands to test the API:
 
 ### Document Upload
 ```
-curl -X POST http://localhost:3000/document/upload -F "document=@/path/to/your/document.pdf" -F "googleId=user123"
+curl -X POST http://localhost:3000/document/upload -F "document=@/path/to/your/document.pdf" -F "userId=user123"
 ```
 
 ### RAG Query (All Documents)
 ```
-curl -X POST http://localhost:3000/rag/query -H "Content-Type: application/json" -d '{"query": "What is the main topic of my documents?", "googleId": "user123"}'
+curl -X POST http://localhost:3000/rag/query -H "Content-Type: application/json" -d '{"query": "What is the main topic of my documents?", "userId": "user123"}'
 ```
 
 ### RAG Query (Specific Document)
 ```
-curl -X POST http://localhost:3000/rag/query -H "Content-Type: application/json" -d '{"query": "What is discussed in this document?", "googleId": "user123", "documentId": "document.pdf"}'
+curl -X POST http://localhost:3000/rag/query -H "Content-Type: application/json" -d '{"query": "What is discussed in this document?", "userId": "user123", "documentId": "document.pdf"}'
 ```
 
 ### Create Chat Session
 ```
-curl -X POST http://localhost:3000/chat -H "Content-Type: application/json" -d '{"googleId": "user123", "metadata": {"documentId": "document.pdf"}}'
+curl -X POST http://localhost:3000/chat -H "Content-Type: application/json" -d '{"userId": "user123", "metadata": {"documentId": "document.pdf"}}'
 ```

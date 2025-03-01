@@ -40,33 +40,12 @@ class DocumentService {
     }
 
     /**
-     * Extracts text from a file using AWS Textract and stores it in ChromaDB
-     */
-    private async processAndStoreDocument(
-        s3FilePath: string,
-        userId: string,
-        documentId: string
-    ): Promise<void> {
-        try {
-            // Extract text from the document
-            const extractedText = await this.extractTextFromFile(s3FilePath);
-            
-            // Store the document text in ChromaDB
-            await this.ragService.insertDocument(userId, documentId, extractedText);
-            
-            console.log(`Document processed and stored: ${documentId} for user ${userId}`);
-        } catch (error) {
-            console.error('Error processing document:', error);
-            throw new Error('Failed to process and store document');
-        }
-    }
-
-    /**
      * Uploads a file to s3 and mongodb
      */
     public async uploadDocument(
         file: Express.Multer.File,
-        userId: string
+        userId: string,
+        name: string
     ): Promise<DocumentDTO> {
         const key = `${userId}-${file.originalname}`;
         const documentId = file.originalname;
@@ -86,19 +65,16 @@ class DocumentService {
             .replace(/T/, ' ')
             .replace(/\..+/, '');
 
-        // Process and store document text in ChromaDB
-        await this.processAndStoreDocument(key, userId, documentId);
-
         // mongodb
         await Document.findOneAndUpdate(
-            { s3Path: key },
+            { documentId: documentId, userId: userId },
             {
-                name: documentId,
-                userId,
-                s3Path: key,
+                name: name,
+                userId: userId,
+                s3documentId: key,
+                documentId: documentId,
                 uploadDate: dateFormatted,
-                embeddingsId: documentId,
-                activityGenerationComplete: false
+                activityGenerationComplete: false,
             },
             { upsert: true, new: true }
         );
@@ -107,6 +83,7 @@ class DocumentService {
             documentId: documentId,
             uploadTime: dateFormatted,
             activityGenerationComplete: false,
+            documentName: name,
         } as DocumentDTO;
     }
 
@@ -130,23 +107,6 @@ class DocumentService {
     }
 
     /**
-     * Deletes documents on s3 and mongodb
-     *
-     */
-
-    public async deleteDocuments(
-        documentIds: string[],
-        userId: string
-    ): Promise<void> {
-        await Promise.all(
-            documentIds.map((documentId) =>
-                this.deleteDocument(`${userId}-${documentId}`)
-            )
-        );
-        return;
-    }
-
-    /**
      * Retrieves a document from s3
      *
      */
@@ -154,36 +114,31 @@ class DocumentService {
         key: string,
         userId: string
     ): Promise<DocumentDTO> {
-        const doc = await Document.findOne({ s3Path: `${userId}-${key}` });
+        const doc = await Document.findOne({
+            documentId: key,
+            userId: userId,
+        });
 
         return {
-            documentId: key,
+            documentId: doc?.documentId,
             uploadTime: doc?.uploadDate,
             activityGenerationComplete: doc?.activityGenerationComplete,
+            documentName: doc?.name,
         } as DocumentDTO;
     }
 
     /**
-     * Retrieves multiple documents from s3
+     * Retrieves all of users documents
      *
      */
-    public async getDocuments(
-        keys: string[],
-        userId: string
-    ): Promise<DocumentDTO[]> {
-        let documents;
-        if (keys) {
-            documents = await Promise.all(
-                keys.map((key) => this.getDocument(key, userId))
-            );
-        } else {
-            const allKeys = (await Document.find({ userId: userId })).map(
-                (doc) => doc.name
-            );
-            documents = await Promise.all(
-                allKeys.map((key) => this.getDocument(key, userId))
-            );
-        }
+    public async getDocuments(userId: string): Promise<DocumentDTO[]> {
+        const allKeys = (await Document.find({ userId: userId })).map(
+            (doc) => doc.documentId
+        );
+        const documents = await Promise.all(
+            allKeys.map((key) => this.getDocument(key, userId))
+        );
+
         return documents;
     }
 
