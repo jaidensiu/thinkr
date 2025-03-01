@@ -7,5 +7,6 @@ data class User(
     val email: String,
     val name: String,
     val googleId: String,
+    val userId: String,
     val subscribed: Boolean
 )

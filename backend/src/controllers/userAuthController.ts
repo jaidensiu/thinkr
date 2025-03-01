@@ -3,7 +3,7 @@ import UserService from '../services/userAuthService';
 import { AuthPayload, Result, UserDTO } from '../interfaces';
 
 /**
- * Handles user login with google auth and jwt
+ * Handles user login
  */
 export const userAuthLogin = async (
     req: Request,

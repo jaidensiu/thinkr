@@ -3,13 +3,20 @@ package com.example.thinkr.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.thinkr.app.Route
-import com.example.thinkr.data.repositories.doc.DocRepository
+import com.example.thinkr.domain.DocumentManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class HomeScreenViewModel(private val docRepository: DocRepository) : ViewModel() {
-    private val _state = MutableStateFlow(HomeScreenState())
+class HomeScreenViewModel(documentManager: DocumentManager) : ViewModel() {
+    init {
+        documentManager.loadDocuments()
+    }
+
+    private val _state = MutableStateFlow(
+        HomeScreenState(documentManager)
+    )
+
     var state: StateFlow<HomeScreenState> = _state.asStateFlow()
 
     fun onAction(action: HomeScreenAction, navController: NavController) {
@@ -23,9 +30,7 @@ class HomeScreenViewModel(private val docRepository: DocRepository) : ViewModel(
             }
 
             is HomeScreenAction.DocumentItemClicked -> {
-                // TODO: This is for debug/testing flashcards, replace with DocumentOptions
-//                navController.navigate(Route.DocumentOptions.createRoute(action.documentItem))
-                navController.navigate(Route.Flashcards.createRoute(action.documentItem))
+                navController.navigate(Route.DocumentOptions.createRoute(action.documentItem))
             }
 
             HomeScreenAction.AddButtonClicked -> {
@@ -40,15 +45,8 @@ class HomeScreenViewModel(private val docRepository: DocRepository) : ViewModel(
 
             is HomeScreenAction.FileSelected -> {
                 // Handle file selected action
-                navController.navigate(Route.DocumentDetails.createRoute(action.selectedUri))
+                navController.navigate(Route.DocumentUpload.createRoute(action.selectedUri))
             }
         }
-    }
-
-    suspend fun getDocuments() {
-        docRepository.getDocuments(
-            userId = "69", // TODO: change this
-            documentIds = null
-        )
     }
 }

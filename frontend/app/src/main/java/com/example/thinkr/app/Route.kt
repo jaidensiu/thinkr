@@ -1,7 +1,7 @@
 package com.example.thinkr.app
 
 import android.net.Uri
-import com.example.thinkr.data.models.Document
+import com.example.thinkr.domain.model.DocumentItem
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -17,11 +17,11 @@ sealed interface Route {
     data object Home : Route
 
     @Serializable
-    data class DocumentOptions(val documentItem: Document) : Route {
+    data class DocumentOptions(val documentItem: DocumentItem) : Route {
         companion object {
             const val ROUTE = "documentOptions/{documentJson}"
             const val ARGUMENT = "documentJson"
-            fun createRoute(document: Document): String {
+            fun createRoute(document: DocumentItem): String {
                 val json = Json.encodeToString(document)
                 return ROUTE.replace("{documentJson}", Uri.encode(json))
             }
@@ -29,9 +29,9 @@ sealed interface Route {
     }
 
     @Serializable
-    data class DocumentDetails(val selectedUri: String) : Route {
+    data class DocumentUpload(val selectedUri: String) : Route {
         companion object {
-            const val ROUTE = "documentDetails/{selectedUri}"
+            const val ROUTE = "documentUpload/{selectedUri}"
             const val ARGUMENT = "selectedUri"
             fun createRoute(selectedUri: Uri): String {
                 return ROUTE.replace("{selectedUri}", Uri.encode(selectedUri.toString()))
@@ -46,11 +46,35 @@ sealed interface Route {
     data object Payment : Route
 
     @Serializable
-    data class Flashcards(val documentItem: Document) : Route {
+    data class Flashcards(val documentItem: DocumentItem) : Route {
         companion object {
             const val ROUTE = "flashcards/{documentJson}"
             const val ARGUMENT = "documentJson"
-            fun createRoute(document: Document): String {
+            fun createRoute(document: DocumentItem): String {
+                val json = Json.encodeToString(document)
+                return ROUTE.replace("{documentJson}", Uri.encode(json))
+            }
+        }
+    }
+
+    @Serializable
+    data class Quiz(val documentItem: DocumentItem) : Route {
+        companion object {
+            const val ROUTE = "quiz/{documentJson}"
+            const val ARGUMENT = "documentJson"
+            fun createRoute(document: DocumentItem): String {
+                val json = Json.encodeToString(document)
+                return ROUTE.replace("{documentJson}", Uri.encode(json))
+            }
+        }
+    }
+
+    @Serializable
+    data class Chat(val documentItem: DocumentItem) : Route {
+        companion object {
+            const val ROUTE = "chat/{documentJson}"
+            const val ARGUMENT = "documentJson"
+            fun createRoute(document: DocumentItem): String {
                 val json = Json.encodeToString(document)
                 return ROUTE.replace("{documentJson}", Uri.encode(json))
             }

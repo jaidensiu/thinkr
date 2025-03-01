@@ -6,6 +6,8 @@ import { StructuredOutputParser } from '@langchain/core/output_parsers';
 import { z } from 'zod';
 import FlashcardSet from '../db/mongo/models/FlashcardSet';
 import QuizSet from '../db/mongo/models/QuizSet';
+import DocumentService from './documentService';
+import Document from '../db/mongo/models/Document';
 
 class StudyService {
     private llm: ChatOpenAI;
@@ -22,12 +24,15 @@ class StudyService {
         });
     }
 
+    /**
+     * Creates flashcards for a userId and based on the documentId (embeddingId) passed
+     */
     public async createFlashCards(
         embeddingId: string,
         collection: string
     ): Promise<FlashCardDTO> {
         const docs = await this.ragService.fetchDocumentsFromVectorDB(
-            [embeddingId],
+            embeddingId,
             collection
         );
 
@@ -89,12 +94,15 @@ class StudyService {
         } as FlashCardDTO;
     }
 
+    /**
+     * Creates a quiz for a userId and based on the documentId (embeddingId) passed
+     */
     public async createQuiz(
         embeddingId: string,
         collection: string
     ): Promise<QuizDTO> {
         const docs = await this.ragService.fetchDocumentsFromVectorDB(
-            [embeddingId],
+            embeddingId,
             collection
         );
 
@@ -163,6 +171,10 @@ class StudyService {
         } as QuizDTO;
     }
 
+    /**
+     * Retrieves quizzes for a userId and based on the documentIds passed
+     * Gets all quizzes for user if documentIds are not provided
+     */
     public async retrieveQuizzes(
         documentIds: string[],
         userId: string
@@ -184,6 +196,10 @@ class StudyService {
         })) as QuizDTO[];
     }
 
+    /**
+     * Retrieves flashcards for a userId and based on the documentIds passed
+     * Gets all flashcards for user if documentIds are not provided
+     */
     public async retrieveFlashcards(
         documentIds: string[],
         userId: string
@@ -202,6 +218,38 @@ class StudyService {
                 back: flashcard.back,
             })),
         })) as FlashCardDTO[];
+    }
+
+    /**
+     * Generates both quizzes and flashcards for a documentId and userId and adds them to the db
+     */
+    public async generateStudyActivities(documentId: string, userId: string) {
+        const text = await DocumentService.extractTextFromFile(
+            `${userId}-${documentId}`
+        );
+        await this.ragService.ensureVectorStore(userId);
+        await this.ragService.insertDocument(userId, documentId, text);
+
+        // generate activities
+        await this.createFlashCards(documentId, userId);
+        await this.createQuiz(documentId, userId);
+
+        await Document.findOneAndUpdate(
+            { userId: userId, documentId: documentId },
+            { activityGenerationComplete: true }
+        );
+    }
+
+    /**
+     * Deletes quizzes and flashcards linked to a set of documentIds from the db
+     */
+    public async deleteStudyActivities(documentIds: string[], userId: string) {
+        await this.ragService.deleteDocuments(documentIds, userId);
+        await QuizSet.deleteMany({ documentId: { $in: documentIds }, userId });
+        await FlashcardSet.deleteMany({
+            documentId: { $in: documentIds },
+            userId,
+        });
     }
 }
 

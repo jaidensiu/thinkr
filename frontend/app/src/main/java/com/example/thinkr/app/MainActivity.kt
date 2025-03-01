@@ -16,12 +16,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.example.thinkr.data.models.Document
-import com.example.thinkr.ui.document_details.DocumentDetailsScreen
-import com.example.thinkr.ui.document_details.DocumentDetailsViewModel
+import com.example.thinkr.domain.DocumentManager
+import com.example.thinkr.domain.FlashcardsManager
+import com.example.thinkr.domain.model.DocumentItem
+import com.example.thinkr.ui.chat.ChatScreen
 import com.example.thinkr.ui.document_options.DocumentOptionsScreen
+import com.example.thinkr.ui.document_upload.DocumentUploadScreen
 import com.example.thinkr.ui.flashcards.FlashcardsScreen
-import com.example.thinkr.ui.flashcards.FlashcardsViewModel
 import com.example.thinkr.ui.home.HomeScreen
 import com.example.thinkr.ui.home.HomeScreenViewModel
 import com.example.thinkr.ui.landing.LandingScreen
@@ -30,6 +31,7 @@ import com.example.thinkr.ui.payment.PaymentScreen
 import com.example.thinkr.ui.payment.PaymentViewModel
 import com.example.thinkr.ui.profile.ProfileScreen
 import com.example.thinkr.ui.profile.ProfileViewModel
+import com.example.thinkr.ui.quiz.QuizScreen
 import com.example.thinkr.ui.theme.ThinkrTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -51,6 +53,8 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val account = remember { GoogleSignIn.getLastSignedInAccount(this) }
             val startDestination = remember { if (account != null) Route.Home else Route.Landing }
+            val documentManager = remember { DocumentManager() }
+            val flashcardsManager = remember { FlashcardsManager() }
 
             ThinkrTheme {
                 Column(modifier = Modifier.padding(start = 24.dp, top = 48.dp, end = 24.dp)) {
@@ -72,7 +76,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable<Route.Home> {
-                                val viewModel = koinViewModel<HomeScreenViewModel>()
+                                val viewModel = HomeScreenViewModel(documentManager)
 
                                 HomeScreen(
                                     navController = navController,
@@ -97,23 +101,21 @@ class MainActivity : ComponentActivity() {
                                     backStackEntry.arguments?.getString(Route.DocumentOptions.ARGUMENT)
                                         ?: ""
                                 val document =
-                                    Json.decodeFromString<Document>(Uri.decode(json)) // Decode JSON back to object
-                                DocumentOptionsScreen(document)
+                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                DocumentOptionsScreen(document, navController)
                             }
 
                             composable(
-                                route = Route.DocumentDetails.ROUTE,
-                                arguments = listOf(navArgument(Route.DocumentDetails.ARGUMENT) {
+                                route = Route.DocumentUpload.ROUTE,
+                                arguments = listOf(navArgument(Route.DocumentUpload.ARGUMENT) {
                                     type = NavType.StringType
                                 })
                             ) { backStackEntry ->
                                 val json =
-                                    backStackEntry.arguments?.getString(Route.DocumentDetails.ARGUMENT)
+                                    backStackEntry.arguments?.getString(Route.DocumentUpload.ARGUMENT)
                                         ?: ""
                                 val selectedUri = Uri.parse(Uri.decode(json))
-                                val viewModel = koinViewModel<DocumentDetailsViewModel>()
-
-                                DocumentDetailsScreen(navController, selectedUri, viewModel)
+                                DocumentUploadScreen(navController, selectedUri, documentManager)
                             }
 
                             composable<Route.Profile> {
@@ -145,10 +147,36 @@ class MainActivity : ComponentActivity() {
                                     backStackEntry.arguments?.getString(Route.Flashcards.ARGUMENT)
                                         ?: ""
                                 val document =
-                                    Json.decodeFromString<Document>(Uri.decode(json)) // Decode JSON back to object
-                                val viewModel = koinViewModel<FlashcardsViewModel>()
+                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                FlashcardsScreen(document, navController, flashcardsManager)
+                            }
 
-                                FlashcardsScreen(document, navController, viewModel)
+                            composable(
+                                route = Route.Quiz.ROUTE,
+                                arguments = listOf(navArgument(Route.Quiz.ARGUMENT) {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val json =
+                                    backStackEntry.arguments?.getString(Route.Quiz.ARGUMENT)
+                                        ?: ""
+                                val document =
+                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                QuizScreen(document, navController)
+                            }
+
+                            composable(
+                                route = Route.Chat.ROUTE,
+                                arguments = listOf(navArgument(Route.Chat.ARGUMENT) {
+                                    type = NavType.StringType
+                                })
+                            ) { backStackEntry ->
+                                val json =
+                                    backStackEntry.arguments?.getString(Route.Chat.ARGUMENT)
+                                        ?: ""
+                                val document =
+                                    Json.decodeFromString<DocumentItem>(Uri.decode(json)) // Decode JSON back to object
+                                ChatScreen(document, navController)
                             }
                         }
                     }

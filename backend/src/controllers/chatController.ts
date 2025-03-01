@@ -12,9 +12,16 @@ export const createChatSession = async (
     try {
         const { userId, metadata } = req.body;
 
-        const session = await ChatService.createChat(userId, metadata);
+        if (!userId) {
+            res.status(400).json({
+                message: 'userId is required',
+            } as Result);
+            return;
+        }
 
-        res.status(201).json({
+        const session = await ChatService.createSession(userId, metadata);
+
+        res.status(200).json({
             data: { session },
         } as Result);
     } catch (error) {
@@ -26,7 +33,75 @@ export const createChatSession = async (
 };
 
 /**
- * Sends a message to a chat session
+ * Gets a chat session by ID
+ */
+export const getChatSession = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    try {
+        const { sessionId } = req.params;
+
+        if (!sessionId) {
+            res.status(400).json({
+                message: 'Session ID is required',
+            } as Result);
+            return;
+        }
+
+        const session = await ChatService.getSession(sessionId);
+
+        if (!session) {
+            res.status(404).json({
+                message: 'Chat session not found',
+            } as Result);
+            return;
+        }
+
+        res.status(200).json({
+            data: { session },
+        } as Result);
+    } catch (error) {
+        console.error('Error getting chat session:', error);
+        res.status(500).json({
+            message: 'Failed to get chat session',
+        } as Result);
+    }
+};
+
+/**
+ * Gets all chat sessions for a user
+ * Can filter by documentId if provided
+ */
+export const getUserChatSessions = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    try {
+        const { userId, documentId } = req.body;
+
+        if (!userId) {
+            res.status(400).json({
+                message: 'userId is required',
+            } as Result);
+            return;
+        }
+
+        const sessions = await ChatService.loadUserSessions(userId, documentId);
+
+        res.status(200).json({
+            data: { sessions },
+        } as Result);
+    } catch (error) {
+        console.error('Error getting user chat sessions:', error);
+        res.status(500).json({
+            message: 'Failed to get user chat sessions',
+        } as Result);
+    }
+};
+
+/**
+ * Sends a message to a chat session and gets a response
  */
 export const sendChatMessage = async (
     req: Request,
@@ -36,67 +111,22 @@ export const sendChatMessage = async (
         const { sessionId } = req.params;
         const { message } = req.body;
 
-        if (!message) {
+        if (!sessionId || !message) {
             res.status(400).json({
-                message: 'Message is required',
+                message: 'Session ID and message are required',
             } as Result);
             return;
         }
 
-        await ChatService.sendMessage(sessionId, message);
-
-        // Generate and return the AI response
-        const response = await ChatService.receiveMessage(sessionId);
+        const response = await ChatService.receiveMessage(sessionId, message);
 
         res.status(200).json({
             data: { response },
         } as Result);
     } catch (error) {
-        console.error('Error processing chat message:', error);
-
-        if (
-            error instanceof Error &&
-            error.name === 'ChatServiceError' &&
-            error.message.includes('not found')
-        ) {
-            res.status(404).json({
-                message: error.message,
-            } as Result);
-            return;
-        }
-
+        console.error('Error sending chat message:', error);
         res.status(500).json({
-            message: 'Failed to process chat message',
-        } as Result);
-    }
-};
-
-/**
- * Gets chat session details
- */
-export const getChatSession = async (
-    req: Request,
-    res: Response
-): Promise<void> => {
-    try {
-        const { sessionId } = req.params;
-
-        const session = ChatService.getSession(sessionId);
-
-        if (!session) {
-            res.status(404).json({
-                message: `Chat session not found: ${sessionId}`,
-            } as Result);
-            return;
-        }
-
-        res.status(200).json({
-            data: { session },
-        } as Result);
-    } catch (error) {
-        console.error('Error retrieving chat session:', error);
-        res.status(500).json({
-            message: 'Failed to retrieve chat session',
+            message: 'Failed to send chat message',
         } as Result);
     }
 };
@@ -111,11 +141,18 @@ export const deleteChatSession = async (
     try {
         const { sessionId } = req.params;
 
-        const deleted = ChatService.deleteSession(sessionId);
+        if (!sessionId) {
+            res.status(400).json({
+                message: 'Session ID is required',
+            } as Result);
+            return;
+        }
 
-        if (!deleted) {
+        const success = await ChatService.deleteSession(sessionId);
+
+        if (!success) {
             res.status(404).json({
-                message: `Chat session not found: ${sessionId}`,
+                message: 'Chat session not found',
             } as Result);
             return;
         }

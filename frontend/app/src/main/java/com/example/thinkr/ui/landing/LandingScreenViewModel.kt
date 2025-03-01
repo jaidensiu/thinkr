@@ -2,18 +2,14 @@ package com.example.thinkr.ui.landing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.thinkr.data.repositories.auth.AuthRepository
-import com.example.thinkr.data.repositories.user.UserRepository
+import com.example.thinkr.data.repositories.AuthRepositoryImpl
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LandingScreenViewModel(
-    private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
-) : ViewModel() {
+class LandingScreenViewModel(private val repository: AuthRepositoryImpl) : ViewModel() {
     private val _state = MutableStateFlow(LandingScreenState())
     val state = _state.asStateFlow()
 
@@ -40,22 +36,16 @@ class LandingScreenViewModel(
 
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            authRepository.login(
-                googleId = account.id!!,
-                name = account.displayName ?: "",
-                email = account.email ?: ""
-            ).fold(
+            repository.login(account.id!!).fold(
                 onSuccess = {
-                    userRepository.setUser(it.data.user.copy())
-                    _state.update { state ->
-                        state.copy(
+                    _state.update {
+                        it.copy(
                             isLoading = false,
                             isAuthenticated = true
                         )
                     }
                 },
                 onFailure = { exception ->
-                    userRepository.delUser()
                     _state.update {
                         it.copy(
                             isLoading = false,

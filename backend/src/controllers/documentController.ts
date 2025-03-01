@@ -2,34 +2,37 @@ import { Request, Response } from 'express';
 import DocumentService from '../services/documentService';
 import { Result } from '../interfaces';
 import StudyService from '../services/studyService';
-import Document from '../db/mongo/models/Document';
-import RAGService from '../services/RAGService';
 
 /**
  * Handles document uploads
- *
  */
 export const uploadDocuments = async (
     req: Request,
     res: Response
 ): Promise<void> => {
-    const { userId } = req.body;
+    const { userId, documentName } = req.body;
 
-    if (!userId || !req.file) {
+    if (!userId || !req.file || !documentName) {
         res.status(400).json({
-            message: 'Bad Request, missing userId or files',
+            message: 'Bad Request, missing userId or documentName or file',
         } as Result);
         return;
     }
 
     try {
         const file = req.file as Express.Multer.File;
-        const docs = await DocumentService.uploadDocument(file, userId);
+        const docs = await DocumentService.uploadDocument(
+            file,
+            userId,
+            documentName
+        );
 
         res.status(200).json({
             data: { docs },
         } as Result);
-        generateStudyActivities(docs.documentId, userId);
+
+        // generate activities as a background job
+        StudyService.generateStudyActivities(docs.documentId, userId);
     } catch (error) {
         console.error('Error uploading documents:', error);
 
@@ -39,32 +42,8 @@ export const uploadDocuments = async (
     }
 };
 
-const generateStudyActivities = async (documentId: string, userId: string) => {
-    // textract -> vector db
-    const ragService = new RAGService({
-        openAIApiKey: process.env.OPENAI_API_KEY!,
-        vectorStoreUrl: process.env.VECTOR_STORE_URL!,
-    });
-
-    await ragService.ensureVectorStore(userId);
-    const text = await DocumentService.extractTextFromFile(
-        `${userId}-${documentId}`
-    );
-    await ragService.insertDocument(userId, text, documentId);
-
-    // generate activities
-    await StudyService.createFlashCards(documentId, userId);
-    await StudyService.createQuiz(documentId, userId);
-    // Create chat
-    await Document.findOneAndUpdate(
-        { userId: userId, name: documentId },
-        { activityGenerationComplete: true }
-    );
-};
-
 /**
  * Handles deleting documents
- *
  */
 export const deleteDocuments = async (
     req: Request,
@@ -81,12 +60,7 @@ export const deleteDocuments = async (
 
     try {
         await DocumentService.deleteDocuments(documentIds, userId);
-
-        const ragService = new RAGService({
-            openAIApiKey: process.env.OPENAI_API_KEY!,
-            vectorStoreUrl: process.env.VECTOR_STORE_URL!,
-        });
-        await ragService.deleteDocuments(documentIds, userId);
+        await StudyService.deleteStudyActivities(documentIds, userId);
 
         res.status(200).json();
         return;
@@ -101,7 +75,6 @@ export const deleteDocuments = async (
 
 /**
  * Handles retrieving documents
- *
  */
 export const getDocuments = async (
     req: Request,
@@ -111,7 +84,8 @@ export const getDocuments = async (
 
     if (!userId || (documentIds && !Array.isArray(documentIds))) {
         res.status(400).json({
-            message: 'Bad Request, userId is required',
+            message:
+                'Bad Request, a userId is required or the documentIds provided is not a valid array',
         } as Result);
         return;
     }
@@ -124,9 +98,9 @@ export const getDocuments = async (
         };
         res.status(200).json(result);
     } catch (error) {
-        console.error('Error retrieving document URL:', error);
+        console.error('Error retrieving documents:', error);
         const result: Result = {
-            message: 'Failed to retrieve document URL',
+            message: 'Failed to retrieve documents',
         };
         res.status(500).json(result);
     }

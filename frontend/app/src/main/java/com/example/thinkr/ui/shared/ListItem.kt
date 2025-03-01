@@ -23,24 +23,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.thinkr.R
-import com.example.thinkr.data.models.Document
+import com.example.thinkr.domain.model.DocumentItem
 import com.example.thinkr.ui.home.HomeScreenAction
 
+
 @Composable
-fun ListItem(
-    item: Document,
-    onAction: (HomeScreenAction) -> Unit = {}
-) {
+fun ListItem(item: DocumentItem, onAction: (HomeScreenAction) -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = !item.isUploading) {
+            .clickable(enabled = item.uploadCompleted) {
                 onAction(HomeScreenAction.DocumentItemClicked(documentItem = item))
             }
             .padding(vertical = 8.dp)
-            .alpha(if (!item.isUploading) 1f else 0.5f),
+            .alpha(if (item.uploadCompleted) 1f else 0.5f), // Faded effect if not completed
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Circular logo
         Image(
             painter = painterResource(id = R.drawable.document_placeholder_logo),
             contentDescription = "Logo",
@@ -49,11 +48,19 @@ fun ListItem(
                 .clip(CircleShape)
                 .background(Color.Gray)
         )
+
         Spacer(modifier = Modifier.width(12.dp))
-        Text(text = item.documentName, fontSize = 18.sp, fontWeight = FontWeight.Medium)
-        if (item.isUploading) {
+
+        // Name
+        Text(text = item.name, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+
+        if (!item.uploadCompleted) {
             Spacer(modifier = Modifier.weight(1f))
-            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+
+            // Circular loading animation
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

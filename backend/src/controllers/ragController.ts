@@ -28,7 +28,7 @@ export const queryRAG = async (req: Request, res: Response): Promise<void> => {
             userId,
             documentId
         );
-        
+
         const response = await ragService.queryLLM(query, documents);
 
         res.status(200).json({
