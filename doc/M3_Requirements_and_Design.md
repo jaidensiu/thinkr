@@ -249,6 +249,14 @@ Note: Users and Students will be used synonymously in this document.
     * @return Updated user data with subscription status set to false
     */
     User unsubscribe(String userId);
+
+    /**
+    * Gets user subscription status
+    *
+    * @param userId The Google ID of the user
+    * @return user data along with subscription status
+    */
+    User getSubscriptionStatus(String userId);
     ```
 
 4. **ChatService**
