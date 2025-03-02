@@ -240,7 +240,7 @@ class RAGService {
             for (const documentId of documentIds) {
                 // Get all chunks for this document
                 const results = await this.vectorStore!.collection!.get({
-                    where: { documentId: documentId },
+                    where: { documentId: { $eq: documentId } }
                 });
 
                 if (results.ids && results.ids.length > 0) {
@@ -273,7 +273,7 @@ class RAGService {
             await this.ensureVectorStore(`user_${collectionName}`);
 
             const results = await this.vectorStore!.collection!.get({
-                where: { documentId: documentId },
+                where: { documentId: { $eq: documentId } }
             });
 
             const documents = results.documents as string[];
