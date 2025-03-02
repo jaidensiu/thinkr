@@ -28,7 +28,7 @@
 
 ## 2. Project Description
 
-Thinkr is an Android mobile app that is geared towards helping students study through AI-generated multiple-choice quizzes and notes. Students can generate quizzes and flashcards based on a document they upload, they may also ask a chatbot questions about the document uploaded. Students are also able to view quizzes and flashcards created by other users that are similar to theirs for extra study material.
+Thinkr is an Android mobile app that is geared towards helping students study through AI-generated multiple-choice quizzes and notes. Students can upload a document, and quizzes and flashcards are automatically generated for that document, then they can view those quizzes and flashcards after. They may also ask a chatbot questions about the document uploaded. Students are also able to view quizzes and flashcards created by other users that are similar to theirs for extra study material.
 
 ## 3. Requirements Specification
 
@@ -69,9 +69,10 @@ Note: Users and Students will be used synonymously in this document.
         1. User successfully uploads the document.
         2. System processes the document and generates study materials.
     - **Failure scenario(s)**:
-        1a. File upload fails, and user is unable to access the quiz and flashcard set for the document they uploaded.
+        1a. File upload fails to be uploaded.
             1a1. If the upload failed due to network errors, show a message asking user to check their connection.
             1a2. If the format of the document is not supported, show a message asking user to check their file format.
+            1a3. UI tells user to try again and reupload their document.
 
 4. **Chat with AI**
     - **Description**: Premium users can chat with the AI about the documents they have uploaded.
@@ -86,10 +87,10 @@ Note: Users and Students will be used synonymously in this document.
             1b1. Disable the send button, and user cannot send until they shorten their input.
 
 5. **View Generated Flashcards**
-    - **Description**: Users can browse and interact with AI-generated flashcards.
+    - **Description**: Users can browse and interact with AI-generated flashcards based on the documents uploaded.
     - **Primary actor(s)**: Regular and Premium Users.
     - **Main success scenario**:
-        1. User can use the flashcards that were generated when they uploaded a document
+        1. User can use the flashcards that were generated after they uploaded a document
     - **Failure scenario(s)**:
         1a. Flashcards are not generated due to errors.
             1a1. Asks user to re-upload their document and try again.
@@ -98,18 +99,20 @@ Note: Users and Students will be used synonymously in this document.
     - **Description**: Users can view and take a timed, multiple-choice quiz based on the documents uploaded.
     - **Primary actor(s)**: Regular and Premium Users.
     - **Main success scenario**:
-        1. User can use the quiz that was generated when they uploaded a document
+        1. User can use the quiz that was generated after they uploaded a document
     - **Failure scenario(s)**:
         1a. Quiz is not generated due to errors.
             1a1. Asks user to re-upload their document and try again.
+
 7. **View Suggested Study Materials From other users**
-    - **Description**: Users can choose to retrieve suggested flashcards and quizzes that other users have created based on similarity between two user's uploaded documents
+    - **Description**: Users can retrieve suggested flashcards and quizzes that other users have created based on similarity between two user's uploaded documents
     - **Primary actor(s)**: Regular and Premium Users.
     - **Main success scenario**:
-        1. User can retrieve flashcards and quizzes from other users based on document similarity
+        1. User can retrieve flashcards and quizzes from other users based on document similarity and use them
     - **Failure scenario(s)**:
         1a. No quizzes or flashcards are retrieved.
             1a1. Tells user that no quizzes or flashcards can be retrieved because we could not find any quizzes or flashcards similar to theirs.
+            1a2. UI tells the user to try to upload documents again later.
 
 ### **3.4. Screen Mockups**
 
