@@ -482,6 +482,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ### Subscription
 
 **Endpoint: `/subscription`**
+- Subscribes a user
 - Method: `POST`
 - Body: raw
 ```json
@@ -502,6 +503,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```
 
 **Endpoint: `/subscription`**
+- Unsubscribes a user
 - Method: `DELETE`
 - Params:
 ```json
@@ -517,8 +519,26 @@ The system uses ChromaDB to store document embeddings with the following archite
       "subscribed": false
    }
 }
-```
 
+```
+**Endpoint: `/subscription`**
+- Get User subscription status
+- Method: `GET`
+- Params:
+```json
+   "userId": "user google id",
+```
+- Response
+```json
+{
+   "data": {
+      "email": "user email",
+      "name": "user name",
+      "userId": "google id of user",
+      "subscribed": false
+   }
+}
+```
 ## Testing with cURL
 
 Here are some example cURL commands to test the API:
