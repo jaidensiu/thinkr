@@ -122,7 +122,11 @@ class ChatService {
     private formatChatSession(session: any): ChatSessionDTO {
         return {
             userId: session.userId,
-            messages: session.messages,
+            messages: session.messages.map((msg: any) => ({
+                role: msg.role,
+                content: msg.content,
+                timestamp: msg.timestamp
+            })),
             createdAt: session.createdAt,
             updatedAt: session.updatedAt,
             metadata: session.metadata
