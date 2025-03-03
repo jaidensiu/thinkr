@@ -88,7 +88,7 @@ class SuggestedMaterialsService {
                 // Get the document text from ChromaDB
                 const userDocText = await this.ragService.fetchDocumentsFromVectorDB(
                     docId,
-                    `user_${userId}`
+                    userId
                 );
 
                 if (userDocText.length === 0) continue;
@@ -102,7 +102,7 @@ class SuggestedMaterialsService {
                         // Get the other document's text from ChromaDB
                         const otherDocText = await this.ragService.fetchDocumentsFromVectorDB(
                             otherDoc.documentId,
-                            `user_${otherDoc.userId}`
+                            otherDoc.userId
                         );
 
                         if (otherDocText.length === 0) continue;

@@ -230,7 +230,8 @@ class StudyService {
         const text = await DocumentService.extractTextFromFile(
             `${userId}-${documentId}`
         );
-        await this.ragService.ensureVectorStore(userId);
+        console.log(userId)
+        await this.ragService.initVectorStore(`user_${userId}`);
         await this.ragService.insertDocument(userId, documentId, text);
 
         // generate activities

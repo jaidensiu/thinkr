@@ -61,7 +61,7 @@ class RAGService {
     /**
      * Initialize connection to vector store
      */
-    private async initVectorStore(collectionName: string): Promise<void> {
+    public async initVectorStore(collectionName: string): Promise<void> {
         try {
             console.log(
                 `Attempting to connect to ChromaDB at ${this.vectorStoreUrl}`
@@ -104,15 +104,6 @@ class RAGService {
                     `ChromaDB connection failed. Please ensure ChromaDB is running at ${this.vectorStoreUrl}`
                 );
             }
-        }
-    }
-
-    /**
-     * Ensure vector store is initialized before use
-     */
-    public async ensureVectorStore(collectionName: string): Promise<void> {
-        if (!this.vectorStore) {
-            await this.initVectorStore(collectionName);
         }
     }
 
@@ -270,7 +261,7 @@ class RAGService {
         collectionName: string
     ): Promise<string[]> {
         try {
-            await this.ensureVectorStore(`user_${collectionName}`);
+            await this.initVectorStore(`user_${collectionName}`);
 
             const results = await this.vectorStore!.collection!.get({
                 where: { documentId: { $eq: documentId } }
