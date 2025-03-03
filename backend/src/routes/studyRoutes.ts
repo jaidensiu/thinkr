@@ -4,6 +4,7 @@ import {
     generateQuiz,
     retrieveFlashcards,
     retrieveQuizzes,
+    getSuggestedMaterials
 } from '../controllers/studyController';
 
 const router = Router();
@@ -13,4 +14,7 @@ router.get('/flashcards', retrieveFlashcards);
 
 router.post('/quiz', generateQuiz);
 router.get('/quiz', retrieveQuizzes);
+
+router.get('/suggested-materials', getSuggestedMaterials);
+
 export default router;
