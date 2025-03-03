@@ -478,7 +478,7 @@ The system uses ChromaDB to store document embeddings with the following archite
 }
 ```
 
-**Endpoint: `/study/suggested-materials`**
+**Endpoint: `/study/suggestedMaterials`**
 - Retrieves suggested study materials (flashcards and quizzes) from other users' documents that are similar to the user's documents.
 - Method: `GET`
 - Params:

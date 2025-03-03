@@ -15,6 +15,6 @@ router.get('/flashcards', retrieveFlashcards);
 router.post('/quiz', generateQuiz);
 router.get('/quiz', retrieveQuizzes);
 
-router.get('/suggested-materials', getSuggestedMaterials);
+router.get('/suggestedMaterials', getSuggestedMaterials);
 
 export default router;
