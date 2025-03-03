@@ -478,6 +478,53 @@ The system uses ChromaDB to store document embeddings with the following archite
 }
 ```
 
+**Endpoint: `/study/suggested-materials`**
+- Retrieves suggested study materials (flashcards and quizzes) from other users' documents that are similar to the user's documents.
+- Method: `GET`
+- Params:
+```json
+   "userId": "user google id",
+   "limit": 5  // Optional, default is 5
+```
+- Response
+
+```json
+{
+   "data": {
+      "flashcards": [
+         {
+            "userId": "other user google id",
+            "documentId": "file documentId",
+            "flashcards": [
+               {
+                  "front": "term",
+                  "back": "definition"
+               }
+            ]
+         }
+      ],
+      "quizzes": [
+         {
+            "userId": "other user google id",
+            "documentId": "file documentId",
+            "quiz": [
+               {
+                  "question": "Question?",
+                  "answer": "A",
+                  "options": {
+                     "A": "Correct answer",
+                     "B": "Wrong answer",
+                     "C": "Wrong answer",
+                     "D": "Wrong answer"
+                  }
+               }
+            ]
+         }
+      ]
+   }
+}
+```
+- Note: This endpoint finds study materials from other users' documents that are most similar to the requesting user's documents. The similarity is calculated using document embeddings and cosine similarity. If no similar documents are found, empty arrays will be returned for both flashcards and quizzes.
 
 ### Subscription
 
