@@ -89,28 +89,22 @@ Note: Users and Students will be used synonymously in this document.
     - **Failure scenario(s)**:
         1a. App fails to return a response because of the Network Error.
             1a1. Show a message asking user to check their connection.
-        1b. User's message exceeds the context length limit.
-            1b1. Disable the send button, and user cannot send until they shorten their input.
+        2b. User's message exceeds the context length limit.
+            2b1. Disable the send button, and user cannot send until they shorten their input.
 
-5. **View Generated Flashcards**
-    - **Description**: Users can browse and interact with AI-generated flashcards based on the documents uploaded.
+5. **View Generated Flashcards and Quizzes**
+    - **Description**: Users can browse and interact with AI-generated flashcards and quizzes based on the documents uploaded.
     - **Primary actor(s)**: Regular and Premium Users.
     - **Main success scenario**:
         1. User can use the flashcards that were generated after they uploaded a document
+        2. User can use the quiz that was generated after they uploaded a document
     - **Failure scenario(s)**:
         1a. Flashcards are not generated due to errors.
             1a1. Asks user to re-upload their document and try again.
+        2a. Quiz is not generated due to errors.
+            2a1. Asks user to re-upload their document and try again.
 
-6. **View Quiz**
-    - **Description**: Users can view and take a timed, multiple-choice quiz based on the documents uploaded.
-    - **Primary actor(s)**: Regular and Premium Users.
-    - **Main success scenario**:
-        1. User can use the quiz that was generated after they uploaded a document
-    - **Failure scenario(s)**:
-        1a. Quiz is not generated due to errors.
-            1a1. Asks user to re-upload their document and try again.
-
-7. **View Suggested Study Materials From other users**
+6. **View Suggested Study Materials From other users**
     - **Description**: Users can retrieve suggested flashcards and quizzes that other users have created based on similarity between two user's uploaded documents
     - **Primary actor(s)**: Regular and Premium Users.
     - **Main success scenario**:
@@ -425,13 +419,10 @@ Note: Users and Students will be used synonymously in this document.
 4. [**[Chat with AI]**](#fr1)\
 ![Chat Diagram](./image/chat-sequence-diagram.jpg)
 
-5. [**[View Generated Flashcards]**](#fr1)\
-![View Flashcards](./image/flashcards-sequence-diagram.jpg)
+5. [**[View Generated Flashcards and Quizzes]**](#fr1)\
+![View Flashcards](./image/view-flashcards-and-quizzes.jpg)
 
-6. [**[View Quiz]**](#fr1)\
-![View Quiz](./image/view-quiz-sequence-diagram.jpg)
-
-7. [**[View Suggested Study Materials From other users]**](#fr1)\
+6. [**[View Suggested Study Materials From other users]**](#fr1)\
 ![View Suggested](./image/get-suggested-sequence-diagram.jpg)
 
 ### **4.7. Non-Functional Requirements Design**
