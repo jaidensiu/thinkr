@@ -288,10 +288,30 @@ class StudyService {
             }
 
             // 3. Fetch flashcards and quizzes for similar documents
-            const [flashcards, quizzes] = await Promise.all([
+            const [rawFlashcards, rawQuizzes] = await Promise.all([
                 this.fetchFlashcardsForDocuments(similarDocumentIds),
                 this.fetchQuizzesForDocuments(similarDocumentIds)
             ]);
+            
+            // 4. Clean up structure - removive _id
+            const flashcards = rawFlashcards.map((f) => ({
+                userId: f.userId,
+                documentId: f.documentId,
+                flashcards: f.flashcards.map((flashcard) => ({
+                    front: flashcard.front,
+                    back: flashcard.back,
+                })),
+            })) as FlashCardDTO[];
+            
+            const quizzes = rawQuizzes.map((q) => ({
+                userId: q.userId,
+                documentId: q.documentId,
+                quiz: q.quiz.map((quiz) => ({
+                    question: quiz.question,
+                    answer: quiz.answer,
+                    options: quiz.options,
+                })),
+            })) as QuizDTO[];
 
             return { flashcards, quizzes };
         } catch (error) {
