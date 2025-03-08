@@ -7,9 +7,11 @@
     "build": "tsc",
     "start": "tsc && node dist/index.js",
     "lint": "prettier --check ./src",
-    "lint-apply": "prettier --write ./src",
+    "lint:apply": "prettier --write ./src",
     "dev": "nodemon ./src/index.ts",
-    "init-chroma": "ts-node src/scripts/initChroma.ts"
+    "init-chroma": "ts-node src/scripts/initChroma.ts",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -33,10 +35,15 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^22.13.1",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.1",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }
