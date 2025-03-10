@@ -231,7 +231,7 @@ class RAGService {
             for (const documentId of documentIds) {
                 // Get all chunks for this document
                 const results = await this.vectorStore!.collection!.get({
-                    where: { documentId: { $eq: documentId } }
+                    where: { documentId: { $eq: documentId } },
                 });
 
                 if (results.ids && results.ids.length > 0) {
@@ -264,7 +264,7 @@ class RAGService {
             await this.initVectorStore(`user_${collectionName}`);
 
             const results = await this.vectorStore!.collection!.get({
-                where: { documentId: { $eq: documentId } }
+                where: { documentId: { $eq: documentId } },
             });
 
             const documents = results.documents as string[];
@@ -350,20 +350,23 @@ Answer:`;
     /**
      * Get relevant context from user documents based on a query
      */
-    public async getRelevantContext(query: string, userId: string): Promise<string> {
+    public async getRelevantContext(
+        query: string,
+        userId: string
+    ): Promise<string> {
         try {
             await this.initVectorStore(`user_${userId}`);
-            
+
             if (!this.vectorStore) {
-                return "No documents found to provide context.";
+                return 'No documents found to provide context.';
             }
-            
+
             const results = await this.vectorStore.similaritySearch(query, 5);
-            
-            return results.map(doc => doc.pageContent).join('\n\n');
+
+            return results.map((doc) => doc.pageContent).join('\n\n');
         } catch (error) {
             console.error('Error getting context from RAG:', error);
-            return "Unable to retrieve context from your documents.";
+            return 'Unable to retrieve context from your documents.';
         }
     }
 }

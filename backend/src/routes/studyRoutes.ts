@@ -4,7 +4,7 @@ import {
     generateQuiz,
     retrieveFlashcards,
     retrieveQuizzes,
-    getSuggestedMaterials
+    getSuggestedMaterials,
 } from '../controllers/studyController';
 
 const router = Router();

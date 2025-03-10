@@ -5,7 +5,10 @@ import { Result } from '../interfaces';
 /**
  * Get or create a chat for a user
  */
-export const getUserChat = async (req: Request, res: Response): Promise<void> => {
+export const getUserChat = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
     try {
         const userId = req.query.userId as string;
 
@@ -19,7 +22,7 @@ export const getUserChat = async (req: Request, res: Response): Promise<void> =>
         const chat = await ChatService.getOrCreateUserChat(userId);
 
         res.status(200).json({
-            data: { chat }
+            data: { chat },
         } as Result);
     } catch (error) {
         console.error('Error getting user chat:', error);
@@ -32,7 +35,10 @@ export const getUserChat = async (req: Request, res: Response): Promise<void> =>
 /**
  * Send a message to the user's chat
  */
-export const sendMessage = async (req: Request, res: Response): Promise<void> => {
+export const sendMessage = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
     try {
         const userId = req.body.userId as string;
         const message = req.body.message as string;
@@ -47,7 +53,7 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
         const response = await ChatService.sendMessage(userId, message);
 
         res.status(200).json({
-            data: { response }
+            data: { response },
         } as Result);
     } catch (error) {
         console.error('Error sending message:', error);
@@ -60,7 +66,10 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
 /**
  * Clear chat history for a user
  */
-export const clearChatHistory = async (req: Request, res: Response): Promise<void> => {
+export const clearChatHistory = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
     try {
         const userId = req.query.userId as string;
 
@@ -74,7 +83,7 @@ export const clearChatHistory = async (req: Request, res: Response): Promise<voi
         await ChatService.clearChatHistory(userId);
 
         res.status(200).json({
-            message: 'Chat history cleared successfully'
+            message: 'Chat history cleared successfully',
         });
     } catch (error) {
         console.error('Error clearing chat history:', error);

@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { getSubscriptionStatus, subscribe, unsubscribe } from '../controllers/subscriptionController';
+import {
+    getSubscriptionStatus,
+    subscribe,
+    unsubscribe,
+} from '../controllers/subscriptionController';
 
 const router = Router();
 

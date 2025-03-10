@@ -230,7 +230,7 @@ class StudyService {
         const text = await DocumentService.extractTextFromFile(
             `${userId}-${documentId}`
         );
-        console.log(userId)
+        console.log(userId);
         await this.ragService.initVectorStore(`user_${userId}`);
         await this.ragService.insertDocument(userId, documentId, text);
 
@@ -271,7 +271,7 @@ class StudyService {
         try {
             // 1. Get all documents for the user
             const userDocuments = await Document.find({ userId });
-            
+
             if (userDocuments.length === 0) {
                 return { flashcards: [], quizzes: [] };
             }
@@ -279,7 +279,7 @@ class StudyService {
             // 2. Find similar documents from other users
             const similarDocumentIds = await this.findSimilarDocuments(
                 userId,
-                userDocuments.map(doc => doc.documentId),
+                userDocuments.map((doc) => doc.documentId),
                 limit
             );
 
@@ -290,9 +290,9 @@ class StudyService {
             // 3. Fetch flashcards and quizzes for similar documents
             const [rawFlashcards, rawQuizzes] = await Promise.all([
                 this.fetchFlashcardsForDocuments(similarDocumentIds),
-                this.fetchQuizzesForDocuments(similarDocumentIds)
+                this.fetchQuizzesForDocuments(similarDocumentIds),
             ]);
-            
+
             // 4. Clean up structure - removive _id
             const flashcards = rawFlashcards.map((f) => ({
                 userId: f.userId,
@@ -302,7 +302,7 @@ class StudyService {
                     back: flashcard.back,
                 })),
             })) as FlashCardDTO[];
-            
+
             const quizzes = rawQuizzes.map((q) => ({
                 userId: q.userId,
                 documentId: q.documentId,
@@ -327,7 +327,7 @@ class StudyService {
         userId: string,
         userDocumentIds: string[],
         limit: number
-    ): Promise<Array<{ documentId: string, otherUserId: string }>> {
+    ): Promise<Array<{ documentId: string; otherUserId: string }>> {
         // Initialize results array
         const similarityResults: Array<{
             documentId: string;
@@ -337,7 +337,7 @@ class StudyService {
 
         // Get all documents from other users
         const otherUsersDocuments = await Document.find({
-            userId: { $ne: userId }
+            userId: { $ne: userId },
         });
 
         if (otherUsersDocuments.length === 0) {
@@ -348,10 +348,11 @@ class StudyService {
         for (const docId of userDocumentIds) {
             try {
                 // Get the document text from ChromaDB
-                const userDocText = await this.ragService.fetchDocumentsFromVectorDB(
-                    docId,
-                    userId
-                );
+                const userDocText =
+                    await this.ragService.fetchDocumentsFromVectorDB(
+                        docId,
+                        userId
+                    );
 
                 if (userDocText.length === 0) continue;
 
@@ -362,10 +363,11 @@ class StudyService {
                 for (const otherDoc of otherUsersDocuments) {
                     try {
                         // Get the other document's text from ChromaDB
-                        const otherDocText = await this.ragService.fetchDocumentsFromVectorDB(
-                            otherDoc.documentId,
-                            otherDoc.userId
-                        );
+                        const otherDocText =
+                            await this.ragService.fetchDocumentsFromVectorDB(
+                                otherDoc.documentId,
+                                otherDoc.userId
+                            );
 
                         if (otherDocText.length === 0) continue;
 
@@ -381,15 +383,21 @@ class StudyService {
                         similarityResults.push({
                             documentId: otherDoc.documentId,
                             otherUserId: otherDoc.userId,
-                            similarityScore
+                            similarityScore,
                         });
                     } catch (error) {
-                        console.error(`Error processing document ${otherDoc.documentId}:`, error);
+                        console.error(
+                            `Error processing document ${otherDoc.documentId}:`,
+                            error
+                        );
                         // Continue with other documents
                     }
                 }
             } catch (error) {
-                console.error(`Error processing user document ${docId}:`, error);
+                console.error(
+                    `Error processing user document ${docId}:`,
+                    error
+                );
                 // Continue with other user documents
             }
         }
@@ -398,9 +406,9 @@ class StudyService {
         const topSimilarDocuments = similarityResults
             .sort((a, b) => b.similarityScore - a.similarityScore)
             .slice(0, limit)
-            .map(result => ({
+            .map((result) => ({
                 documentId: result.documentId,
-                otherUserId: result.otherUserId
+                otherUserId: result.otherUserId,
             }));
 
         return topSimilarDocuments;
@@ -410,23 +418,38 @@ class StudyService {
      * Calculate similarity between two text documents
      * This is a simplified approach using cosine similarity of embeddings
      */
-    private async calculateSimilarity(text1: string, text2: string): Promise<number> {
+    private async calculateSimilarity(
+        text1: string,
+        text2: string
+    ): Promise<number> {
         try {
             // Skip ChromaDB and just use OpenAI embeddings directly
-            const embeddings = new (await import('@langchain/openai')).OpenAIEmbeddings({
+            const embeddings = new (
+                await import('@langchain/openai')
+            ).OpenAIEmbeddings({
                 openAIApiKey: process.env.OPENAI_API_KEY!,
             });
-            
+
             // Get embeddings for both texts
-            const [embedding1, embedding2] = await embeddings.embedDocuments([text1, text2]);
-            
+            const [embedding1, embedding2] = await embeddings.embedDocuments([
+                text1,
+                text2,
+            ]);
+
             // Calculate cosine similarity
-            const dotProduct = embedding1.reduce((sum, val, i) => sum + val * embedding2[i], 0);
-            const magnitude1 = Math.sqrt(embedding1.reduce((sum, val) => sum + val * val, 0));
-            const magnitude2 = Math.sqrt(embedding2.reduce((sum, val) => sum + val * val, 0));
-            
+            const dotProduct = embedding1.reduce(
+                (sum, val, i) => sum + val * embedding2[i],
+                0
+            );
+            const magnitude1 = Math.sqrt(
+                embedding1.reduce((sum, val) => sum + val * val, 0)
+            );
+            const magnitude2 = Math.sqrt(
+                embedding2.reduce((sum, val) => sum + val * val, 0)
+            );
+
             const similarity = dotProduct / (magnitude1 * magnitude2);
-            
+
             return similarity;
         } catch (error) {
             console.error('Error calculating similarity:', error);
@@ -438,21 +461,21 @@ class StudyService {
      * Fetch flashcards for a list of documents
      */
     private async fetchFlashcardsForDocuments(
-        documents: Array<{ documentId: string, otherUserId: string }>
+        documents: Array<{ documentId: string; otherUserId: string }>
     ): Promise<FlashCardDTO[]> {
         const flashcardSets: FlashCardDTO[] = [];
 
         for (const doc of documents) {
             const flashcardSet = await FlashcardSet.findOne({
                 documentId: doc.documentId,
-                userId: doc.otherUserId
+                userId: doc.otherUserId,
             });
 
             if (flashcardSet) {
                 flashcardSets.push({
                     userId: doc.otherUserId,
                     documentId: doc.documentId,
-                    flashcards: flashcardSet.flashcards
+                    flashcards: flashcardSet.flashcards,
                 });
             }
         }
@@ -464,21 +487,21 @@ class StudyService {
      * Fetch quizzes for a list of documents
      */
     private async fetchQuizzesForDocuments(
-        documents: Array<{ documentId: string, otherUserId: string }>
+        documents: Array<{ documentId: string; otherUserId: string }>
     ): Promise<QuizDTO[]> {
         const quizSets: QuizDTO[] = [];
 
         for (const doc of documents) {
             const quizSet = await QuizSet.findOne({
                 documentId: doc.documentId,
-                userId: doc.otherUserId
+                userId: doc.otherUserId,
             });
 
             if (quizSet) {
                 quizSets.push({
                     userId: doc.otherUserId,
                     documentId: doc.documentId,
-                    quiz: quizSet.quiz
+                    quiz: quizSet.quiz,
                 });
             }
         }

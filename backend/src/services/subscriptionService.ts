@@ -32,9 +32,7 @@ class SubscriptionService {
     /**
      * Updates subscriber status and returns the user information with updated status
      */
-    public async getSubscriberStatus(
-        userId: string
-    ): Promise<UserDTO> {
+    public async getSubscriberStatus(userId: string): Promise<UserDTO> {
         let user = await User.findOne({ googleId: userId });
         if (!user) {
             throw new Error('Error: User not found');

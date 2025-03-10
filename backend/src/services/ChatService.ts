@@ -30,7 +30,8 @@ class ChatService {
         if (!session) {
             const systemMessage: ChatMessage = {
                 role: 'system',
-                content: 'You are a helpful assistant that provides accurate information based on the context provided.',
+                content:
+                    'You are a helpful assistant that provides accurate information based on the context provided.',
                 timestamp: new Date().toISOString(),
             };
 
@@ -38,7 +39,7 @@ class ChatService {
                 sessionId: uuidv4(),
                 googleId: userId,
                 messages: [systemMessage],
-                metadata: { type: 'general' }
+                metadata: { type: 'general' },
             });
         }
 
@@ -48,7 +49,10 @@ class ChatService {
     /**
      * Send a message to the user's chat and get a response
      */
-    public async sendMessage(userId: string, message: string): Promise<ChatMessage> {
+    public async sendMessage(
+        userId: string,
+        message: string
+    ): Promise<ChatMessage> {
         // Get the user's chat session
         const session = await this.getOrCreateUserChat(userId);
 
@@ -59,35 +63,39 @@ class ChatService {
             timestamp: new Date().toISOString(),
         };
         // Get context from user's documents using RAG
-        const context = await this.ragService.getRelevantContext(message, userId);
+        const context = await this.ragService.getRelevantContext(
+            message,
+            userId
+        );
 
         // Generate response using the context and chat history
         const recentMessages = session.messages.slice(-5); // Use last 5 messages for context
         // Prepare prompt with context
         let prompt = `Based on the following information:\n\n${context}\n\nAnd considering our conversation so far, please respond to: ${message}`;
-        
+
         // Get AI response
         const aiResponse = await this.llm.invoke(prompt);
-        
+
         // Create response message
         const responseMessage: ChatMessage = {
             role: 'assistant',
-            content: typeof aiResponse.content === 'string' 
-                ? aiResponse.content 
-                : JSON.stringify(aiResponse.content),
+            content:
+                typeof aiResponse.content === 'string'
+                    ? aiResponse.content
+                    : JSON.stringify(aiResponse.content),
             timestamp: new Date().toISOString(),
         };
 
         // Update the session with both messages
         await ChatSession.findOneAndUpdate(
             { googleId: userId },
-            { 
-                $push: { 
-                    messages: { 
-                        $each: [userMessage, responseMessage] 
-                    } 
+            {
+                $push: {
+                    messages: {
+                        $each: [userMessage, responseMessage],
+                    },
                 },
-                $set: { updatedAt: new Date() }
+                $set: { updatedAt: new Date() },
             }
         );
 
@@ -100,17 +108,18 @@ class ChatService {
     public async clearChatHistory(userId: string): Promise<void> {
         const systemMessage: ChatMessage = {
             role: 'system',
-            content: 'You are a helpful assistant that provides accurate information based on the context provided.',
+            content:
+                'You are a helpful assistant that provides accurate information based on the context provided.',
             timestamp: new Date().toISOString(),
         };
 
         await ChatSession.findOneAndUpdate(
             { googleId: userId },
-            { 
-                $set: { 
+            {
+                $set: {
                     messages: [systemMessage],
-                    updatedAt: new Date()
-                }
+                    updatedAt: new Date(),
+                },
             },
             { upsert: true }
         );
@@ -125,11 +134,11 @@ class ChatService {
             messages: session.messages.map((msg: any) => ({
                 role: msg.role,
                 content: msg.content,
-                timestamp: msg.timestamp
+                timestamp: msg.timestamp,
             })),
             createdAt: session.createdAt,
             updatedAt: session.updatedAt,
-            metadata: session.metadata
+            metadata: session.metadata,
         };
     }
 }
