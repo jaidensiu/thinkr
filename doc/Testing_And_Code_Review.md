@@ -16,10 +16,20 @@
 
 | **Interface**                 | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **POST /user/login**          | [`tests/unmocked/authenticationLogin.test.js#L1`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google Authentication API, User DB |
-| **POST /study-groups/create** | ...                                                  | ...                                                | Study Group DB                     |
-| ...                           | ...                                                  | ...                                                | ...                                |
-| ...                           | ...                                                  | ...                                                | ...                                |
+| **POST /auth/login** | None | [`tests/mocked/userAuthTest.test.ts`](#) | MongoDB |
+| **GET /chat** |                                               | ...                                                |                      |
+| **POST /chat message**                      | ...                                                  | ...                                                | ...                                |
+| **DELETE /chat/history**                           | ...                                                  | ...                                                | ...                                |
+| **POST /document/upload**                           | ...                                                  | ...                                                | ...                                |
+| **DELETE /document/delete**                           | ...                                                  | ...                                                | ...                                |
+| **GET /document/retrieve**                           | ...                                                  | ...                                                | ...                                |
+| **GET /study/quiz**                           | ...                                                  | ...                                                | ...                                |
+| **GET /study/flashcards**                            | ...                                                  | ...                                                | ...                                |
+| **GET /study/suggestedMaterials**                           | ...                                                  | ...                                                | ...                                |
+| **POST /subscription**                           | ...                                                  | ...                                                | ...                                |
+| **DELETE /subscription**                           | ...                                                  | ...                                                | ...                                |
+| **GET /subscription**                           | ...                                                  | ...                                                | ...                                |
+
 
 #### 2.1.2. Commit Hash Where Tests Run
 

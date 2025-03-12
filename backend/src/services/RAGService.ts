@@ -332,22 +332,6 @@ class RAGService {
     }
 
     /**
-     * Create composite prompt combining query and context
-     */
-    private createPrompt(query: string, context: string): string {
-        return `
-Context information is below:
---------------------
-${context}
---------------------
-
-Given the context information and no other information, answer the following query:
-Query: ${query}
-
-Answer:`;
-    }
-
-    /**
      * Get relevant context from user documents based on a query
      */
     public async getRelevantContext(

@@ -1,6 +1,10 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
+- Removed unused endpoints like generateQuizzes and generateFlashcards from StudyService interface
+   - Date of Modification: Mar 12
+   - Modified Sections: 4.4
+   - Rationale: these endpoints are not used so we removed them
 - Fixed use case diagram to be more generalized and fixed sequence diagram and dependency diagram logic
     - Date of Modification: Mar 2
     - Modified Sections: 3.1, 4.6, 4.7
@@ -153,12 +157,8 @@ Note: Users and Students will be used synonymously in this document.
 4. **ChatService**
     - **Purpose and rationale**: Encapsulates functionalities related to message streaming with the chatbot trained on the selected document's context such as creating a session and receiving/sending messages.
 
-5. **RAGService**
-    - **Purpose and rationale**: Fetches documents from the vector database and prompts LLM with query + relevant context.
-
-6. **StudyService**
-    - **Purpose and rationale**: Generates and allows for retrieval of flashcards and quizzes based on the extracted text of a provided document.
-
+5. **StudyService**
+    - **Purpose and rationale**: Allows for retrieval of generated flashcards and quizzes based on the extracted text of a provided document.
 
 ### **4.2. Databases**  
 
@@ -296,41 +296,9 @@ Note: Users and Students will be used synonymously in this document.
     void clearChatHistory(String userId);
     ```
 
-5. **RAGService**
+5. **StudyService**
 
     ```java
-    /**
-     * Queries documents using Retrieval Augmented Generation.
-    *
-    * @param query The user's question
-    * @param userId The Google ID of the user
-    * @param documentId Optional ID of a specific document to query (null to search all user documents)
-    * @return AI-generated answer based on the user's documents
-    */
-    String queryDocuments(String query, String userId, String documentId);
-    ```
-
-6. **StudyService**
-
-    ```java
-    /**
-     * Generates flashcards based on a document.
-    *
-    * @param userId The Google ID of the user
-    * @param documentId The ID of the document
-    * @return Generated flashcards as term-definition pairs
-    */
-    FlashcardDTO generateFlashcards(String userId, String documentId);
-
-    /**
-    * Generates a multiple-choice quiz based on a document.
-    *
-    * @param userId The Google ID of the user
-    * @param documentId The ID of the document
-    * @return Generated quiz with questions, options, and correct answers
-    */
-    QuizDTO generateQuiz(String userId, String documentId);
-
     /**
     * Retrieves quizzes for a user, optionally filtered by document.
     *

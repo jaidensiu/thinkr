@@ -24,12 +24,7 @@ The Android app implements a Model-View-ViewModel inspired layerd architecture o
    docker pull chromadb/chroma
    docker run -d -p 8000:8000 chromadb/chroma
    ```
-5. **Initialize ChromaDB:**
-   Populate ChromaDB with initial documents:
-   ```bash
-   npm run init-chroma
-   ```
-6. `npm start` or `npm run dev` (nodemon).
+5. `npm start` or `npm run dev` (nodemon).
 
 ## Architecture Overview
 
@@ -72,28 +67,6 @@ The system uses ChromaDB to store document embeddings with the following archite
     }
  }
 ```
-
-### RAG Query
-
-**Endpoint: `/rag/query`**
-- Method: `POST`
-- Body: raw 
-```json
-{ 
-   "query": "Your question here",
-   "userId": "user google id",
-   "documentId": "optional_specific_document.pdf"
-}
-```
-- Response:
-```json
-{
-    "data": {
-       "response": "AI-generated answer based on your documents"
-    }
- }
-```
-- Note: If `documentId` is provided, the query will only search within that document. Otherwise, it searches across all user documents.
 
 ### Chat
 
@@ -258,76 +231,6 @@ The system uses ChromaDB to store document embeddings with the following archite
 ```
 
 ### Study
-
-**Endpoint: `/study/flashcards`**
-- Method: `POST`
-- Body: raw
-```json
-{
-   "userId": "user google id",
-   "documentId": "file documentId"
-}
-```
-- Response:
-```json
-{
-   "data": {
-      "userId": "user google id",
-      "documentId": "file documentId",
-      "flashcards": [
-         {
-            "front": "first word",
-            "back": "definition of first word"
-         },
-         {
-            "front": "second word",
-            "back": "definition of second word"
-         }
-      ]
-   }
-}
-```
-
-**Endpoint: `/study/quiz`**
-- Method: `POST`
-- Body: raw
-```json
-{
-   "userId": "user google id",
-   "documentId": "file documentId"
-}
-```
-- Response
-```json
-{
-   "data": {
-      "userId": "user google id",
-      "documentId": "file documentId",
-      "quiz": [
-         {
-            "question": "Question 1",
-            "answer": "C",
-            "options": {
-               "A": "Answer 1",
-               "B": "Answer 2",
-               "C": "Answer 3",
-               "D": "Answer 4"
-            } 
-         },
-         {
-            "question": "Question 2",
-            "answer": "A",
-            "options": {
-               "A": "Answer 1",
-               "B": "Answer 2",
-               "C": "Answer 3",
-               "D": "Answer 4"
-            }
-         }
-      ]
-   }
-}
-```
 
 **Endpoint: `/study/quiz`**
 - Retrieves the quizzes associated with a documentId from a user. If no documentId is provided, all of the user's quizzes are retrieved.
