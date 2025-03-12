@@ -31,14 +31,20 @@
 
    - Open your terminal and run:
      ```
-     git clone https://github.com/example/your-project.git
+     git clone https://github.com/jaidensiu/thinkr.git
      ```
 
-2. **...**
+2. **Build and Run Backend tests**
+
+   - `cd backend`
+   - `npm install`
+   - `npm run build`
+   - `npm run test` OR `npm run test:coverage` (with code coverage)
 
 ### 2.2. GitHub Actions Configuration Location
 
-`~/.github/workflows/backend-tests.yml`
+`~/.github/workflows/backend-ci.yml`
+`~/.github/workflows/frontend-ci.yml`
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 

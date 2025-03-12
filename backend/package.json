@@ -9,7 +9,6 @@
     "lint": "prettier --check ./src",
     "lint:apply": "prettier --write ./src",
     "dev": "nodemon ./src/index.ts",
-    "init-chroma": "ts-node src/scripts/initChroma.ts",
     "test": "jest --no-coverage",
     "test:coverage": "jest --coverage"
   },
