@@ -2,7 +2,7 @@
 
 ## Frontend/Android Architecture
 
-The Android app implements a Model-View-ViewModel inspired layerd architecture outlined [here](https://developer.android.com/topic/architecture#recommended-app-arch).
+The Android app implements a Model-View-ViewModel inspired layer architecture outlined [here](https://developer.android.com/topic/architecture#recommended-app-arch).
 
 ## Backend Setup
 
@@ -17,6 +17,7 @@ The Android app implements a Model-View-ViewModel inspired layerd architecture o
    AWS_SECRET_ACCESS_KEY=<your AWS IAM secret access key>
    AWS_REGION=<your aws_region>
    S3_BUCKET_NAME=<your s3 bucket name>
+   PRODUCTION_URL=<production_backend_server_url>
    ```
 4. **Run ChromaDB:**
    Ensure Docker is running, then execute:

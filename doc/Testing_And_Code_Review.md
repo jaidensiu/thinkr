@@ -16,7 +16,7 @@
 
 | **Interface**                 | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **POST /auth/login** | None | [`tests/mocked/userAuthTest.test.ts`](#) | MongoDB |
+| **POST /auth/login** | None | [`backend/src/tests/mocked/userAuthLogin.test.ts`](#) | MongoDB |
 | **GET /chat** |                                               | ...                                                |                      |
 | **POST /chat message**                      | ...                                                  | ...                                                | ...                                |
 | **DELETE /chat/history**                           | ...                                                  | ...                                                | ...                                |
@@ -72,17 +72,30 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 
 | **Non-Functional Requirement**  | **Location in Git**                              |
 | ------------------------------- | ------------------------------------------------ |
-| **Performance (Response Time)** | [`tests/nonfunctional/response_time.test.js`](#) |
-| **Chat Data Security**          | [`tests/nonfunctional/chat_security.test.js`](#) |
+| **Document Similarity Search Performance**          | [`backend\src\tests\nonfunctional\similaritySearchPerformance.test.ts`](#) |
+| **Document Upload and Study Material Generation Performance** | [`backend\src\tests\nonfunctional\documentStudyMaterialPerformance.test.ts`](#) |
 
 ### 3.2. Test Verification and Logs
 
-- **Performance (Response Time)**
+- **Document Similarity Search Performance**
 
-  - **Verification:** This test suite simulates multiple concurrent API calls using Jest along with a load-testing utility to mimic real-world user behavior. The focus is on key endpoints such as user login and study group search to ensure that each call completes within the target response time of 2 seconds under normal load. The test logs capture metrics such as average response time, maximum response time, and error rates. These logs are then analyzed to identify any performance bottlenecks, ensuring the system can handle expected traffic without degradation in user experience.
+  - **Verification:** This test simulates a single API call with Jest to the endpoint that performs a similarity search between different users' documents and returns the study materials that are most similar to what the caller has been studying. The focus is on the average time it takes for this similarity search to finish, which we identified as no more than 11.3 seconds based on our design specifications. The test logs capture the response time of the call to the endpoint and the performance margin (difference between response time and threshold time). We then analyze these logs to verify that performance standards are met and don't hinder user experience.
+
   - **Log Output**
     ```
-    [Placeholder for response time test logs]
+    PERFORMANCE SUMMARY: Suggested Materials Request
+           -----------------------------------------------
+           ✧ Response Time:      0.35 seconds
+           ✧ Threshold:          11.3 seconds
+           ✧ Performance Margin: 10.95 seconds
+           ✧ Status:             PASSED ✅
+           -----------------------------------------------
+
+      at src/tests/nonfunctional/similaritySearchPerformance.test.ts:29:17
+
+    PASS  src/tests/nonfunctional/similaritySearchPerformance.test.ts (5.14 s)
+    NFR Suggested Materials Performance Test
+    √ should fetch suggested materials in less than 11.3 seconds (377 ms)
     ```
 
 - **Chat Data Security**

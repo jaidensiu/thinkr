@@ -2,7 +2,6 @@ import request from 'supertest';
 import express from 'express';
 import { AuthPayload, Result } from '../../interfaces';
 
-// Mock User model
 jest.mock('../../db/mongo/models/User', () => {
     const mockFindOne = jest.fn();
     const mockSave = jest.fn().mockResolvedValue(undefined);
@@ -25,11 +24,9 @@ jest.mock('../../db/mongo/models/User', () => {
     };
 });
 
-// Import after mocks are defined
 import authRouter from '../../routes/userAuthRoutes';
 const { mockFindOne, mockSave } = require('../../db/mongo/models/User');
 
-// Create express app just for testing
 const app = express();
 app.use(express.json());
 app.use('/auth', authRouter);

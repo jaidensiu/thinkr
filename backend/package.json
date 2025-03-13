@@ -9,8 +9,9 @@
     "lint": "prettier --check ./src",
     "lint:apply": "prettier --write ./src",
     "dev": "nodemon ./src/index.ts",
-    "test": "jest --no-coverage",
-    "test:coverage": "jest --coverage"
+    "test": "jest --no-coverage --testPathIgnorePatterns=src/tests/nonfunctional",
+    "test:coverage": "jest --coverage --testPathIgnorePatterns=src/tests/nonfunctional",
+    "test:nfr": "jest --no-coverage src/tests/nonfunctional"
   },
   "keywords": [],
   "author": "",
@@ -23,9 +24,11 @@
     "@langchain/core": "^0.3.40",
     "@langchain/openai": "^0.4.4",
     "@types/multer": "^1.4.12",
+    "axios": "^1.8.3",
     "chromadb": "^1.10.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "form-data": "^4.0.2",
     "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.3.19",
