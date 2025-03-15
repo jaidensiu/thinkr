@@ -1,5 +1,7 @@
 # Thinkr
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/61af3fab9bdb4770abf67fc3a6f306c8)](https://app.codacy.com/gh/jaidensiu/thinkr?utm_source=github.com&utm_medium=referral&utm_content=jaidensiu/thinkr&utm_campaign=Badge_Grade)
+
 ## Frontend/Android Architecture
 
 The Android app implements a Model-View-ViewModel inspired layer architecture outlined [here](https://developer.android.com/topic/architecture#recommended-app-arch).
