@@ -30,10 +30,11 @@ internal class DocumentOptionsScreenTest {
 
     companion object {
         private val TEST_DOCUMENT = Document(
-            documentId = "test_document6130544703607720127.pdf",
+            documentId = "test_document7878418937470003605.pdf",
             documentName = "Test Document",
-            uploadTime = "2025-03-13 17:49:53",
-            activityGenerationComplete = true
+            uploadTime = "2025-03-27 00:16:43",
+            activityGenerationComplete = true,
+            public = false
         )
         private val TEST_USER = User(
             email = "test_user@gmail.com",

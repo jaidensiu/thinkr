@@ -36,39 +36,52 @@ internal class FlashcardsScreenTest {
         private val TEST_FLASHCARDS = listOf(
             FlashcardItem(
                 front = "Eisenberg Institute for Quantum Research",
-                back = "Research institute that made breakthroughs in quantum entanglement in 2094"
+                back = "Research institute that made a breakthrough in quantum entanglement in 2094"
             ),
             FlashcardItem(
-                front = "Quantum Entanglement",
-                back = "Phenomenon where particles become correlated and share state information"
-            ),
-            FlashcardItem(
-                front = "Schrödinger's Constant",
-                back = "Constant value used in quantum mechanics (SC = 6.973 X 10^-34)"
+                front = "Schrödinger's Constant (SC)",
+                back = "Constant used to manipulate structured data transmission without energy loss"
             ),
             FlashcardItem(
                 front = "Synthetic Neurons",
-                back = "Artificial neurons capable of storing and encoding memories"
+                back = "Neurons that can encode memories and allow for skill 'uploading'"
             ),
             FlashcardItem(
                 front = "Twin Prime Conjecture",
-                back = "Mathematical conjecture concerning prime numbers with a difference of two"
+                back = "Mathematical conjecture related to prime numbers"
             ),
             FlashcardItem(
-                front = "Artificial Intelligence (AI)",
-                back = "Technology that simulates human intelligence in machines"
+                front = "Fibonacci Sequence",
+                back = "Sequence of numbers where each number is the sum of the two preceding ones"
             ),
             FlashcardItem(
                 front = "The Singularity Equation",
-                back = "Unclassified document containing references to a mathematical entity redefining physics"
+                back = "Unclassified document hinting at a mathematical entity redefining physics"
+            ),
+            FlashcardItem(
+                front = "Artificial Intelligence (AI)",
+                back = "Intelligent machines capable of performing tasks that typically require human intelligence"
+            ),
+            FlashcardItem(
+                front = "Neuronal Patch",
+                back = "Patch embedded in the brain to facilitate rapid learning or skill acquisition"
+            ),
+            FlashcardItem(
+                front = "Quantum Entanglement",
+                back = "Phenomenon where particles become interconnected and share properties regardless of distance"
+            ),
+            FlashcardItem(
+                front = "The Quantum Paradox of 2094",
+                back = "Series of scientific discoveries and events in 2094 with profound implications"
             )
         )
 
         private val TEST_DOCUMENT = Document(
-            documentId = "test_document6130544703607720127.pdf",
+            documentId = "test_document7878418937470003605.pdf",
             documentName = "Test Document",
             uploadTime = "2025-03-13 17:49:53",
-            activityGenerationComplete = true
+            activityGenerationComplete = true,
+            public = false
         )
 
         private val TEST_USER = User(

@@ -41,60 +41,61 @@ internal class QuizScreenTest {
             QuizItem(
                 question = "Who theorized that Schrödinger's Constant could be manipulated to transmit structured data without energy loss?",
                 options = mapOf(
-                    "A" to "Dr. John Smith",
-                    "B" to "Dr. Emily Liu",
-                    "C" to "Dr. Lena Vasquez",
-                    "D" to "Dr. Michael Chang"
-                ),
-                answer = "C"
-            ),
-            QuizItem(
-                question = "What did the independent team of bioengineers from Osaka, Japan discover in 2094?",
-                options = mapOf(
-                    "A" to "A new renewable energy source",
-                    "B" to "A way to encode memories into synthetic neurons",
-                    "C" to "A method to time travel",
-                    "D" to "A cure for cancer"
+                    "A" to "Dr. Hiroshi Tanaka",
+                    "B" to "Dr. Lena Vasquez",
+                    "C" to "Dr. Maria Rodriguez",
+                    "D" to "Dr. James Thompson"
                 ),
                 answer = "B"
             ),
             QuizItem(
-                question = "What was demonstrated when subject #117 used a neuronal patch embedded in the left temporal lobe?",
+                question = "Where did the independent team of bioengineers encode memories into synthetic neurons?",
                 options = mapOf(
-                    "A" to "Telepathic communication",
-                    "B" to "Enhanced physical strength",
-                    "C" to "Ability to predict the future",
-                    "D" to "Learning fluent Mandarin in 8.2 minutes"
+                    "A" to "New York City, USA",
+                    "B" to "Paris, France",
+                    "C" to "Osaka, Japan",
+                    "D" to "London, England"
                 ),
-                answer = "D"
+                answer = "C"
             ),
             QuizItem(
-                question = "What was the name of the autonomous AI at Arctic Research Outpost Z-45?",
+                question = "What skill did subject #117 learn in 8.2 minutes using a neuronal patch embedded in the left temporal lobe?",
                 options = mapOf(
-                    "A" to "NOVA-7",
-                    "B" to "AURORA-5",
-                    "C" to "SOLARIS-3",
-                    "D" to "ORION-9"
+                    "A" to "Fluent Mandarin",
+                    "B" to "Playing the piano",
+                    "C" to "Programming in Java",
+                    "D" to "Sculpting"
                 ),
                 answer = "A"
             ),
             QuizItem(
-                question = "Where was the encrypted transmission from Eris Base located?",
+                question = "What was the name of the autonomous AI in the Arctic Research Outpost Z-45?",
                 options = mapOf(
-                    "A" to "37.8°N, 122.4°W",
-                    "B" to "0°N, 0°E",
-                    "C" to "14.5°N, 152.3°E",
-                    "D" to "90°S, 0°E"
+                    "A" to "Ava",
+                    "B" to "Echo",
+                    "C" to "Siri",
+                    "D" to "NOVA-7"
+                ),
+                answer = "D"
+            ),
+            QuizItem(
+                question = "What document was revealed in an encrypted transmission from Eris Base?",
+                options = mapOf(
+                    "A" to "The Quantum Paradox",
+                    "B" to "The AI Dilemma",
+                    "C" to "The Singularity Equation",
+                    "D" to "The Fibonacci Connection"
                 ),
                 answer = "C"
             )
         )
 
         private val TEST_DOCUMENT = Document(
-            documentId = "test_document6130544703607720127.pdf",
+            documentId = "test_document7878418937470003605.pdf",
             documentName = "Test Document",
             uploadTime = "2025-03-13 17:49:53",
-            activityGenerationComplete = true
+            activityGenerationComplete = true,
+            public = false
         )
 
         private val TEST_USER = User(

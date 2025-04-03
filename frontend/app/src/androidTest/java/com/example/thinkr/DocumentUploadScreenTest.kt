@@ -20,6 +20,7 @@ import com.example.thinkr.data.remote.document.DocumentApi
 import com.example.thinkr.data.remote.study.StudyApi
 import com.example.thinkr.data.repositories.doc.DocRepository
 import com.example.thinkr.data.repositories.user.UserRepository
+import com.example.thinkr.test.R
 import com.example.thinkr.ui.document_upload.DocumentUploadScreen
 import com.example.thinkr.ui.document_upload.DocumentUploadViewModel
 import io.ktor.client.HttpClient
@@ -82,7 +83,8 @@ internal class DocumentUploadScreenTest {
                 fileName = any(),
                 userId = any(),
                 documentName = any(),
-                documentContext = any()
+                documentContext = any(),
+                documentPublic = any()
             )
         } returns true
 
@@ -177,7 +179,8 @@ internal class DocumentUploadScreenTest {
                 fileName = any(),
                 userId = any(),
                 documentName = any(),
-                documentContext = any()
+                documentContext = any(),
+                documentPublic = any()
             )
         } returns false
 
@@ -229,7 +232,8 @@ internal class DocumentUploadScreenTest {
                 fileName = any(),
                 userId = any(),
                 documentName = any(),
-                documentContext = any()
+                documentContext = any(),
+                documentPublic = any()
             )
         } throws Exception("Network error")
 
@@ -350,7 +354,7 @@ internal class DocumentUploadScreenTest {
 
         // Mock the Context to return our mocked ContentResolver
         val testContext = InstrumentationRegistry.getInstrumentation().context // Test package context
-        val resId = com.example.thinkr.test.R.raw.test_document
+        val resId = R.raw.test_document
         val inputStream = testContext.resources.openRawResource(resId)
         val context = ApplicationProvider.getApplicationContext<Context>()
         val tempFile = File.createTempFile("test_document", ".pdf", context.cacheDir)

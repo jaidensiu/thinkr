@@ -64,7 +64,6 @@ fun FilePickerDialog(
                     )
                     val fileName = getFileName(context, uri)
                     val file = File(context.filesDir, fileName)
-
                     inputStream.use { input ->
                         FileOutputStream(file).use { output ->
                             input.copyTo(output)
