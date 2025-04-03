@@ -62,7 +62,8 @@ fun FilePickerDialog(
                     val inputStream = context.contentResolver.openInputStream(uri) ?: throw IOException(
                         "Could not open document"
                     )
-                    val file = File(context.filesDir, uri.lastPathSegment ?: "unknown")
+                    val fileName = getFileName(context, uri)
+                    val file = File(context.filesDir, fileName)
 
                     inputStream.use { input ->
                         FileOutputStream(file).use { output ->
@@ -70,7 +71,7 @@ fun FilePickerDialog(
                         }
                     }
                     selectedFileUri = Uri.fromFile(file)
-                    selectedFileName = Uri.fromFile(file)?.let { getFileName(context, it) }
+                    selectedFileName = file.name
                 }
                 filePickerError = false
             } catch (e: FileNotFoundException) {
@@ -132,15 +133,17 @@ fun FilePickerDialog(
     }
 }
 
-private fun getFileName(context: Context, uri: Uri): String? {
-    val cursor = context.contentResolver.query(uri, null, null, null, null)
-    cursor?.use {
-        if (it.moveToFirst()) {
-            val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (nameIndex != -1) {
-                return it.getString(nameIndex)
-            }
+private fun getFileName(context: Context, uri: Uri): String {
+    // Get the display name from ContentResolver
+    var fileName = context.contentResolver.query(uri,
+        arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+        } else {
+            null
         }
-    }
-    return null
+    } ?: uri.lastPathSegment?.substringAfterLast('/') ?: "unknown"
+    // Sanitize filename
+    fileName = fileName.replace("[^a-zA-Z0-9.-]".toRegex(), "_")
+    return fileName
 }
